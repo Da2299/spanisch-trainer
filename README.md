@@ -57,9 +57,10 @@ Ein Beispielpaket mit 30 Einträgen liegt unter `tests/fixtures/beispiel-paket.t
 
 ## GitHub-Pages-Einstellung
 
-Repository → **Settings → Pages** → *Build and deployment*: **Source: Deploy from a branch**,
-**Branch: `main`**, Ordner **`/ (root)`** → Save. Nach ein bis zwei Minuten ist die App unter
-`https://da2299.github.io/spanisch-trainer/` erreichbar. Die App verwendet ausschließlich relative Pfade
+Die Veröffentlichung läuft automatisch über den Workflow `.github/workflows/pages.yml`: Jeder Push auf
+`main` aktiviert GitHub Pages (falls noch nicht geschehen) und veröffentlicht den Stand unter
+`https://da2299.github.io/spanisch-trainer/`. Unter **Settings → Pages** steht dann als Source
+**GitHub Actions**. Alternativ geht dort auch **Deploy from a branch** mit Branch `main`, Ordner `/ (root)`. Die App verwendet ausschließlich relative Pfade
 und läuft daher unter diesem Unterpfad (und ebenso unter jeder anderen Adresse). Die Datei `.nojekyll`
 sorgt dafür, dass GitHub Pages die Dateien unverändert ausliefert.
 
