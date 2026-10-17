@@ -1,6 +1,6 @@
 // Service Worker: Offline-Cache für App-Dateien, Datendateien und die FSRS-Bibliothek.
 // Bei Änderungen an der App CACHE_VERSION erhöhen, damit alte Caches ersetzt werden.
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `spanisch-trainer-${CACHE_VERSION}`;
 const TS_FSRS_CDN_URL = 'https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.2/+esm';
 

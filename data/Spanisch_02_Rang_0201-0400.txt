@@ -1,0 +1,205 @@
+#separator:tab
+#html:false
+#notetype:Spanisch Vokabel
+#deck:Spanisch::02 Rang 0201-0400
+#tags column:8
+ES-0201	201	terminar	beenden, fertig werden; enden; terminar de + Infinitiv = fertig sein mit	Verb	¿Has terminado los deberes?	Bist du mit den Hausaufgaben fertig?	paket02
+ES-0202	202	pequeño	klein; de pequeño = als Kind	Adjektiv	Vivimos en un piso pequeño.	Wir wohnen in einer kleinen Wohnung.	paket02
+ES-0203	203	suponer	annehmen, vermuten; supongo que sí = ich denke schon	Verb, unregelmäßig	Supongo que llegarán tarde.	Ich nehme an, sie kommen zu spät.	paket02
+ES-0204	204	listo	fertig, bereit (estar listo); klug (ser listo); la lista = die Liste	Adjektiv	¿Estáis listos? Nos vamos.	Seid ihr fertig? Wir gehen.	paket02
+ES-0205	205	último	letzter, letzte; por último = zuletzt; lo último = das Neueste	Adjektiv	Es la última vez que te lo digo.	Das ist das letzte Mal, dass ich es dir sage.	paket02
+ES-0206	206	muerto	tot; el muerto / la muerta = der/die Tote; estoy muerto = ich bin fix und fertig	Adjektiv	El móvil está muerto, se ha quedado sin batería.	Das Handy ist tot, der Akku ist leer.	paket02
+ES-0207	207	mal	schlecht (Adverb); el mal = das Böse, das Übel; vor männlichem Substantiv im Singular: mal = malo	Adverb/Substantiv	Hoy me encuentro mal.	Heute fühle ich mich schlecht.	paket02
+ES-0208	208	comer	essen; zu Mittag essen	Verb	¿Qué comemos hoy?	Was essen wir heute?	paket02
+ES-0209	209	realmente	wirklich, tatsächlich	Adverb	No sé si realmente quiere venir.	Ich weiß nicht, ob er wirklich kommen will.	paket02
+ES-0210	210	cierto	sicher, wahr (es cierto = das stimmt); ein gewisser (cierto día); por cierto = übrigens	Adjektiv/Begleiter	Por cierto, ¿has visto a Luis?	Übrigens, hast du Luis gesehen?	paket02
+ES-0211	211	la razón	Grund; Vernunft; tener razón = recht haben	Substantiv	Tienes razón, es mejor esperar.	Du hast recht, es ist besser zu warten.	paket02
+ES-0212	212	serio	ernst; seriös; en serio = im Ernst, wirklich	Adjektiv	¿Lo dices en serio?	Meinst du das ernst?	paket02
+ES-0213	213	la idea	Idee; Vorstellung; ni idea = keine Ahnung	Substantiv	Tengo una idea mejor.	Ich habe eine bessere Idee.	paket02
+ES-0214	214	aún	noch, immer noch (= todavía); aún no = noch nicht	Adverb	Aún no ha llegado el paquete.	Das Paket ist noch nicht angekommen.	paket02
+ES-0215	215	tarde	spät (Adverb); la tarde = Nachmittag, Abend; buenas tardes = guten Tag, guten Abend (ab Mittag bis zum Abendessen)	Adverb/Substantiv	Es tarde, me voy a casa.	Es ist spät, ich gehe nach Hause.	paket02
+ES-0216	216	cada	jeder, jede, jedes; cada vez más = immer mehr; cada día = jeden Tag	Begleiter	Cada día aprendo algo nuevo.	Jeden Tag lerne ich etwas Neues.	paket02
+ES-0217	217	amar	lieben (stark, gehoben; im Alltag Spaniens meist querer)	Verb	Ama a sus hijos más que a nada.	Sie liebt ihre Kinder mehr als alles.	paket02
+ES-0218	218	quien	der, die, wer (Relativpronomen für Personen); quien quiera = wer will	Relativpronomen	Fue mi vecina quien me ayudó ayer.	Es war meine Nachbarin, die mir gestern geholfen hat.	paket02
+ES-0219	219	olvidar	vergessen; olvidarse de = vergessen; olvídalo = vergiss es	Verb	No olvides las llaves.	Vergiss die Schlüssel nicht.	paket02
+ES-0220	220	demasiado	zu viel, zu viele; zu (demasiado caro = zu teuer)	Begleiter/Pronomen/Adverb	Este hotel es demasiado caro.	Dieses Hotel ist zu teuer.	paket02
+ES-0221	221	la policía	Polizei; el/la policía = Polizist, Polizistin	Substantiv	Llama a la policía.	Ruf die Polizei.	paket02
+ES-0222	222	sacar	herausnehmen, herausholen; sacar fotos = Fotos machen; sacar una nota = eine Note bekommen	Verb	Saca la basura, por favor.	Bring bitte den Müll raus.	paket02
+ES-0223	223	contigo	mit dir	Personalpronomen	Quiero hablar contigo un momento.	Ich möchte kurz mit dir reden.	paket02
+ES-0224	224	único	einzig; einzigartig; lo único = das Einzige	Adjektiv	Es el único que lo sabe.	Er ist der Einzige, der es weiß.	paket02
+ES-0225	225	cambiar	wechseln, ändern, tauschen; cambiarse = sich umziehen	Verb	Tenemos que cambiar de tren en Madrid.	Wir müssen in Madrid umsteigen.	paket02
+ES-0226	226	el minuto	Minute	Substantiv	El tren sale en diez minutos.	Der Zug fährt in zehn Minuten ab.	paket02
+ES-0227	227	la semana	Woche; fin de semana = Wochenende	Substantiv	La semana que viene tengo vacaciones.	Nächste Woche habe ich Urlaub.	paket02
+ES-0228	228	malo	schlecht; böse; krank (estar malo); vor männlichem Substantiv im Singular: mal	Adjektiv	Es una mala idea salir ahora.	Es ist eine schlechte Idee, jetzt rauszugehen.	paket02
+ES-0229	229	abrir	öffnen, aufmachen; abierto = offen	Verb, unregelmäßig (Partizip abierto)	¿Puedes abrir la ventana?	Kannst du das Fenster öffnen?	paket02
+ES-0230	230	cualquiera	irgendein, jeder beliebige (vor Substantiv: cualquier); cualquier cosa = irgendetwas, was auch immer	Begleiter/Pronomen	Llámame a cualquier hora.	Ruf mich zu jeder Zeit an.	paket02
+ES-0231	231	junto	zusammen (juntos, juntas); junto a = neben	Adjektiv/Adverb	Vamos juntos al concierto.	Wir gehen zusammen zum Konzert.	paket02
+ES-0232	232	la cuenta	Rechnung; Konto; darse cuenta de = merken; tener en cuenta = berücksichtigen	Substantiv	La cuenta, por favor.	Die Rechnung, bitte.	paket02
+ES-0233	233	pagar	bezahlen	Verb	¿Puedo pagar con tarjeta?	Kann ich mit Karte bezahlen?	paket02
+ES-0234	234	la familia	Familie	Substantiv	Mi familia vive en Zaragoza.	Meine Familie lebt in Zaragoza.	paket02
+ES-0235	235	preocuparse	sich Sorgen machen (preocuparse por); no te preocupes = keine Sorge	Verb	No te preocupes, todo va bien.	Mach dir keine Sorgen, alles läuft gut.	paket02
+ES-0236	236	el tío / la tía	Onkel, Tante; (Spanien, umgangssprachlich) Typ, Kerl; la tía = die Frau, das Mädel; ¡tío! = Alter!	Substantiv	Ese tío es muy majo.	Der Typ ist sehr nett.	paket02
+ES-0237	237	ganar	gewinnen; verdienen (Geld)	Verb	¿Quién ha ganado el partido?	Wer hat das Spiel gewonnen?	paket02
+ES-0238	238	cuánto	wie viel?, wie viele?; ¿cuánto cuesta? = was kostet das?; ¡cuánto …! = wie sehr …!	Fragepronomen/-begleiter	¿Cuánto cuesta esto?	Wie viel kostet das?	paket02
+ES-0239	239	el amor	Liebe; mi amor = mein Schatz	Substantiv	El amor lo cambia todo.	Die Liebe verändert alles.	paket02
+ES-0240	240	la forma	Form; Art und Weise; de todas formas = jedenfalls; estar en forma = fit sein	Substantiv	De todas formas, no tenemos prisa.	Jedenfalls haben wir keine Eile.	paket02
+ES-0241	241	entre	zwischen; unter (entre amigos = unter Freunden)	Präposition	La farmacia está entre el banco y el bar.	Die Apotheke ist zwischen der Bank und der Bar.	paket02
+ES-0242	242	dormir	schlafen; dormirse = einschlafen	Verb, unregelmäßig (o→ue, o→u)	He dormido muy mal esta noche.	Ich habe heute Nacht sehr schlecht geschlafen.	paket02
+ES-0243	243	viejo	alt; el viejo / la vieja = der/die Alte	Adjektiv	Es un coche muy viejo, pero funciona.	Es ist ein sehr altes Auto, aber es funktioniert.	paket02
+ES-0244	244	contar	erzählen; zählen; contar con = zählen auf, rechnen mit	Verb, unregelmäßig (o→ue)	Cuéntame qué pasó ayer.	Erzähl mir, was gestern passiert ist.	paket02
+ES-0245	245	loco	verrückt; el loco / la loca = der/die Verrückte; volverse loco = verrückt werden	Adjektiv	¿Estás loco? Eso es peligroso.	Bist du verrückt? Das ist gefährlich.	paket02
+ES-0246	246	todavía	noch, immer noch; todavía no = noch nicht	Adverb	Todavía no he comido.	Ich habe noch nicht gegessen.	paket02
+ES-0247	247	comprar	kaufen	Verb	Voy a comprar pan.	Ich gehe Brot kaufen.	paket02
+ES-0248	248	el caso	Fall; en caso de = im Falle von; hacer caso = gehorchen, beachten	Substantiv	En ese caso, mejor no vamos.	In dem Fall gehen wir besser nicht.	paket02
+ES-0249	249	regresar	zurückkehren, zurückkommen (in Spanien häufiger: volver)	Verb	Regresamos a casa después de cenar.	Nach dem Abendessen kehren wir nach Hause zurück.	paket02
+ES-0250	250	la cabeza	Kopf; dolor de cabeza = Kopfschmerzen	Substantiv	Me duele la cabeza.	Mir tut der Kopf weh.	paket02
+ES-0251	251	mantener	halten, beibehalten; unterhalten (Familie); mantenerse = sich halten	Verb, unregelmäßig	Mantén la calma, por favor.	Bleib bitte ruhig.	paket02
+ES-0252	252	el lado	Seite; al lado de = neben; por otro lado = andererseits	Substantiv	El banco está al lado del cine.	Die Bank ist neben dem Kino.	paket02
+ES-0253	253	el esposo / la esposa	Ehemann, Ehefrau (in Spanien im Alltag meist marido / mujer)	Substantiv	Su esposa trabaja en el ayuntamiento.	Seine Frau arbeitet im Rathaus.	paket02
+ES-0254	254	maldito	verdammt, verflucht	Adjektiv	¡Maldito ordenador, otra vez no funciona!	Verdammter Computer, schon wieder geht er nicht!	paket02
+ES-0255	255	segundo	zweiter, zweite; el segundo = die Sekunde; el segundo (plato) = Hauptgericht	Ordnungszahl/Substantiv	Vivo en el segundo piso.	Ich wohne im zweiten Stock.	paket02
+ES-0256	256	leer	lesen	Verb, unregelmäßig (i→y)	Me gusta leer antes de dormir.	Ich lese gern vor dem Schlafen.	paket02
+ES-0257	257	tocar	berühren, anfassen; spielen (Instrument); klingeln; me toca = ich bin dran	Verb	No toques eso, está caliente.	Fass das nicht an, das ist heiß.	paket02
+ES-0258	258	la historia	Geschichte (Erzählung und Fach)	Substantiv	Es una historia muy larga.	Das ist eine sehr lange Geschichte.	paket02
+ES-0259	259	disculpar	entschuldigen; disculpa / disculpe = Entschuldigung (du/Sie); disculparse = sich entschuldigen	Verb	Disculpe, ¿dónde está la salida?	Entschuldigen Sie, wo ist der Ausgang?	paket02
+ES-0260	260	la puerta	Tür; Tor	Substantiv	Cierra la puerta, hace frío.	Mach die Tür zu, es ist kalt.	paket02
+ES-0261	261	rápido	schnell (Adjektiv und Adverb)	Adjektiv/Adverb	Ven rápido, que empieza la película.	Komm schnell, der Film fängt an.	paket02
+ES-0262	262	el cariño	Zuneigung, Liebe; (Anrede) Schatz, Liebling; con cariño = liebevoll; (Briefschluss) alles Liebe	Substantiv	Cariño, ¿me pasas la sal?	Schatz, gibst du mir das Salz?	paket02
+ES-0263	263	jugar	spielen; jugar a = spielen (jugar al fútbol)	Verb, unregelmäßig (u→ue)	Los niños juegan en el parque.	Die Kinder spielen im Park.	paket02
+ES-0264	264	significar	bedeuten	Verb	¿Qué significa esta palabra?	Was bedeutet dieses Wort?	paket02
+ES-0265	265	la pregunta	Frage; hacer una pregunta = eine Frage stellen	Substantiv	¿Puedo hacerte una pregunta?	Darf ich dir eine Frage stellen?	paket02
+ES-0266	266	genial	großartig, genial, super	Adjektiv	La fiesta fue genial.	Die Party war super.	paket02
+ES-0267	267	la manera	Art, Weise; de todas maneras = jedenfalls; de ninguna manera = keinesfalls	Substantiv	No hay otra manera de hacerlo.	Es gibt keine andere Möglichkeit, es zu machen.	paket02
+ES-0268	268	mientras	während; mientras tanto = inzwischen; mientras que = wohingegen	Konjunktion	Pon la mesa mientras yo cocino.	Deck den Tisch, während ich koche.	paket02
+ES-0269	269	cuál	welcher?, welche?, welches? (Auswahl); Pl. cuáles	Fragepronomen	¿Cuál prefieres, el rojo o el azul?	Welches bevorzugst du, das rote oder das blaue?	paket02
+ES-0270	270	feliz	glücklich; ¡feliz cumpleaños! = alles Gute zum Geburtstag	Adjektiv	Me siento muy feliz aquí.	Ich fühle mich hier sehr glücklich.	paket02
+ES-0271	271	el camino	Weg; de camino a = auf dem Weg nach	Substantiv	Es el camino más corto al pueblo.	Das ist der kürzeste Weg zum Dorf.	paket02
+ES-0272	272	suceder	geschehen, passieren	Verb	¿Qué ha sucedido aquí?	Was ist hier passiert?	paket02
+ES-0273	273	enviar	schicken, senden (Präsens: envío, envías, envía)	Verb	Te envío la dirección por mensaje.	Ich schicke dir die Adresse per Nachricht.	paket02
+ES-0274	274	mover	bewegen; moverse = sich bewegen; ¡muévete! = beweg dich!	Verb, unregelmäßig (o→ue)	No muevas la mesa, por favor.	Verschieb den Tisch bitte nicht.	paket02
+ES-0275	275	supuesto	angenommen, vermeintlich; por supuesto = natürlich, selbstverständlich	Adjektiv	Por supuesto que puedes venir.	Natürlich kannst du kommen.	paket02
+ES-0276	276	adiós	auf Wiedersehen, tschüss	Interjektion	¡Adiós, hasta mañana!	Tschüss, bis morgen!	paket02
+ES-0277	277	pues	also, na ja, dann (Füllwort); denn, da (Begründung)	Konjunktion/Adverb	Pues no sé qué decirte.	Na ja, ich weiß nicht, was ich dir sagen soll.	paket02
+ES-0278	278	el ojo	Auge; ¡ojo! = Achtung!	Substantiv	Tiene los ojos verdes.	Sie hat grüne Augen.	paket02
+ES-0279	279	escribir	schreiben	Verb, unregelmäßig (Partizip escrito)	Escríbeme cuando llegues.	Schreib mir, wenn du ankommst.	paket02
+ES-0280	280	detener	anhalten, aufhalten; festnehmen; detenerse = stehen bleiben; ¡detente! = halt!	Verb, unregelmäßig	La policía detuvo al ladrón.	Die Polizei nahm den Dieb fest.	paket02
+ES-0281	281	contra	gegen; en contra de = gegen (Meinung)	Präposition	Jugamos contra el Sevilla el sábado.	Wir spielen am Samstag gegen Sevilla.	paket02
+ES-0282	282	durante	während (Zeitraum); … lang (durante dos horas)	Präposition	Durante el verano trabajo en un bar.	Während des Sommers arbeite ich in einer Bar.	paket02
+ES-0283	283	medio	halb; Mitte, Mittel; media hora = halbe Stunde; en medio de = mitten in	Adjektiv/Substantiv/Adverb	Vuelvo en media hora.	Ich bin in einer halben Stunde zurück.	paket02
+ES-0284	284	ocurrir	geschehen, passieren; ocurrirse = einfallen (se me ocurre una idea)	Verb	¿Qué ocurre? ¿Por qué gritas?	Was ist los? Warum schreist du?	paket02
+ES-0285	285	el mes	Monat	Substantiv	El mes que viene cumplo treinta años.	Nächsten Monat werde ich dreißig.	paket02
+ES-0286	286	meter	hineintun, hineinstecken; meterse en = sich einmischen in	Verb	Mete la leche en la nevera.	Stell die Milch in den Kühlschrank.	paket02
+ES-0287	287	la palabra	Wort; dar su palabra = sein Wort geben	Substantiv	No entiendo esta palabra.	Ich verstehe dieses Wort nicht.	paket02
+ES-0288	288	la ayuda	Hilfe	Substantiv	Gracias por tu ayuda.	Danke für deine Hilfe.	paket02
+ES-0289	289	el arma	Waffe	Substantiv, f.	El policía llevaba un arma.	Der Polizist trug eine Waffe.	paket02
+ES-0290	290	importante	wichtig	Adjektiv	Es importante llegar a tiempo.	Es ist wichtig, pünktlich zu kommen.	paket02
+ES-0291	291	el jefe / la jefa	Chef, Chefin	Substantiv	Mi jefa está de vacaciones.	Meine Chefin ist im Urlaub.	paket02
+ES-0292	292	la ciudad	Stadt	Substantiv	Valencia es una ciudad preciosa.	Valencia ist eine wunderschöne Stadt.	paket02
+ES-0293	293	dentro	drinnen; dentro de = in, innerhalb von; dentro de poco = bald	Adverb	Te espero dentro, hace frío.	Ich warte drinnen auf dich, es ist kalt.	paket02
+ES-0294	294	sentarse	sich setzen; sentar bien = gut bekommen, gut stehen	Verb, unregelmäßig (e→ie)	Siéntate aquí, a mi lado.	Setz dich hierher, neben mich.	paket02
+ES-0295	295	casi	fast, beinahe	Adverb	Son casi las doce.	Es ist fast zwölf.	paket02
+ES-0296	296	querido	lieb, geliebt; (Anrede) Liebling, Schatz; querido Juan = lieber Juan (Brief)	Adjektiv	Querida Ana, gracias por tu carta.	Liebe Ana, danke für deinen Brief.	paket02
+ES-0297	297	caer	fallen; caerse = hinfallen; me cae bien = ich mag ihn/sie	Verb, unregelmäßig	Me he caído en la calle.	Ich bin auf der Straße hingefallen.	paket02
+ES-0298	298	hacia	in Richtung, nach; gegen (Zeit: hacia las ocho)	Präposition	Vamos hacia el centro.	Wir gehen Richtung Zentrum.	paket02
+ES-0299	299	propio	eigen; selbst (el propio director = der Direktor selbst)	Adjektiv	Tiene su propia empresa.	Er hat seine eigene Firma.	paket02
+ES-0300	300	el perro / la perra	Hund, Hündin	Substantiv	Saco al perro todas las mañanas.	Ich gehe jeden Morgen mit dem Hund raus.	paket02
+ES-0301	301	el corazón	Herz; (Anrede) Schatz	Substantiv	El corazón me late muy rápido.	Mein Herz schlägt sehr schnell.	paket02
+ES-0302	302	pronto	bald; früh; de pronto = plötzlich; hasta pronto = bis bald	Adverb	Vuelve pronto, por favor.	Komm bitte bald zurück.	paket02
+ES-0303	303	preparar	vorbereiten, zubereiten; prepararse = sich vorbereiten; preparado = bereit	Verb	Estoy preparando la cena.	Ich bereite gerade das Abendessen zu.	paket02
+ES-0304	304	la muerte	Tod	Substantiv	Su muerte fue muy triste para todos.	Sein Tod war für alle sehr traurig.	paket02
+ES-0305	305	la suerte	Glück (Zufall); ¡buena suerte! = viel Glück!; tener suerte = Glück haben	Substantiv	Hemos tenido mucha suerte con el tiempo.	Wir haben viel Glück mit dem Wetter gehabt.	paket02
+ES-0306	306	el doctor / la doctora	Doktor, Arzt, Ärztin (Anrede; sonst: médico)	Substantiv	El doctor dice que es una gripe.	Der Arzt sagt, es ist eine Grippe.	paket02
+ES-0307	307	echar	werfen; hinzugeben (Salz); echar de menos = vermissen; echar una mano = helfen	Verb	Te echo mucho de menos.	Ich vermisse dich sehr.	paket02
+ES-0308	308	funcionar	funktionieren	Verb	El ascensor no funciona.	Der Aufzug funktioniert nicht.	paket02
+ES-0309	309	el punto	Punkt; en punto = Punkt, genau (a las tres en punto = Punkt drei); estar a punto de = kurz davor sein	Substantiv	Nos vemos a las cinco en punto.	Wir sehen uns Punkt fünf.	paket02
+ES-0310	310	cerrar	schließen, zumachen; cerrado = geschlossen	Verb, unregelmäßig (e→ie)	La tienda cierra a las nueve.	Der Laden schließt um neun.	paket02
+ES-0311	311	siquiera	ni siquiera = nicht einmal; wenigstens, zumindest	Adverb	Ni siquiera me saludó.	Er hat mich nicht einmal gegrüßt.	paket02
+ES-0312	312	mostrar	zeigen	Verb, unregelmäßig (o→ue)	Muéstrame las fotos del viaje.	Zeig mir die Fotos von der Reise.	paket02
+ES-0313	313	el agua	Wasser	Substantiv, f.	¿Me traes un vaso de agua fría?	Bringst du mir ein Glas kaltes Wasser?	paket02
+ES-0314	314	justo	gerecht; genau (justo ahora = genau jetzt); knapp (voy justo de tiempo)	Adjektiv/Adverb	Llegaste justo a tiempo.	Du bist genau rechtzeitig gekommen.	paket02
+ES-0315	315	la clase	Unterricht, Klasse; Art, Sorte (toda clase de)	Substantiv	La clase de español empieza a las diez.	Der Spanischunterricht beginnt um zehn.	paket02
+ES-0316	316	recibir	bekommen, erhalten; empfangen	Verb	¿Has recibido mi mensaje?	Hast du meine Nachricht bekommen?	paket02
+ES-0317	317	bajar	hinuntergehen, aussteigen; senken, leiser machen; herunterladen	Verb	Baja la música, por favor.	Mach bitte die Musik leiser.	paket02
+ES-0318	318	os	euch (Objektpronomen zu vosotros, nur in Spanien; reflexiv: os vais)	Personalpronomen	Os espero en la entrada.	Ich warte am Eingang auf euch.	paket02
+ES-0319	319	la cara	Gesicht; tener buena cara = gut aussehen; nicht verwechseln: cara = teuer (weibliche Form von caro)	Substantiv	Lávate la cara.	Wasch dir das Gesicht.	paket02
+ES-0320	320	difícil	schwierig, schwer	Adjektiv	El examen fue muy difícil.	Die Prüfung war sehr schwer.	paket02
+ES-0321	321	la realidad	Wirklichkeit, Realität; en realidad = eigentlich, in Wirklichkeit	Substantiv	En realidad no me importa.	Eigentlich ist es mir egal.	paket02
+ES-0322	322	desear	wünschen, sich wünschen; ¿qué desea? = was darf es sein?	Verb	Te deseo mucha suerte.	Ich wünsche dir viel Glück.	paket02
+ES-0323	323	el miedo	Angst; tener miedo de/a = Angst haben vor; dar miedo = Angst machen	Substantiv	Tengo miedo a volar.	Ich habe Angst vorm Fliegen.	paket02
+ES-0324	324	alto	hoch; groß (Person); laut (en voz alta); ¡alto! = halt!	Adjektiv/Adverb	Mi hermano es muy alto.	Mein Bruder ist sehr groß.	paket02
+ES-0325	325	vivo	lebendig, am Leben; lebhaft; en vivo = live	Adjektiv	Mi abuelo todavía está vivo.	Mein Großvater lebt noch.	paket02
+ES-0326	326	el equipo	Mannschaft, Team; Ausrüstung, Anlage	Substantiv	Nuestro equipo ha ganado la liga.	Unsere Mannschaft hat die Liga gewonnen.	paket02
+ES-0327	327	correr	laufen, rennen; ¡corre! = beeil dich!	Verb	Salgo a correr por las mañanas.	Ich gehe morgens laufen.	paket02
+ES-0328	328	suficiente	genug, ausreichend	Begleiter/Adjektiv	No tengo suficiente dinero.	Ich habe nicht genug Geld.	paket02
+ES-0329	329	el juego	Spiel; Satz (juego de llaves)	Substantiv	Es un juego para toda la familia.	Das ist ein Spiel für die ganze Familie.	paket02
+ES-0330	330	el coche	Auto; Wagen	Substantiv	He aparcado el coche en la calle de atrás.	Ich habe das Auto in der Straße dahinter geparkt.	paket02
+ES-0331	331	el fin	Ende; Zweck; por fin = endlich; al fin y al cabo = letzten Endes; fin de semana = Wochenende	Substantiv	¡Por fin es viernes!	Endlich ist Freitag!	paket02
+ES-0332	332	salvar	retten; salvarse = sich retten	Verb	Los bomberos salvaron al niño.	Die Feuerwehrleute retteten das Kind.	paket02
+ES-0333	333	disparar	schießen	Verb	¡No dispares!	Nicht schießen!	paket02
+ES-0334	334	el cuidado	Vorsicht; Pflege; ¡cuidado! = Vorsicht!; tener cuidado = aufpassen	Substantiv	Ten cuidado con el coche.	Pass mit dem Auto auf.	paket02
+ES-0335	335	el cuerpo	Körper	Substantiv	Me duele todo el cuerpo.	Mir tut der ganze Körper weh.	paket02
+ES-0336	336	bastante	ziemlich; genug, ausreichend	Begleiter/Pronomen/Adverb	La película es bastante buena.	Der Film ist ziemlich gut.	paket02
+ES-0337	337	adelante	vorwärts, weiter; ¡adelante! = herein!, los!; más adelante = später	Adverb	Sigue adelante, no te pares.	Mach weiter, bleib nicht stehen.	paket02
+ES-0338	338	igual	gleich, genauso; me da igual = ist mir egal; (Spanien) vielleicht	Adjektiv/Adverb	Me da igual dónde comamos.	Mir ist egal, wo wir essen.	paket02
+ES-0339	339	romper	kaputt machen, zerbrechen; romperse = kaputtgehen; roto = kaputt	Verb, unregelmäßig (Partizip roto)	Se ha roto el cristal.	Die Scheibe ist zerbrochen.	paket02
+ES-0340	340	la tierra	Erde; Land; Boden	Substantiv	Las plantas necesitan buena tierra.	Die Pflanzen brauchen gute Erde.	paket02
+ES-0341	341	cinco	fünf	Zahlwort	Somos cinco para cenar.	Wir sind fünf zum Abendessen.	paket02
+ES-0342	342	coger	nehmen, greifen; fangen; (Bus, Taxi) nehmen (Spanien; in vielen Ländern Lateinamerikas vulgär, dort: tomar, agarrar)	Verb	Cogemos el autobús en la plaza.	Wir nehmen den Bus am Platz.	paket02
+ES-0343	343	puto	verdammt, Scheiß- (vulgär); la puta = Hure (vulgär); de puta madre = geil, super (vulgär)	Adjektiv	No tengo ni puta idea.	Ich habe keine verdammte Ahnung.	paket02
+ES-0344	344	beber	trinken	Verb	¿Quieres beber algo?	Willst du etwas trinken?	paket02
+ES-0345	345	bajo	unter (Präposition); niedrig, klein (Adjektiv); leise (hablar bajo)	Präposition/Adjektiv/Adverb	El gato está bajo la mesa.	Die Katze ist unter dem Tisch.	paket02
+ES-0346	346	cerca	nahe, in der Nähe; cerca de = in der Nähe von, fast (cerca de mil)	Adverb	Vivo muy cerca de aquí.	Ich wohne ganz in der Nähe.	paket02
+ES-0347	347	el número	Nummer, Zahl; Größe (Schuhe)	Substantiv	¿Cuál es tu número de teléfono?	Wie ist deine Telefonnummer?	paket02
+ES-0348	348	la prueba	Beweis; Test, Prüfung; Probe	Substantiv	No tienen ninguna prueba.	Sie haben keinen Beweis.	paket02
+ES-0349	349	joven	jung; el/la joven = junger Mann, junge Frau	Adjektiv	Es demasiado joven para conducir.	Er ist zu jung zum Autofahren.	paket02
+ES-0350	350	robar	stehlen, rauben	Verb	Me han robado la cartera.	Man hat mir die Brieftasche gestohlen.	paket02
+ES-0351	351	quitar	wegnehmen, entfernen; quitarse = ausziehen (Kleidung); ¡quita! = weg da!	Verb	Quítate los zapatos, por favor.	Zieh bitte die Schuhe aus.	paket02
+ES-0352	352	permitir	erlauben; ¿me permite? = gestatten Sie?	Verb	No se permite fumar aquí.	Hier darf man nicht rauchen.	paket02
+ES-0353	353	subir	hinaufgehen, steigen; einsteigen; lauter machen; hochladen	Verb	Sube al coche, nos vamos.	Steig ins Auto, wir fahren los.	paket02
+ES-0354	354	la fiesta	Fest, Party; Feiertag	Substantiv	El sábado hay una fiesta en casa de Marta.	Am Samstag ist eine Party bei Marta.	paket02
+ES-0355	355	cuándo	wann?; ¿desde cuándo? = seit wann?	Frageadverb	¿Cuándo vuelves?	Wann kommst du zurück?	paket02
+ES-0356	356	odiar	hassen	Verb	Odio levantarme temprano.	Ich hasse es, früh aufzustehen.	paket02
+ES-0357	357	parar	anhalten, stoppen; aufhören; pararse = stehen bleiben; sin parar = ununterbrochen	Verb	Para aquí, por favor.	Halt hier an, bitte.	paket02
+ES-0358	358	la guerra	Krieg	Substantiv	Mi abuelo vivió la guerra de niño.	Mein Großvater erlebte den Krieg als Kind.	paket02
+ES-0359	359	perdonar	verzeihen, vergeben; perdona / perdone = Entschuldigung (du/Sie)	Verb	Perdona, ¿tienes hora?	Entschuldige, weißt du, wie spät es ist?	paket02
+ES-0360	360	el novio / la novia	Freund, Freundin (Partner); Bräutigam, Braut	Substantiv	Mi novia es de Granada.	Meine Freundin kommt aus Granada.	paket02
+ES-0361	361	comenzar	anfangen, beginnen (= empezar)	Verb, unregelmäßig (e→ie)	El curso comienza en septiembre.	Der Kurs beginnt im September.	paket02
+ES-0362	362	fuerte	stark; laut (hablar fuerte); heftig	Adjektiv/Adverb	El café está muy fuerte.	Der Kaffee ist sehr stark.	paket02
+ES-0363	363	incluso	sogar; einschließlich	Adverb	Incluso mi abuela usa el móvil.	Sogar meine Oma benutzt das Handy.	paket02
+ES-0364	364	aunque	obwohl; auch wenn, selbst wenn (mit Subjuntivo)	Konjunktion	Salimos aunque llueva.	Wir gehen raus, auch wenn es regnet.	paket02
+ES-0365	365	encantar	begeistern; me encanta = ich liebe es, mir gefällt es sehr; encantado = sehr erfreut	Verb	Me encanta la comida española.	Ich liebe das spanische Essen.	paket02
+ES-0366	366	cuatro	vier	Zahlwort	Tenemos cuatro gatos.	Wir haben vier Katzen.	paket02
+ES-0367	367	mas	aber, jedoch (literarisch, ohne Akzent; gesprochen fast nie); nicht verwechseln mit más = mehr	Konjunktion	Lo intentó, mas no lo consiguió.	Er versuchte es, doch er schaffte es nicht.	paket02 pruefen
+ES-0368	368	decidir	entscheiden, beschließen; decidirse = sich entscheiden	Verb	Hemos decidido mudarnos a Málaga.	Wir haben beschlossen, nach Málaga zu ziehen.	paket02
+ES-0369	369	allá	dort (drüben), dorthin (in Spanien meist allí); más allá = weiter weg, jenseits	Adverb	Ellos viven allá, al otro lado del río.	Sie wohnen dort drüben, auf der anderen Seite des Flusses.	paket02
+ES-0370	370	el muchacho / la muchacha	Junge, Mädchen; junger Mann, junge Frau (in Spanien eher: chico, chaval)	Substantiv	Los muchachos del pueblo juegan al fútbol en la plaza.	Die Jungs aus dem Dorf spielen Fußball auf dem Platz.	paket02
+ES-0371	371	la oportunidad	Gelegenheit, Chance	Substantiv	Es una buena oportunidad para practicar.	Das ist eine gute Gelegenheit zum Üben.	paket02
+ES-0372	372	callarse	schweigen, still sein; ¡cállate! = sei still!	Verb	Cállate, que no oigo la tele.	Sei still, ich höre den Fernseher nicht.	paket02
+ES-0373	373	el teléfono	Telefon; Telefonnummer; teléfono móvil = Handy	Substantiv	Déjame tu teléfono y te llamo.	Gib mir deine Nummer und ich rufe dich an.	paket02
+ES-0374	374	arriba	oben; nach oben; ¡arriba! = hoch!, los!	Adverb	El baño está arriba.	Das Bad ist oben.	paket02
+ES-0375	375	convertirse	convertirse en = werden zu, sich verwandeln in; convertir = umwandeln	Verb, unregelmäßig (e→ie, e→i)	Se ha convertido en un gran cocinero.	Er ist ein großer Koch geworden.	paket02
+ES-0376	376	final	Ende (el final); endgültig, letzte (Adjektiv); al final = am Ende, schließlich; la final = das Finale	Substantiv/Adjektiv	Al final no fuimos al cine.	Am Ende sind wir nicht ins Kino gegangen.	paket02
+ES-0377	377	el bebé	Baby	Substantiv	El bebé duerme toda la tarde.	Das Baby schläft den ganzen Nachmittag.	paket02
+ES-0378	378	mayor	größer; älter; el/la mayor = der/die Älteste; los mayores = die Erwachsenen, Älteren	Adjektiv	Mi hermano mayor vive en Lugo.	Mein älterer Bruder lebt in Lugo.	paket02
+ES-0379	379	casarse	heiraten (casarse con)	Verb	Se casan en junio.	Sie heiraten im Juni.	paket02
+ES-0380	380	la sangre	Blut	Substantiv	Tiene sangre en la mano.	Er hat Blut an der Hand.	paket02
+ES-0381	381	tuyo	deiner, deine, deins; un amigo tuyo = ein Freund von dir	Possessivpronomen	¿Este paraguas es tuyo?	Gehört dieser Regenschirm dir?	paket02
+ES-0382	382	la luz	Licht; Strom (la factura de la luz = Stromrechnung)	Substantiv	Apaga la luz al salir.	Mach das Licht aus, wenn du gehst.	paket02
+ES-0383	383	la vuelta	Rückkehr; Runde; Wechselgeld; dar una vuelta = eine Runde drehen; ida y vuelta = hin und zurück; de vuelta = zurück	Substantiv	Vamos a dar una vuelta por el centro.	Lass uns eine Runde durchs Zentrum drehen.	paket02
+ES-0384	384	extraño	seltsam, merkwürdig; fremd; el extraño = der Fremde	Adjektiv	¡Qué extraño! La puerta está abierta.	Wie seltsam! Die Tür ist offen.	paket02
+ES-0385	385	levantarse	aufstehen; levantar = heben, hochheben	Verb	Me levanto a las seis todos los días.	Ich stehe jeden Tag um sechs auf.	paket02
+ES-0386	386	posible	möglich; lo antes posible = so bald wie möglich	Adjektiv	¿Es posible cambiar la fecha?	Ist es möglich, das Datum zu ändern?	paket02
+ES-0387	387	cuanto	so viel wie; en cuanto = sobald; en cuanto a = was … betrifft; cuanto antes = so bald wie möglich; unos cuantos = ein paar	Relativpronomen/Adverb	Llámame en cuanto llegues.	Ruf mich an, sobald du ankommst.	paket02
+ES-0388	388	el plan	Plan; Vorhaben; ¿qué plan tienes? = was hast du vor?	Substantiv	¿Tienes algún plan para el domingo?	Hast du am Sonntag etwas vor?	paket02
+ES-0389	389	la escuela	Schule (vor allem Grundschule; auch: colegio)	Substantiv	Los niños van a la escuela andando.	Die Kinder gehen zu Fuß zur Schule.	paket02
+ES-0390	390	el diablo	Teufel; ¿qué diablos …? = was zum Teufel …?	Substantiv	¿Qué diablos haces aquí?	Was zum Teufel machst du hier?	paket02
+ES-0391	391	sonar	klingen, klingeln, läuten; me suena = das kommt mir bekannt vor	Verb, unregelmäßig (o→ue)	Tu nombre me suena.	Dein Name kommt mir bekannt vor.	paket02
+ES-0392	392	la habitación	Zimmer	Substantiv	Quiero reservar una habitación doble.	Ich möchte ein Doppelzimmer reservieren.	paket02
+ES-0393	393	el orden / la orden	el orden = Ordnung, Reihenfolge; la orden = Befehl, Anordnung, Bestellung	Substantiv, m./f.	Pon tus cosas en orden.	Bring deine Sachen in Ordnung.	paket02
+ES-0394	394	enseñar	zeigen; beibringen, lehren	Verb	¿Me enseñas a hacer paella?	Bringst du mir bei, Paella zu machen?	paket02
+ES-0395	395	vender	verkaufen; se vende = zu verkaufen	Verb	Quieren vender la casa del pueblo.	Sie wollen das Haus im Dorf verkaufen.	paket02
+ES-0396	396	faltar	fehlen; falta poco = es dauert nicht mehr lang; hace falta = man braucht; me falta tiempo = mir fehlt Zeit	Verb	Faltan dos días para las vacaciones.	Es sind noch zwei Tage bis zum Urlaub.	paket02
+ES-0397	397	el libro	Buch	Substantiv	Estoy leyendo un libro muy interesante.	Ich lese gerade ein sehr interessantes Buch.	paket02
+ES-0398	398	confiar	vertrauen (confiar en); anvertrauen	Verb	Confío en ti.	Ich vertraue dir.	paket02
+ES-0399	399	aceptar	annehmen, akzeptieren	Verb	Aceptó el trabajo sin pensarlo.	Er nahm die Stelle an, ohne nachzudenken.	paket02
+ES-0400	400	duro	hart; schwer, streng (un invierno duro = ein harter Winter); trabajar duro = hart arbeiten	Adjektiv/Adverb	El pan está duro.	Das Brot ist hart.	paket02
