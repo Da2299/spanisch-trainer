@@ -22,18 +22,17 @@ const APP_SHELL = [
   './js/views/browse.js',
   './js/views/settings.js',
   './lib/ts-fsrs.js',
-  './icons/icon-180.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-512-maskable.png',
   './data/index.json',
 ];
+// Nicht kritisch für den Betrieb: Fehlen darf die Installation nicht verhindern.
+const OPTIONAL = ['./icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-512-maskable.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
       await cache.addAll(APP_SHELL);
+      await Promise.all(OPTIONAL.map((u) => cache.add(u).catch((e) => console.warn('SW: optional nicht gecacht', u, e))));
       // Datendateien laut index.json
       try {
         const res = await fetch('./data/index.json', { cache: 'no-cache' });
