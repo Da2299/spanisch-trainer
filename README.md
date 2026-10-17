@@ -57,10 +57,10 @@ Ein Beispielpaket mit 30 Einträgen liegt unter `tests/fixtures/beispiel-paket.t
 
 ## GitHub-Pages-Einstellung
 
-Die Veröffentlichung läuft automatisch über den Workflow `.github/workflows/pages.yml`: Jeder Push auf
-`main` aktiviert GitHub Pages (falls noch nicht geschehen) und veröffentlicht den Stand unter
-`https://da2299.github.io/spanisch-trainer/`. Unter **Settings → Pages** steht dann als Source
-**GitHub Actions**. Alternativ geht dort auch **Deploy from a branch** mit Branch `main`, Ordner `/ (root)`. Die App verwendet ausschließlich relative Pfade
+Unter **Settings → Pages** ist als Source **GitHub Actions** eingestellt. Der Workflow
+`.github/workflows/pages.yml` veröffentlicht jeden Push auf den Standardbranch des Repositories unter
+`https://da2299.github.io/spanisch-trainer/` (GitHub erlaubt Pages-Deployments nur vom Standardbranch).
+Soll `main` der Standardbranch sein: **Settings → General → Default branch** auf `main` umstellen. Die App verwendet ausschließlich relative Pfade
 und läuft daher unter diesem Unterpfad (und ebenso unter jeder anderen Adresse). Die Datei `.nojekyll`
 sorgt dafür, dass GitHub Pages die Dateien unverändert ausliefert.
 
