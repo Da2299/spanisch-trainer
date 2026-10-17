@@ -1,0 +1,205 @@
+#separator:tab
+#html:false
+#notetype:Spanisch Vokabel
+#deck:Spanisch::01 Rang 0001-0200
+#tags column:8
+ES-0001	1	el, la	der, die, das (bestimmter Artikel; Pl. los, las)	Artikel	El coche está en la calle.	Das Auto steht auf der Straße.	paket01
+ES-0002	2	de	von; aus; (Genitiv:) des/der	Präposition	Es la casa de mi hermano.	Das ist das Haus meines Bruders.	paket01
+ES-0003	3	que	dass; der/die/das (Relativpronomen); que + Subjuntivo = Wunsch/Aufforderung	Konjunktion/Relativpronomen	Creo que tienes razón.	Ich glaube, dass du recht hast.	paket01
+ES-0004	4	ser	sein (Eigenschaft, Herkunft, Beruf, Uhrzeit)	Verb, unregelmäßig	Mi padre es médico.	Mein Vater ist Arzt.	paket01
+ES-0005	5	no	nein; nicht	Adverb	No tengo tiempo hoy.	Ich habe heute keine Zeit.	paket01
+ES-0006	6	un, una	ein, eine (unbestimmter Artikel); unos/unas = einige	Artikel	¿Quieres un café?	Möchtest du einen Kaffee?	paket01
+ES-0007	7	a	nach, zu, an (Richtung, Ziel); um (Uhrzeit); vor Personen als Objekt (veo a Juan)	Präposition	Voy a Madrid mañana.	Ich fahre morgen nach Madrid.	paket01
+ES-0008	8	estar	sein (Zustand, Ort), sich befinden; estar + Gerundio = gerade tun	Verb, unregelmäßig	¿Dónde estás? Estoy en casa.	Wo bist du? Ich bin zu Hause.	paket01
+ES-0009	9	y	und (vor i-/hi-: e)	Konjunktion	Tengo un perro y dos gatos.	Ich habe einen Hund und zwei Katzen.	paket01
+ES-0010	10	en	in, an, auf (Ort); im/in (Zeit: en verano)	Präposition	Vivo en Barcelona.	Ich wohne in Barcelona.	paket01
+ES-0011	11	lo	es, ihn (Objektpronomen); lo + Adjektiv = das … (lo bueno = das Gute); lo que = das, was	Pronomen/Artikel (neutral)	No lo sé.	Ich weiß es nicht.	paket01
+ES-0012	12	haber	haben (Hilfsverb: he comido); hay = es gibt	Verb, unregelmäßig	Hay un bar cerca de aquí.	Es gibt eine Bar hier in der Nähe.	paket01
+ES-0013	13	tener	haben; tener que + Infinitiv = müssen	Verb, unregelmäßig	Tengo que trabajar mañana.	Ich muss morgen arbeiten.	paket01
+ES-0014	14	por	wegen, durch, für (Grund, Austausch); por la mañana = morgens; por aquí = hier entlang	Präposition	Gracias por tu ayuda.	Danke für deine Hilfe.	paket01
+ES-0015	15	qué	was?; welche(r)?; ¡qué …! = wie …!, was für ein …!	Fragepronomen	¿Qué quieres comer?	Was willst du essen?	paket01
+ES-0016	16	ir	gehen, fahren; ir a + Infinitiv = werden (nahe Zukunft); irse = weggehen	Verb, unregelmäßig	Vamos a la playa el domingo.	Wir fahren am Sonntag an den Strand.	paket01
+ES-0017	17	hacer	machen, tun; hace calor = es ist heiß; hace dos años = vor zwei Jahren	Verb, unregelmäßig	¿Qué haces este fin de semana?	Was machst du dieses Wochenende?	paket01
+ES-0018	18	me	mich, mir (Objektpronomen; reflexiv: me llamo)	Personalpronomen	¿Me puedes ayudar?	Kannst du mir helfen?	paket01
+ES-0019	19	poder	können, dürfen	Verb, unregelmäßig	¿Puedo pasar?	Darf ich reinkommen?	paket01
+ES-0020	20	decir	sagen	Verb, unregelmäßig	¿Qué has dicho?	Was hast du gesagt?	paket01
+ES-0021	21	se	sich (reflexiv: se levanta); man (se dice); ihm/ihr statt le vor lo/la (se lo doy)	Pronomen	Mi hermana se levanta a las siete.	Meine Schwester steht um sieben auf.	paket01
+ES-0022	22	te	dich, dir (Objektpronomen; reflexiv: te llamas)	Personalpronomen	Te llamo esta noche.	Ich rufe dich heute Abend an.	paket01
+ES-0023	23	con	mit	Präposition	Voy al cine con mis amigos.	Ich gehe mit meinen Freunden ins Kino.	paket01
+ES-0024	24	para	für, um … zu (Zweck, Empfänger); nach (Richtung); bis (Frist)	Präposition	Este regalo es para ti.	Dieses Geschenk ist für dich.	paket01
+ES-0025	25	mi	mein, meine (Pl. mis)	Possessivbegleiter	Mi madre vive en Sevilla.	Meine Mutter lebt in Sevilla.	paket01
+ES-0026	26	saber	wissen; können (gelernt: sé nadar); saber a = schmecken nach	Verb, unregelmäßig	No sé dónde están las llaves.	Ich weiß nicht, wo die Schlüssel sind.	paket01
+ES-0027	27	su	sein, ihr, Ihr (Pl. sus)	Possessivbegleiter	Juan ha perdido su móvil.	Juan hat sein Handy verloren.	paket01
+ES-0028	28	querer	wollen; lieben, gernhaben (te quiero)	Verb, unregelmäßig	¿Quieres venir con nosotros?	Willst du mit uns kommen?	paket01
+ES-0029	29	este	dieser, diese (hier); Pl. estos, estas	Demonstrativbegleiter/-pronomen	Esta camisa es muy bonita.	Dieses Hemd ist sehr schön.	paket01
+ES-0030	30	todo	alles; ganz; alle, jeder (todos los días = jeden Tag)	Begleiter/Pronomen	Todo va a salir bien.	Alles wird gut gehen.	paket01
+ES-0031	31	pero	aber	Konjunktion	Quiero ir, pero no puedo.	Ich will hingehen, aber ich kann nicht.	paket01
+ES-0032	32	sí	ja; (nach Präposition) sich: para sí mismo = für sich selbst	Adverb/Pronomen	Sí, claro, vamos.	Ja, klar, gehen wir.	paket01
+ES-0033	33	si	wenn, falls; ob	Konjunktion	Si llueve, nos quedamos en casa.	Wenn es regnet, bleiben wir zu Hause.	paket01
+ES-0034	34	bien	gut (Adverb); ¡bien! = gut!, okay	Adverb	Lo has hecho muy bien.	Das hast du sehr gut gemacht.	paket01
+ES-0035	35	eso	das (da); por eso = deshalb	Demonstrativpronomen (neutral)	Eso no es verdad.	Das ist nicht wahr.	paket01
+ES-0036	36	ver	sehen; a ver = mal sehen; nos vemos = wir sehen uns	Verb, unregelmäßig	¿Has visto mis gafas?	Hast du meine Brille gesehen?	paket01
+ES-0037	37	yo	ich	Personalpronomen	Yo también quiero ir.	Ich will auch mitgehen.	paket01
+ES-0038	38	tu	dein, deine (Pl. tus)	Possessivbegleiter	¿Cómo se llama tu perro?	Wie heißt dein Hund?	paket01
+ES-0039	39	bueno	gut (vor männlichem Substantiv: buen); bueno, … = na ja, also …	Adjektiv	Es un buen amigo.	Er ist ein guter Freund.	paket01
+ES-0040	40	le	ihm, ihr, Ihnen (indirektes Objekt; Pl. les)	Personalpronomen	Le he dado las llaves a Marta.	Ich habe Marta die Schlüssel gegeben.	paket01
+ES-0041	41	aquí	hier	Adverb	Aquí hace mucho calor.	Hier ist es sehr heiß.	paket01
+ES-0042	42	del	de + el: des, vom, aus dem	Präposition + Artikel	Vengo del trabajo.	Ich komme von der Arbeit.	paket01
+ES-0043	43	como	wie (Vergleich); da, weil (am Satzanfang); como si = als ob	Konjunktion/Adverb	Hazlo como quieras.	Mach es, wie du willst.	paket01
+ES-0044	44	al	a + el: zum, zur, an den; al + Infinitiv = beim/als	Präposition + Artikel	Vamos al cine esta tarde.	Wir gehen heute Nachmittag ins Kino.	paket01
+ES-0045	45	ese	dieser, diese (da); der/die … da; Pl. esos, esas	Demonstrativbegleiter/-pronomen	¿Quién es ese hombre?	Wer ist dieser Mann da?	paket01
+ES-0046	46	más	mehr; am meisten; más que = mehr als	Adverb	¿Quieres más café?	Möchtest du mehr Kaffee?	paket01
+ES-0047	47	solo	allein (Adjektiv); nur (Adverb; bei Mehrdeutigkeit auch sólo geschrieben)	Adjektiv/Adverb	Solo quiero un vaso de agua.	Ich will nur ein Glas Wasser.	paket01
+ES-0048	48	creer	glauben, meinen	Verb, unregelmäßig (i→y)	Creo que va a llover.	Ich glaube, es wird regnen.	paket01
+ES-0049	49	esto	das (hier)	Demonstrativpronomen (neutral)	¿Qué es esto?	Was ist das?	paket01
+ES-0050	50	deber	müssen, sollen; schulden; debería = sollte	Verb	Debes descansar un poco.	Du musst dich ein bisschen ausruhen.	paket01
+ES-0051	51	pasar	passieren, geschehen; vorbeigehen; verbringen (Zeit); ¿qué pasa? = was ist los?	Verb	¿Qué te pasa? Estás muy callado.	Was ist mit dir los? Du bist sehr still.	paket01
+ES-0052	52	ya	schon; jetzt; ya no = nicht mehr	Adverb	Ya he terminado el trabajo.	Ich bin mit der Arbeit schon fertig.	paket01
+ES-0053	53	dar	geben; dar un paseo = spazieren gehen; darse cuenta = merken	Verb, unregelmäßig	Dame la mano.	Gib mir die Hand.	paket01
+ES-0054	54	ahora	jetzt; ahora mismo = sofort	Adverb	Ahora no puedo hablar.	Jetzt kann ich nicht reden.	paket01
+ES-0055	55	muy	sehr	Adverb	La película es muy larga.	Der Film ist sehr lang.	paket01
+ES-0056	56	así	so, auf diese Weise; así que = also, deshalb	Adverb	No me hables así.	Sprich nicht so mit mir.	paket01
+ES-0057	57	algo	etwas; ein bisschen	Indefinitpronomen	¿Quieres comer algo?	Willst du etwas essen?	paket01
+ES-0058	58	venir	kommen; ¡venga! (Spanien) = los!, komm schon!, okay	Verb, unregelmäßig	¿Vienes a la fiesta el sábado?	Kommst du am Samstag zur Party?	paket01
+ES-0059	59	dejar	lassen; verlassen; dejar de + Infinitiv = aufhören zu	Verb	Déjame en paz.	Lass mich in Ruhe.	paket01
+ES-0060	60	la vez	Mal; otra vez = noch einmal; a veces = manchmal; tal vez = vielleicht	Substantiv	Es la primera vez que vengo aquí.	Es ist das erste Mal, dass ich hierherkomme.	paket01
+ES-0061	61	hablar	sprechen, reden	Verb	¿Hablas inglés?	Sprichst du Englisch?	paket01
+ES-0062	62	él	er	Personalpronomen	Él es mi primo.	Er ist mein Cousin.	paket01
+ES-0063	63	cuando	wenn, als (zeitlich); sobald	Konjunktion	Cuando llegues, llámame.	Wenn du ankommst, ruf mich an.	paket01
+ES-0064	64	tú	du	Personalpronomen	¿Y tú qué opinas?	Und was meinst du?	paket01
+ES-0065	65	nos	uns (Objektpronomen; reflexiv: nos vemos)	Personalpronomen	¿Nos vemos mañana?	Sehen wir uns morgen?	paket01
+ES-0066	66	nada	nichts; de nada = gern geschehen	Indefinitpronomen	No quiero nada, gracias.	Ich möchte nichts, danke.	paket01
+ES-0067	67	cómo	wie?; ¿cómo? = wie bitte?	Frageadverb	¿Cómo estás?	Wie geht es dir?	paket01
+ES-0068	68	o	oder (vor o-/ho-: u)	Konjunktion	¿Té o café?	Tee oder Kaffee?	paket01
+ES-0069	69	otro	ander(er); noch ein (otra vez = noch einmal)	Begleiter/Pronomen	Dame otra oportunidad.	Gib mir noch eine Chance.	paket01
+ES-0070	70	mucho	viel, viele; sehr (te quiero mucho)	Begleiter/Pronomen/Adverb	Tengo mucho trabajo esta semana.	Ich habe diese Woche viel Arbeit.	paket01
+ES-0071	71	sentir	fühlen, spüren; bedauern (lo siento = es tut mir leid); sentirse = sich fühlen	Verb, unregelmäßig (e→ie, e→i)	Lo siento, no quería molestarte.	Es tut mir leid, ich wollte dich nicht stören.	paket01
+ES-0072	72	ella	sie (Singular)	Personalpronomen	Ella trabaja en un hospital.	Sie arbeitet in einem Krankenhaus.	paket01
+ES-0073	73	pensar	denken; pensar en = denken an; pensar + Infinitiv = vorhaben	Verb, unregelmäßig (e→ie)	¿En qué piensas?	Woran denkst du?	paket01
+ES-0074	74	esperar	warten; hoffen; erwarten	Verb	Espera un momento, por favor.	Warte bitte einen Moment.	paket01
+ES-0075	75	usted	Sie (Höflichkeitsform Singular); ustedes = Sie (Plural; in Lateinamerika auch ihr)	Personalpronomen	¿Usted es el señor García?	Sind Sie Herr García?	paket01
+ES-0076	76	gracias	danke; muchas gracias = vielen Dank	Interjektion/Substantiv (Pl.)	Muchas gracias por todo.	Vielen Dank für alles.	paket01
+ES-0077	77	la cosa	Sache, Ding	Substantiv	Tengo que decirte una cosa.	Ich muss dir etwas sagen.	paket01
+ES-0078	78	el señor / la señora	Herr; señora = Frau, Dame	Substantiv	Buenos días, señor López.	Guten Morgen, Herr López.	paket01
+ES-0079	79	porque	weil (¿por qué? = warum?)	Konjunktion	No voy porque estoy cansado.	Ich gehe nicht, weil ich müde bin.	paket01
+ES-0080	80	mirar	anschauen, ansehen; ¡mira! = schau mal!	Verb	Mira, ahí viene el autobús.	Schau, da kommt der Bus.	paket01
+ES-0081	81	necesitar	brauchen	Verb	Necesito tu ayuda.	Ich brauche deine Hilfe.	paket01
+ES-0082	82	el día	Tag; buenos días = guten Morgen/guten Tag	Substantiv, m.	Hoy es un buen día.	Heute ist ein guter Tag.	paket01
+ES-0083	83	nuestro	unser, unsere	Possessivbegleiter/-pronomen	Nuestra casa está cerca del mar.	Unser Haus liegt nahe am Meer.	paket01
+ES-0084	84	llamar	rufen, anrufen; llamarse = heißen	Verb	¿Cómo te llamas? — Me llamo Ana.	Wie heißt du? — Ich heiße Ana.	paket01
+ES-0085	85	el hombre	Mann; Mensch; ¡hombre! = Mensch!, na klar!	Substantiv	Ese hombre es el nuevo profesor.	Dieser Mann ist der neue Lehrer.	paket01
+ES-0086	86	entonces	dann, also; damals	Adverb	Entonces, ¿qué hacemos?	Also, was machen wir?	paket01
+ES-0087	87	la casa	Haus; Zuhause (en casa = zu Hause)	Substantiv	Esta noche me quedo en casa.	Heute Abend bleibe ich zu Hause.	paket01
+ES-0088	88	hola	hallo	Interjektion	¡Hola! ¿Qué tal?	Hallo! Wie geht’s?	paket01
+ES-0089	89	alguno	irgendein; einige; (vor männlichem Substantiv: algún); alguno/a = einer/eine	Begleiter/Pronomen	¿Tienes alguna pregunta?	Hast du irgendeine Frage?	paket01
+ES-0090	90	volver	zurückkommen, zurückkehren; volver a + Infinitiv = wieder tun	Verb, unregelmäßig (o→ue, Partizip vuelto)	Vuelvo en cinco minutos.	Ich bin in fünf Minuten zurück.	paket01
+ES-0091	91	encontrar	finden; encontrarse con = treffen; encontrarse bien = sich gut fühlen	Verb, unregelmäßig (o→ue)	No encuentro las llaves del coche.	Ich finde die Autoschlüssel nicht.	paket01
+ES-0092	92	la verdad	Wahrheit; ¿verdad? = nicht wahr?; de verdad = wirklich	Substantiv	Dime la verdad.	Sag mir die Wahrheit.	paket01
+ES-0093	93	quién	wer?; ¿de quién? = wessen?, von wem?	Fragepronomen	¿Quién ha llamado?	Wer hat angerufen?	paket01
+ES-0094	94	el tiempo	Zeit; Wetter	Substantiv	No tengo tiempo para eso.	Ich habe keine Zeit dafür.	paket01
+ES-0095	95	el chico / la chica	Junge; chica = Mädchen; (Adjektiv) klein	Substantiv	Los chicos están jugando en el parque.	Die Jungs spielen im Park.	paket01
+ES-0096	96	llevar	tragen; mitnehmen, bringen; llevar + Zeitangabe = schon … lang (llevo dos años aquí)	Verb	¿Me llevas al aeropuerto?	Bringst du mich zum Flughafen?	paket01
+ES-0097	97	tan	so (vor Adjektiv/Adverb); tan … como = so … wie	Adverb	No seas tan impaciente.	Sei nicht so ungeduldig.	paket01
+ES-0098	98	dos	zwei	Zahlwort	Tengo dos entradas para el concierto.	Ich habe zwei Karten für das Konzert.	paket01
+ES-0099	99	poner	legen, stellen, setzen; anmachen (TV); ponerse = anziehen, werden	Verb, unregelmäßig	Pon el libro en la mesa.	Leg das Buch auf den Tisch.	paket01
+ES-0100	100	nunca	nie, niemals	Adverb	Nunca he estado en Londres.	Ich war noch nie in London.	paket01
+ES-0101	101	mejor	besser; am besten; el/la mejor = der/die Beste	Adjektiv/Adverb	Es mejor esperar hasta mañana.	Es ist besser, bis morgen zu warten.	paket01
+ES-0102	102	dónde	wo?; ¿adónde? = wohin?	Frageadverb	¿Dónde está el baño?	Wo ist die Toilette?	paket01
+ES-0103	103	el año	Jahr	Substantiv	El año que viene nos vamos a Italia.	Nächstes Jahr fahren wir nach Italien.	paket01
+ES-0104	104	parecer	scheinen, aussehen; me parece = ich finde; parecerse a = ähneln	Verb, unregelmäßig (-zco)	Me parece una buena idea.	Ich finde, das ist eine gute Idee.	paket01
+ES-0105	105	el favor	Gefallen; por favor = bitte	Substantiv	¿Me haces un favor?	Tust du mir einen Gefallen?	paket01
+ES-0106	106	tomar	nehmen; trinken, (zu sich) nehmen	Verb	¿Qué quieres tomar?	Was möchtest du trinken?	paket01
+ES-0107	107	salir	hinausgehen, ausgehen; abfahren; salir con = zusammen sein mit, ausgehen mit	Verb, unregelmäßig	Esta noche salimos a cenar.	Heute Abend gehen wir essen.	paket01
+ES-0108	108	oír	hören; ¡oye! = hör mal!, du!	Verb, unregelmäßig	¿Has oído eso?	Hast du das gehört?	paket01
+ES-0109	109	mí	mir, mich (nach Präposition: para mí, a mí)	Personalpronomen	Esto es para mí.	Das ist für mich.	paket01
+ES-0110	110	gustar	gefallen; me gusta = ich mag	Verb	Me gusta mucho esta canción.	Mir gefällt dieses Lied sehr.	paket01
+ES-0111	111	también	auch	Adverb	Yo también tengo hambre.	Ich habe auch Hunger.	paket01
+ES-0112	112	ti	dir, dich (nach Präposition: para ti, de ti)	Personalpronomen	Pienso mucho en ti.	Ich denke viel an dich.	paket01
+ES-0113	113	la noche	Nacht, Abend; buenas noches = guten Abend, gute Nacht	Substantiv	Esta noche hay partido.	Heute Abend gibt es ein Spiel.	paket01
+ES-0114	114	el amigo / la amiga	Freund; amiga = Freundin	Substantiv	Mañana viene un amigo mío.	Morgen kommt ein Freund von mir.	paket01
+ES-0115	115	Dios	Gott (el dios = der Gott); ¡Dios mío! = mein Gott!	Substantiv	¡Dios mío, qué susto!	Mein Gott, was für ein Schreck!	paket01
+ES-0116	116	mismo	selbst (yo mismo); derselbe, gleich (el mismo); ahora mismo = sofort	Begleiter/Pronomen	Lo hice yo mismo.	Ich habe es selbst gemacht.	paket01
+ES-0117	117	quedar	bleiben (quedarse); übrig bleiben; sich verabreden (Spanien: quedar con alguien)	Verb	¿Quedamos a las ocho en el bar?	Treffen wir uns um acht in der Bar?	paket01
+ES-0118	118	el hijo / la hija	Sohn; hija = Tochter; hijos = Kinder	Substantiv	Tienen dos hijos y una hija.	Sie haben zwei Söhne und eine Tochter.	paket01
+ES-0119	119	la vida	Leben	Substantiv	La vida en el pueblo es tranquila.	Das Leben im Dorf ist ruhig.	paket01
+ES-0120	120	sobre	über; auf; sobre todo = vor allem; (el sobre = Umschlag)	Präposition	Hablamos sobre el viaje.	Wir sprechen über die Reise.	paket01
+ES-0121	121	conocer	kennen; kennenlernen	Verb, unregelmäßig (-zco)	¿Conoces a mi hermana?	Kennst du meine Schwester?	paket01
+ES-0122	122	sin	ohne	Präposition	Un café sin azúcar, por favor.	Einen Kaffee ohne Zucker, bitte.	paket01
+ES-0123	123	nuevo	neu; de nuevo = wieder	Adjektiv	Me he comprado un coche nuevo.	Ich habe mir ein neues Auto gekauft.	paket01
+ES-0124	124	llegar	ankommen; llegar tarde = zu spät kommen	Verb	El tren llega a las nueve.	Der Zug kommt um neun an.	paket01
+ES-0125	125	alguien	jemand	Indefinitpronomen	¿Hay alguien en casa?	Ist jemand zu Hause?	paket01
+ES-0126	126	seguir	folgen; weitermachen (seguir + Gerundio); immer noch sein (sigue enfermo)	Verb, unregelmäßig (e→i)	Sigue todo recto hasta la plaza.	Geh immer geradeaus bis zum Platz.	paket01
+ES-0127	127	ahí	da, dort (beim Gesprächspartner)	Adverb	Deja las bolsas ahí.	Lass die Taschen da.	paket01
+ES-0128	128	poco	wenig; un poco = ein bisschen; poco a poco = nach und nach	Begleiter/Pronomen/Adverb	Hablo un poco de español.	Ich spreche ein bisschen Spanisch.	paket01
+ES-0129	129	el padre	Vater; padres = Eltern	Substantiv	Mis padres viven en Valencia.	Meine Eltern leben in Valencia.	paket01
+ES-0130	130	grande	groß (vor Substantiv im Singular: gran = großer, bedeutender)	Adjektiv	Madrid es una ciudad muy grande.	Madrid ist eine sehr große Stadt.	paket01
+ES-0131	131	siempre	immer	Adverb	Siempre llegas tarde.	Du kommst immer zu spät.	paket01
+ES-0132	132	hasta	bis; sogar; hasta luego = bis später	Präposition/Adverb	Trabajo hasta las seis.	Ich arbeite bis sechs.	paket01
+ES-0133	133	matar	töten, umbringen	Verb	En la película matan al protagonista.	Im Film bringen sie den Protagonisten um.	paket01
+ES-0134	134	primero	erster, erste; zuerst (Adverb); vor männlichem Substantiv: primer	Ordnungszahl (Adjektiv/Adverb)	Vivo en el primer piso.	Ich wohne im ersten Stock.	paket01
+ES-0135	135	antes	vorher, früher; antes de = vor (zeitlich)	Adverb	Llámame antes de salir.	Ruf mich an, bevor du losgehst.	paket01
+ES-0136	136	ni	nicht einmal; auch nicht; ni … ni = weder … noch	Konjunktion	No tengo ni idea.	Ich habe keine Ahnung.	paket01
+ES-0137	137	escuchar	zuhören, (aufmerksam) hören	Verb	Escucha, tengo que contarte algo.	Hör zu, ich muss dir etwas erzählen.	paket01
+ES-0138	138	uno	eins; einer, eine; man (uno nunca sabe)	Zahlwort/Pronomen	Solo queda uno.	Es ist nur noch einer übrig.	paket01
+ES-0139	139	nosotros	wir (nosotras = weiblich)	Personalpronomen	Nosotros vivimos aquí al lado.	Wir wohnen hier nebenan.	paket01
+ES-0140	140	seguro	sicher; seguro que … = bestimmt …; el seguro = Versicherung	Adjektiv	¿Estás seguro de eso?	Bist du dir da sicher?	paket01
+ES-0141	141	el trabajo	Arbeit; Stelle, Job	Substantiv	Busco trabajo en Madrid.	Ich suche Arbeit in Madrid.	paket01
+ES-0142	142	entender	verstehen	Verb, unregelmäßig (e→ie)	No entiendo nada.	Ich verstehe gar nichts.	paket01
+ES-0143	143	ellos	sie (Plural; ellas = weiblich)	Personalpronomen	Ellos llegan mañana.	Sie kommen morgen an.	paket01
+ES-0144	144	el acuerdo	Vereinbarung, Abkommen; de acuerdo = einverstanden, okay	Substantiv	De acuerdo, nos vemos a las diez.	Einverstanden, wir sehen uns um zehn.	paket01
+ES-0145	145	ayudar	helfen	Verb	¿Te ayudo con las bolsas?	Soll ich dir mit den Taschen helfen?	paket01
+ES-0146	146	la gente	Leute (im Spanischen Singular: la gente es …)	Substantiv	Había mucha gente en la calle.	Es waren viele Leute auf der Straße.	paket01
+ES-0147	147	la mujer	Frau; Ehefrau	Substantiv	Mi mujer es profesora.	Meine Frau ist Lehrerin.	paket01
+ES-0148	148	tratar	behandeln; tratar de + Infinitiv = versuchen; se trata de = es geht um	Verb	¿De qué se trata?	Worum geht es?	paket01
+ES-0149	149	nadie	niemand	Indefinitpronomen	No hay nadie en la oficina.	Es ist niemand im Büro.	paket01
+ES-0150	150	perder	verlieren; verpassen (Zug); perderse = sich verlaufen	Verb, unregelmäßig (e→ie)	He perdido las llaves otra vez.	Ich habe schon wieder die Schlüssel verloren.	paket01
+ES-0151	151	el niño / la niña	Kind, Junge; niña = Mädchen	Substantiv	Los niños están en el colegio.	Die Kinder sind in der Schule.	paket01
+ES-0152	152	después	danach, später; después de = nach	Adverb	Primero comemos y después hablamos.	Zuerst essen wir und danach reden wir.	paket01
+ES-0153	153	tal	solch; ¿qué tal? = wie geht’s?, wie war …?; tal vez = vielleicht	Begleiter/Pronomen/Adverb	¿Qué tal el fin de semana?	Wie war das Wochenende?	paket01
+ES-0154	154	buscar	suchen; ir a buscar a alguien = jemanden abholen	Verb	Estoy buscando un piso en el centro.	Ich suche eine Wohnung im Zentrum.	paket01
+ES-0155	155	claro	klar, hell; ¡claro! = klar!, natürlich!	Adjektiv/Adverb	¡Claro que sí!	Na klar!	paket01
+ES-0156	156	el momento	Moment, Augenblick; de momento = vorerst, im Moment	Substantiv	Un momento, por favor.	Einen Moment, bitte.	paket01
+ES-0157	157	acabar	beenden, zu Ende gehen; acabar de + Infinitiv = gerade getan haben; se acabó = es ist vorbei	Verb	Acabo de llegar a casa.	Ich bin gerade zu Hause angekommen.	paket01
+ES-0158	158	fuera	draußen; raus (¡fuera!); fuera de = außerhalb von; auch: Konjunktiv Imperfekt von ser/ir (si fuera rico)	Adverb	Los niños están jugando fuera.	Die Kinder spielen draußen.	paket01
+ES-0159	159	el problema	Problem	Substantiv, m.	No hay ningún problema.	Es gibt kein Problem.	paket01
+ES-0160	160	la hora	Stunde; Uhrzeit (¿qué hora es?); es hora de = es ist Zeit zu	Substantiv	¿Qué hora es? — Son las dos.	Wie spät ist es? — Es ist zwei Uhr.	paket01
+ES-0161	161	desde	seit; von … aus; desde hace = seit (Dauer)	Präposition	Vivo aquí desde enero.	Ich wohne seit Januar hier.	paket01
+ES-0162	162	el mundo	Welt; todo el mundo = alle, jeder	Substantiv	Todo el mundo lo sabe.	Alle wissen es.	paket01
+ES-0163	163	mío	meiner, meine, meins; un amigo mío = ein Freund von mir	Possessivpronomen	Ese bolígrafo es mío.	Dieser Kugelschreiber gehört mir.	paket01
+ES-0164	164	el lugar	Ort, Platz; en lugar de = anstatt	Substantiv	Es un lugar muy tranquilo.	Es ist ein sehr ruhiger Ort.	paket01
+ES-0165	165	el dinero	Geld	Substantiv	No llevo dinero encima.	Ich habe kein Geld dabei.	paket01
+ES-0166	166	el hermano / la hermana	Bruder; hermana = Schwester; hermanos = Geschwister	Substantiv	Mi hermana mayor vive en Bilbao.	Meine ältere Schwester lebt in Bilbao.	paket01
+ES-0167	167	morir	sterben	Verb, unregelmäßig (o→ue, o→u, Partizip muerto)	Su abuelo murió el año pasado.	Sein Großvater ist letztes Jahr gestorben.	paket01
+ES-0168	168	el tipo	Typ, Art; Kerl (umgangssprachlich)	Substantiv	¿Qué tipo de música te gusta?	Welche Art von Musik magst du?	paket01
+ES-0169	169	traer	bringen, mitbringen (hierher)	Verb, unregelmäßig	¿Puedes traerme un vaso de agua?	Kannst du mir ein Glas Wasser bringen?	paket01
+ES-0170	170	trabajar	arbeiten	Verb	Trabajo en una tienda de ropa.	Ich arbeite in einem Bekleidungsgeschäft.	paket01
+ES-0171	171	la madre	Mutter	Substantiv	Mi madre cocina muy bien.	Meine Mutter kocht sehr gut.	paket01
+ES-0172	172	mañana	morgen (Adverb); la mañana = Morgen, Vormittag; por la mañana = morgens	Adverb/Substantiv	Mañana por la mañana tengo médico.	Morgen früh habe ich einen Arzttermin.	paket01
+ES-0173	173	intentar	versuchen	Verb	Voy a intentarlo otra vez.	Ich versuche es noch einmal.	paket01
+ES-0174	174	vale	okay, in Ordnung, einverstanden (Spanien, sehr häufig); auch Form von valer = wert sein, gelten	Interjektion	¿Nos vemos a las ocho? — Vale.	Sehen wir uns um acht? — Okay.	paket01
+ES-0175	175	la persona	Person, Mensch	Substantiv	Es una persona muy amable.	Das ist ein sehr netter Mensch.	paket01
+ES-0176	176	donde	wo (Relativadverb); en donde = worin, wo	Relativadverb	Este es el bar donde nos conocimos.	Das ist die Bar, in der wir uns kennengelernt haben.	paket01
+ES-0177	177	quizá, quizás	vielleicht	Adverb	Quizá vaya al cine esta noche.	Vielleicht gehe ich heute Abend ins Kino.	paket01
+ES-0178	178	allí	dort, da (weiter weg)	Adverb	Allí está la estación.	Dort ist der Bahnhof.	paket01
+ES-0179	179	el papá	Papa	Substantiv, m.	Papá, ¿me dejas el coche?	Papa, leihst du mir das Auto?	paket01
+ES-0180	180	recordar	sich erinnern an; erinnern	Verb, unregelmäßig (o→ue)	¿Recuerdas dónde aparcamos?	Erinnerst du dich, wo wir geparkt haben?	paket01
+ES-0181	181	la parte	Teil; en parte = teilweise; por otra parte = andererseits	Substantiv	Esta es la parte más difícil.	Das ist der schwierigste Teil.	paket01
+ES-0182	182	la mamá	Mama	Substantiv	Mamá, ¿dónde está mi mochila?	Mama, wo ist mein Rucksack?	paket01
+ES-0183	183	menos	weniger; am wenigsten; außer; menos mal = zum Glück	Adverb	Hoy hay menos gente que ayer.	Heute sind weniger Leute da als gestern.	paket01
+ES-0184	184	importar	wichtig sein; no me importa = es ist mir egal; ¿te importa? = macht es dir etwas aus?	Verb	No me importa lo que digan.	Mir ist egal, was sie sagen.	paket01
+ES-0185	185	pedir	bitten um, verlangen; bestellen	Verb, unregelmäßig (e→i)	¿Pedimos una pizza?	Bestellen wir eine Pizza?	paket01
+ES-0186	186	ninguno	kein, keiner; (vor männlichem Substantiv: ningún)	Begleiter/Pronomen	No tengo ningún problema con eso.	Ich habe damit kein Problem.	paket01
+ES-0187	187	vivir	leben; wohnen	Verb	¿Dónde vives?	Wo wohnst du?	paket01
+ES-0188	188	tanto	so viel, so sehr; tanto … como = sowohl … als auch; por lo tanto = deshalb	Begleiter/Pronomen/Adverb	No comas tanto.	Iss nicht so viel.	paket01
+ES-0189	189	usar	benutzen, verwenden	Verb	¿Puedo usar tu teléfono?	Darf ich dein Telefon benutzen?	paket01
+ES-0190	190	el nombre	Name; Vorname (nombre de pila)	Substantiv	Escribe tu nombre aquí.	Schreib deinen Namen hierhin.	paket01
+ES-0191	191	empezar	anfangen, beginnen; empezar a + Infinitiv	Verb, unregelmäßig (e→ie)	La clase empieza a las nueve.	Der Unterricht beginnt um neun.	paket01
+ES-0192	192	luego	dann, danach; später; hasta luego = bis später	Adverb	Primero el trabajo y luego la fiesta.	Erst die Arbeit und dann die Party.	paket01
+ES-0193	193	entrar	hereinkommen, eintreten; entrar en = hineingehen in	Verb	Entra, no te quedes en la puerta.	Komm rein, bleib nicht in der Tür stehen.	paket01
+ES-0194	194	hoy	heute	Adverb	Hoy no tengo clase.	Heute habe ich keinen Unterricht.	paket01
+ES-0195	195	tres	drei	Zahlwort	Somos tres hermanos.	Wir sind drei Geschwister.	paket01
+ES-0196	196	conseguir	bekommen, erreichen; schaffen (conseguir + Infinitiv)	Verb, unregelmäßig (e→i)	Al final conseguí las entradas.	Am Ende habe ich die Karten bekommen.	paket01
+ES-0197	197	la mano	Hand; a mano = von Hand; echar una mano = helfen	Substantiv, f.	Lávate las manos antes de comer.	Wasch dir vor dem Essen die Hände.	paket01
+ES-0198	198	la mierda	Scheiße (vulgär); ¡mierda! = Mist!	Substantiv	¡Mierda, he perdido el tren!	Mist, ich habe den Zug verpasst!	paket01
+ES-0199	199	conmigo	mit mir	Personalpronomen	¿Vienes conmigo al supermercado?	Kommst du mit mir zum Supermarkt?	paket01
+ES-0200	200	preguntar	fragen; preguntar por = fragen nach; preguntarse = sich fragen	Verb	Pregúntale a tu madre.	Frag deine Mutter.	paket01
