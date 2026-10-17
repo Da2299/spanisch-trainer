@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Spanisch-Trainer</title>
+  <meta name="description" content="Spanisch-Vokabeltrainer mit Spaced Repetition (FSRS), offline nutzbar.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111114" media="(prefers-color-scheme: dark)">
+  <!-- iOS: Zum Home-Bildschirm -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Spanisch">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <main id="view" class="view" aria-live="polite"></main>
+  <nav id="tabs" class="tabs" aria-label="Bereiche">
+    <a href="#start" data-route="start"><span class="tab-icon" aria-hidden="true">🏠</span><span>Start</span></a>
+    <a href="#lernen" data-route="lernen"><span class="tab-icon" aria-hidden="true">🎴</span><span>Lernen</span></a>
+    <a href="#karten" data-route="karten"><span class="tab-icon" aria-hidden="true">🔍</span><span>Karten</span></a>
+    <a href="#einstellungen" data-route="einstellungen"><span class="tab-icon" aria-hidden="true">⚙️</span><span>Einstellungen</span></a>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="center">Diese App benötigt JavaScript.</p></noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

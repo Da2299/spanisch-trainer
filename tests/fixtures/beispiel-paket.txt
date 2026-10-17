@@ -1,0 +1,35 @@
+#separator:tab
+#html:false
+#guid column:1
+#deck column:0
+#tags column:8
+ES-0001	1	de	von, aus	Präposition	Soy de Madrid.	Ich bin aus Madrid.	grundwortschatz praeposition
+ES-0002	2	que	dass, der/die/das	Konjunktion	Creo que tienes razón.	Ich glaube, dass du recht hast.	grundwortschatz
+ES-0003	3	el	der	Artikel	El libro está en la mesa.	Das Buch liegt auf dem Tisch.	grundwortschatz artikel
+ES-0004	4	la	die	Artikel	La casa es grande.	Das Haus ist groß.	grundwortschatz artikel
+ES-0005	5	y	und	Konjunktion	Pan y agua.	Brot und Wasser.	grundwortschatz
+ES-0006	6	ser	sein	Verb	Mi hermana es médica.	Meine Schwester ist Ärztin.	grundwortschatz verb
+ES-0007	7	estar	sich befinden, sein	Verb	Estoy en casa.	Ich bin zu Hause.	grundwortschatz verb
+ES-0008	8	tener	haben	Verb	Tengo dos gatos.	Ich habe zwei Katzen.	grundwortschatz verb
+ES-0009	9	hacer	machen, tun	Verb	¿Qué haces hoy?	Was machst du heute?	grundwortschatz verb
+ES-0010	10	poder	können	Verb	No puedo venir mañana.	Ich kann morgen nicht kommen.	grundwortschatz verb
+ES-0011	11	decir	sagen	Verb	Dime la verdad.	Sag mir die Wahrheit.	grundwortschatz verb
+ES-0012	12	ir	gehen, fahren	Verb	Vamos al cine.	Wir gehen ins Kino.	grundwortschatz verb
+ES-0013	13	ver	sehen	Verb	¿Ves aquel coche?	Siehst du jenes Auto?	grundwortschatz verb
+ES-0014	14	dar	geben	Verb	Te doy mi número.	Ich gebe dir meine Nummer.	grundwortschatz verb
+ES-0015	15	saber	wissen, können	Verb	No sé nada.	Ich weiß nichts.	grundwortschatz verb
+ES-0016	16	querer	wollen, lieben	Verb	Quiero un café.	Ich möchte einen Kaffee.	grundwortschatz verb
+ES-0017	17	llegar	ankommen	Verb	Llegamos tarde.	Wir kommen zu spät.	grundwortschatz verb
+ES-0018	18	pasar	vorbeigehen, passieren	Verb	¿Qué pasa?	Was ist los?	grundwortschatz verb
+ES-0019	19	deber	müssen, sollen	Verb	Debes descansar.	Du musst dich ausruhen.	grundwortschatz verb
+ES-0020	20	poner	setzen, stellen, legen	Verb	Pon el vaso aquí.	Stell das Glas hierher.	grundwortschatz verb
+ES-0021	21	tiempo	Zeit, Wetter	Substantiv (m.)	No tengo tiempo.	Ich habe keine Zeit.	grundwortschatz substantiv
+ES-0022	22	casa	Haus	Substantiv (f.)	Mi casa está cerca.	Mein Haus ist in der Nähe.	grundwortschatz substantiv
+ES-0023	23	día	Tag	Substantiv (m.)	Hoy es un buen día.	Heute ist ein guter Tag.	grundwortschatz substantiv
+ES-0024	24	mujer	Frau	Substantiv (f.)	Esa mujer es mi vecina.	Diese Frau ist meine Nachbarin.	grundwortschatz substantiv
+ES-0025	25	hombre	Mann	Substantiv (m.)	Un hombre pregunta por ti.	Ein Mann fragt nach dir.	grundwortschatz substantiv
+ES-0026	26	bueno	gut	Adjektiv	Es una buena idea.	Das ist eine gute Idee.	grundwortschatz adjektiv
+ES-0027	27	grande	groß	Adjektiv	Una ciudad grande.	Eine große Stadt.	grundwortschatz adjektiv
+ES-0028	28	nuevo	neu	Adjektiv	Tengo un coche nuevo.	Ich habe ein neues Auto.	grundwortschatz adjektiv
+ES-0029	29	ahora	jetzt	Adverb	Ahora no puedo hablar.	Jetzt kann ich nicht reden.	grundwortschatz adverb
+ES-0030	30	siempre	immer	Adverb	Siempre llegas tarde.	Du kommst immer zu spät.	grundwortschatz adverb
