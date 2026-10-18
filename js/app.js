@@ -15,7 +15,7 @@ import { renderStats } from './views/stats.js';
 import { renderSettings } from './views/settings.js';
 import { renderVerbTable, renderPatterns } from './views/verbs.js';
 
-export const APP_VERSION = '1.4.0';
+export const APP_VERSION = '1.5.0';
 export const EXPORT_FORMAT = 2;
 export const BACKUP_REMINDER_DAYS = 7;
 export const DEFAULT_SETTINGS = {
@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS = {
   requestRetention: 0.9,
   fsrsParams: '',
   autoSpeak: true,
+  newBackPerDay: 10,
   newHearPerDay: 10,
   newVerbPerDay: 10,
   tipMode: false, // Verbform eintippen statt „Antwort zeigen“
@@ -99,7 +100,7 @@ export function getCardMeta(id) {
 }
 
 function dayRecord(key) {
-  return state.days.get(key) || { id: key, newCount: 0, reviewCount: 0, newHearCount: 0, newVerbCount: 0 };
+  return state.days.get(key) || { id: key, newCount: 0, reviewCount: 0, newHearCount: 0, newVerbCount: 0, newBackCount: 0 };
 }
 
 /**
@@ -318,6 +319,7 @@ export function sanitizeSettings(src) {
   const out = {};
   if (Number.isFinite(Number(src.newPerDay))) out.newPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newPerDay))));
   if (Number.isFinite(Number(src.newHearPerDay))) out.newHearPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newHearPerDay))));
+  if (Number.isFinite(Number(src.newBackPerDay))) out.newBackPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newBackPerDay))));
   if (Number.isFinite(Number(src.newVerbPerDay))) out.newVerbPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newVerbPerDay))));
   if (Number.isFinite(Number(src.requestRetention))) out.requestRetention = clampRetention(src.requestRetention);
   if (typeof src.fsrsParams === 'string' && !parseFsrsParams(src.fsrsParams).error) out.fsrsParams = src.fsrsParams;

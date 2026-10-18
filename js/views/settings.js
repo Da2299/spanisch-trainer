@@ -161,7 +161,8 @@ export function renderSettings(main) {
       retention,
       el('span', { class: 'muted small-text', text: 'Höher = kürzere Intervalle und mehr Wiederholungen. Gilt für künftige Planungen.' }),
     ]),
-    el('h3', { text: 'Hören und Verben' }),
+    el('h3', { text: 'Rückwärts, Hören und Verben' }),
+    el('label', { class: 'row', for: 'new-back-per-day' }, [el('span', { text: 'Neue Rückwärtskarten pro Tag (Deutsch → Spanisch)' }), numberInput('new-back-per-day', 'newBackPerDay', { label: 'Neue Rückwärtskarten pro Tag' })]),
     el('label', { class: 'row', for: 'new-hear-per-day' }, [el('span', { text: 'Neue Hörkarten pro Tag' }), numberInput('new-hear-per-day', 'newHearPerDay', { label: 'Neue Hörkarten pro Tag' })]),
     el('label', { class: 'row', for: 'new-verb-per-day' }, [
       el('span', {}, ['Neue Verbformen pro Tag', el('span', { class: 'muted small-text', id: 'verbs-info', text: state.verbs.length ? ` – ${state.verbs.length} Verben, ${state.verbForms.size} Formen` : ' – data/verben.json fehlt' })]),

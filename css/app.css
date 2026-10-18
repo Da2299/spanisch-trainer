@@ -469,3 +469,8 @@ a.chip { text-decoration: none; }
 .advanced h3 { font-size: 1rem; margin: 18px 0 6px; }
 .advanced select { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); max-width: 60%; }
 .done .stats { margin-top: 16px; }
+
+/* --- Stufe 5: Rückwärtskarten --- */
+.back-front { gap: 10px; }
+.meaning-main.big { font-size: 2.2rem; }
+.meaning-main.small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }

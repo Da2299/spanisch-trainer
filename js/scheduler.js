@@ -15,6 +15,7 @@ export const RATINGS = [
 /** Kartentypen. Der Typ ergibt sich aus dem Kartenschlüssel. */
 export const CARD_TYPES = {
   vocab: { key: 'vocab', label: 'Vokabel', labelPlural: 'Vokabeln', session: 'Vokabeln' },
+  back: { key: 'back', label: 'Rückwärts', labelPlural: 'Rückwärtskarten', session: 'Rückwärts' },
   hear: { key: 'hear', label: 'Hören', labelPlural: 'Hörkarten', session: 'Hören' },
   verb: { key: 'verb', label: 'Verbform', labelPlural: 'Verbformen', session: 'Verben' },
 };
@@ -23,19 +24,26 @@ export const SIMPLE_RATINGS = [
   { grade: 1, key: 'again', label: 'Vergessen' },
   { grade: 3, key: 'good', label: 'Gewusst' },
 ];
-export const TYPE_ORDER = ['vocab', 'hear', 'verb'];
+export const TYPE_ORDER = ['vocab', 'back', 'hear', 'verb'];
 
 export function cardTypeOf(key) {
   if (typeof key !== 'string') return 'vocab';
   if (key.startsWith('V:')) return 'verb';
   if (key.endsWith(':H')) return 'hear';
+  if (key.endsWith(':R')) return 'back';
   return 'vocab';
 }
 
-/** Kennung der Vokabelkarte, zu der ein Schlüssel gehört (Hörkarte → Kennung; Verbform: Lemma-Schlüssel). */
+/** Kennung der Vokabelkarte, zu der ein Schlüssel gehört (Hör-/Rückwärtskarte → Kennung; Verbform: Lemma-Schlüssel). */
 export function baseIdOf(key) {
-  if (cardTypeOf(key) === 'hear') return key.slice(0, -2);
+  const t = cardTypeOf(key);
+  if (t === 'hear' || t === 'back') return key.slice(0, -2);
   return key;
+}
+
+/** Schlüssel der Rückwärtskarte (Deutsch → Spanisch) zu einer Kennung. */
+export function backKeyOf(id) {
+  return `${id}:R`;
 }
 
 /** Akzeptierte Längen für eigene FSRS-Parameter (ts-fsrs füllt auf 21 auf). */
@@ -202,12 +210,12 @@ export function toCardInput(p) {
 }
 
 function emptyDay(key) {
-  return { id: key, newCount: 0, reviewCount: 0, newHearCount: 0, newVerbCount: 0 };
+  return { id: key, newCount: 0, reviewCount: 0, newHearCount: 0, newVerbCount: 0, newBackCount: 0 };
 }
 
 /** Feldname der Tagesstatistik für neue Karten eines Typs. */
 export function newCountField(type) {
-  return type === 'hear' ? 'newHearCount' : type === 'verb' ? 'newVerbCount' : 'newCount';
+  return type === 'hear' ? 'newHearCount' : type === 'verb' ? 'newVerbCount' : type === 'back' ? 'newBackCount' : 'newCount';
 }
 
 /** Schlüssel der Hörkarte zu einer Kennung. */
@@ -230,9 +238,9 @@ function typeSummary() {
 
 /**
  * Kennzahlen und Warteschlangen berechnen.
- * Jeder Lernmodus (Vokabeln, Hören, Verben) hat eine eigene Warteschlange: fällige Karten des Typs
- * zufällig gemischt, danach neue Karten (Vokabeln nach Rang, Hörkarten nach Rang, Verbformen nach
- * Häufigkeit). „queue“ enthält zusätzlich alle Typen hintereinander (Vokabeln, Hören, Verben).
+ * Jeder Lernmodus (Vokabeln, Rückwärts, Hören, Verben) hat eine eigene Warteschlange: fällige Karten des
+ * Typs zufällig gemischt, danach neue Karten (Vokabeln/Rückwärts/Hören nach Rang, Verbformen nach
+ * Häufigkeit). „queue“ enthält zusätzlich alle Typen hintereinander in TYPE_ORDER.
  * @param {Scheduler} sch
  * @param {Map<string, Card>} cards  alle Vokabelkarten nach Kennung
  * @param {Map<string, object>} progress Lernstand nach Kartenschlüssel
@@ -252,9 +260,10 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   const verbOn = verbForms.size > 0;
   const due = [];
   const unseenVocab = [];
+  const unseenBack = [];
   const unseenHear = [];
   const unseenVerb = [];
-  const types = { vocab: typeSummary(), hear: typeSummary(), verb: typeSummary() };
+  const types = { vocab: typeSummary(), back: typeSummary(), hear: typeSummary(), verb: typeSummary() };
   let difficultCount = 0;
 
   for (const card of cards.values()) {
@@ -272,6 +281,27 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
     } else {
       types.vocab.learned++;
       if (sch.isDue(p, now)) due.push({ key: card.id, type: 'vocab', card, dueAt: new Date(p.due).getTime() });
+    }
+
+    // Rückwärtskarte (Deutsch → Spanisch): freigeschaltet, sobald die Vokabelkarte im Zustand Review ist.
+    const bk = backKeyOf(card.id);
+    const bp = progress.get(bk);
+    const bm = cardmeta.get(bk);
+    const backNew = sch.isNew(bp);
+    if (isDifficult(bp)) difficultCount++;
+    if (vocabSuspended || (bm && bm.suspended)) {
+      types.back.suspended++;
+      if (!backNew) types.back.learned++;
+    } else if (backNew) {
+      if (p && !vocabNew && p.state === S.Review) {
+        types.back.unseen++;
+        unseenBack.push(card);
+      } else {
+        types.back.locked++;
+      }
+    } else {
+      types.back.learned++;
+      if (sch.isDue(bp, now)) due.push({ key: bk, type: 'back', card, dueAt: new Date(bp.due).getTime() });
     }
 
     // Hörkarte: nur mit Beispielsatz; freigeschaltet, sobald die Vokabelkarte im Zustand Review ist.
@@ -328,12 +358,15 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   }
 
   shuffle(due, opts.rand || Math.random);
-  const dueByType = { vocab: [], hear: [], verb: [] };
+  const dueByType = { vocab: [], back: [], hear: [], verb: [] };
   for (const d of due) dueByType[d.type].push({ key: d.key, type: d.type, card: d.card, form: d.form });
   unseenVocab.sort(compareByRank);
+  unseenBack.sort(compareByRank);
   unseenHear.sort(compareByRank);
   unseenVerb.sort(compareByFrequency);
   const newLimit = Math.max(0, (Number(settings.newPerDay) || 0) - (todayStats.newCount || 0));
+  const newBackLimit = Math.max(0, (Number(settings.newBackPerDay) || 0) - (todayStats.newBackCount || 0));
+  const newBack = unseenBack.slice(0, newBackLimit).map((card) => ({ key: backKeyOf(card.id), type: 'back', card }));
   const newHearLimit = hearingOn ? Math.max(0, (Number(settings.newHearPerDay) || 0) - (todayStats.newHearCount || 0)) : 0;
   const newVerbLimit = verbOn ? Math.max(0, (Number(settings.newVerbPerDay) || 0) - (todayStats.newVerbCount || 0)) : 0;
   const newVocab = unseenVocab.slice(0, newLimit).map((card) => ({ key: card.id, type: 'vocab', card }));
@@ -341,27 +374,29 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   const newVerb = unseenVerb.slice(0, newVerbLimit).map((f) => ({ key: f.key, type: 'verb', card: cards.get(f.verb.kennung), form: f }));
   for (const d of due) types[d.type].due++;
   types.vocab.new = newVocab.length;
+  types.back.new = newBack.length;
   types.hear.new = newHear.length;
   types.verb.new = newVerb.length;
 
   const sessions = {
     vocab: { due: dueByType.vocab.length, new: newVocab.length, entries: [...dueByType.vocab, ...newVocab] },
+    back: { due: dueByType.back.length, new: newBack.length, entries: [...dueByType.back, ...newBack] },
     hear: { due: dueByType.hear.length, new: newHear.length, entries: [...dueByType.hear, ...newHear] },
     verb: { due: dueByType.verb.length, new: newVerb.length, entries: [...dueByType.verb, ...newVerb] },
   };
   for (const t of TYPE_ORDER) sessions[t].total = sessions[t].entries.length;
-  const queue = [...sessions.vocab.entries, ...sessions.hear.entries, ...sessions.verb.entries];
+  const queue = TYPE_ORDER.flatMap((t) => sessions[t].entries);
   return {
     today,
     dueCount: due.length,
-    newCount: newVocab.length + newHear.length + newVerb.length,
+    newCount: newVocab.length + newBack.length + newHear.length + newVerb.length,
     newDoneToday: todayStats.newCount || 0,
     newHearDoneToday: todayStats.newHearCount || 0,
     newVerbDoneToday: todayStats.newVerbCount || 0,
     reviewsToday: todayStats.reviewCount || 0,
     unseenCount: types.vocab.unseen,
-    learnedTotal: types.vocab.learned + types.hear.learned + types.verb.learned,
-    suspendedCount: types.vocab.suspended + types.hear.suspended + types.verb.suspended,
+    learnedTotal: TYPE_ORDER.reduce((n, t) => n + types[t].learned, 0),
+    suspendedCount: TYPE_ORDER.reduce((n, t) => n + types[t].suspended, 0),
     difficultCount,
     totalCards: cards.size,
     hearingOn,

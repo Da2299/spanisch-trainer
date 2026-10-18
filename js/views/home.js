@@ -43,7 +43,9 @@ export function renderHome(main) {
   if (state.cards.size) main.append(modeList);
   const lockedModes = TYPE_ORDER.filter((t) => t !== 'vocab' && !modes.includes(t) && p.types[t].locked);
   if (lockedModes.length) {
-    main.append(el('p', { class: 'muted small-text center', id: 'locked-hint', text: `${lockedModes.map((t) => CARD_TYPES[t].session).join(' und ')} ${lockedModes.length > 1 ? 'werden' : 'wird'} frei, sobald Vokabeln den Zustand „Wiederholen“ erreichen.` }));
+    const names = lockedModes.map((t) => CARD_TYPES[t].session);
+    const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} und ${names[names.length - 1]}` : names[0];
+    main.append(el('p', { class: 'muted small-text center', id: 'locked-hint', text: `${list} ${names.length > 1 ? 'werden' : 'wird'} frei, sobald Vokabeln den Zustand „Wiederholen“ erreichen.` }));
   }
 
   main.append(
