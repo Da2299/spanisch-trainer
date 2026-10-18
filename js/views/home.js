@@ -1,5 +1,5 @@
-// Startbildschirm: Kennzahlen und Einstieg ins Lernen.
-import { state, plan, navigate } from '../app.js';
+// Startbildschirm: Kennzahlen, Sicherungshinweis und Einstieg ins Lernen.
+import { state, plan, navigate, backupDue } from '../app.js';
 import { el } from '../util.js';
 
 export function renderHome(main) {
@@ -31,9 +31,19 @@ export function renderHome(main) {
     const parts = [`${p.totalCards} Karten in ${state.sources.length} Paket${state.sources.length === 1 ? '' : 'en'}`];
     if (p.reviewsToday) parts.push(`${p.reviewsToday} Bewertungen heute`);
     if (p.unseenCount > p.newCount) parts.push(`${p.unseenCount} noch ungelernt`);
+    if (p.suspendedCount) parts.push(`${p.suspendedCount} ausgesetzt`);
     meta.textContent = parts.join(' · ');
   }
   main.append(meta);
+
+  if (backupDue()) {
+    main.append(
+      el('p', { class: 'hint center', id: 'backup-hint' }, [
+        el('a', { href: '#einstellungen', text: 'Lernstand sichern' }),
+        el('span', { class: 'muted', text: state.backup.lastExportAt ? ' – letzte Sicherung ist älter als 7 Tage' : ' – noch keine Sicherung erstellt' }),
+      ]),
+    );
+  }
 
   if (state.loadErrors.length) {
     main.append(
@@ -45,14 +55,15 @@ export function renderHome(main) {
   }
 
   const queueLen = p.queue.length;
-  const bar = el('div', { class: 'bottom-bar' }, [
-    el('button', {
-      class: 'btn primary big',
-      id: 'start-study',
-      disabled: queueLen === 0 || null,
-      onclick: () => navigate('lernen'),
-      text: queueLen ? `Lernen starten (${queueLen})` : 'Nichts fällig – gut gemacht!',
-    }),
-  ]);
-  main.append(bar);
+  main.append(
+    el('div', { class: 'bottom-bar' }, [
+      el('button', {
+        class: 'btn primary big',
+        id: 'start-study',
+        disabled: queueLen === 0 || null,
+        onclick: () => navigate('lernen'),
+        text: queueLen ? `Lernen starten (${queueLen})` : 'Nichts fällig – gut gemacht!',
+      }),
+    ]),
+  );
 }

@@ -1,20 +1,34 @@
-// Lernansicht: Vorderseite (Wort), Rückseite (Übersetzung, Wortart, Beispiele), Bewertung.
-import { state, plan, rateCard, getProgress, navigate, rerender, toast } from '../app.js';
-import { RATINGS, LEARN_AHEAD_MS } from '../scheduler.js';
+// Lernansicht: Vorderseite (Wort), Rückseite (Hauptbedeutung, Rest, Wortart, Beispiele, Notiz), Bewertung.
+// Tastatur: Leertaste/Enter = Antwort zeigen, 1–4 = bewerten, Z = Rückgängig, S = vorlesen.
+import { state, plan, rateCard, undoLastRating, getProgress, getCardMeta, setCardMeta, navigate, rerender, toast } from '../app.js';
+import { RATINGS, LEARN_AHEAD_MS, isDifficult } from '../scheduler.js';
 import { speak, stopSpeech } from '../speech.js';
-import { el, formatInterval } from '../util.js';
+import { el, formatInterval, splitMeaning } from '../util.js';
 
 export function renderStudy(main) {
   const p = plan();
-  const queue = p.queue.map((c) => c.id);
+  const queue = p.queue.map((e) => e.key);
   let index = 0;
   let showingBack = false;
   let busy = false;
-  let currentId = null;
+  let current = null; // Schlüssel der aktuellen Karte
   let preview = null;
+  let shownAt = 0;
+  let noteTimer = null;
+  let pendingNote = null; // { id, note }
+  let lastQueuePush = null; // Index, an dem die zuletzt bewertete Karte erneut eingereiht wurde
 
   const wrap = el('div', { class: 'study' });
   main.append(wrap);
+
+  function flushNote() {
+    clearTimeout(noteTimer);
+    if (pendingNote) {
+      const { id, note } = pendingNote;
+      pendingNote = null;
+      setCardMeta(id, { note }).catch((e) => console.error(e));
+    }
+  }
 
   function finish() {
     stopSpeech();
@@ -26,32 +40,50 @@ export function renderStudy(main) {
       ]),
       el('div', { class: 'bottom-bar' }, [
         q.queue.length ? el('button', { class: 'btn primary big', onclick: () => rerender(), text: 'Weiter lernen' }) : null,
+        state.lastRating ? el('button', { class: 'btn', id: 'undo', onclick: undo, text: 'Rückgängig' }) : null,
         el('button', { class: 'btn big', onclick: () => navigate('start'), text: 'Zum Start' }),
       ]),
     );
   }
 
+  function currentCard() {
+    return state.cards.get(current);
+  }
+
+  function speakCurrent() {
+    const card = currentCard();
+    if (!card) return;
+    speak(showingBack && card.exEs ? card.exEs : card.es);
+  }
+
   function showCard() {
+    flushNote();
     if (index >= queue.length) {
       finish();
       return;
     }
-    currentId = queue[index];
-    const card = state.cards.get(currentId);
-    if (!card) {
+    current = queue[index];
+    const card = currentCard();
+    const meta = getCardMeta(current);
+    if (!card || meta.suspended) {
       index++;
       showCard();
       return;
     }
     showingBack = false;
     const now = new Date();
-    const prog = getProgress(currentId, now);
+    const prog = getProgress(current, now);
     preview = state.sch.preview(prog, now);
     const isNew = state.sch.isNew(prog);
     const status = isNew ? 'Neu' : prog.state === state.sch.State.Review ? 'Wiederholung' : 'Lernen';
+    const difficult = isDifficult(prog);
+    const meaning = splitMeaning(card.de);
 
     const header = el('div', { class: 'study-head' }, [
-      el('span', { class: `badge ${isNew ? 'badge-new' : 'badge-due'}`, text: status }),
+      el('span', {}, [
+        el('span', { class: `badge ${isNew ? 'badge-new' : 'badge-due'}`, text: status }),
+        difficult ? el('span', { class: 'badge badge-leech', id: 'leech-badge', text: 'schwierig' }) : null,
+      ]),
       el('span', { class: 'muted', text: `${index + 1} / ${queue.length}` }),
       el('button', { class: 'link', onclick: () => navigate('start'), 'aria-label': 'Lernen beenden', text: 'Beenden' }),
     ]);
@@ -69,10 +101,26 @@ export function renderStudy(main) {
       }),
     ]);
 
+    const noteField = el('textarea', {
+      class: 'note',
+      id: 'note',
+      rows: '2',
+      placeholder: 'Notiz (nur auf diesem Gerät)',
+      'aria-label': 'Notiz zur Karte',
+      onclick: (e) => e.stopPropagation(),
+      oninput: (e) => {
+        pendingNote = { id: current, note: e.target.value };
+        clearTimeout(noteTimer);
+        noteTimer = setTimeout(flushNote, 500);
+      },
+    });
+    noteField.value = meta.note || '';
+
     const back = el('div', { class: 'face back hidden', id: 'card-back' }, [
       el('div', { class: 'word small', lang: 'es', text: card.es }),
-      el('div', { class: 'translation', lang: 'de', text: card.de }),
+      el('div', { class: 'meaning-main', lang: 'de', text: meaning.main }),
       card.pos ? el('div', { class: 'pos', text: card.pos }) : null,
+      meaning.rest ? el('div', { class: 'meaning-rest muted', lang: 'de', text: meaning.rest }) : null,
       card.exEs
         ? el('div', { class: 'example' }, [
             el('div', { class: 'example-es', lang: 'es' }, [
@@ -90,12 +138,25 @@ export function renderStudy(main) {
             card.exDe ? el('div', { class: 'example-de muted', lang: 'de', text: card.exDe }) : null,
           ])
         : null,
+      noteField,
+      el('div', { class: 'card-tools' }, [
+        el('button', {
+          class: 'link',
+          id: 'suspend-card',
+          onclick: async (e) => {
+            e.stopPropagation();
+            if (!confirm('Karte aussetzen? Sie wird nicht mehr eingeplant (in der Kartenliste wieder aufnehmbar).')) return;
+            await setCardMeta(current, { suspended: true });
+            toast('Karte ausgesetzt');
+            index++;
+            showCard();
+          },
+          text: 'Aussetzen',
+        }),
+      ]),
     ]);
 
-    const cardBox = el('div', { class: 'card study-card', role: 'button', tabindex: '0', 'aria-label': 'Karte umdrehen', onclick: flip }, [
-      front,
-      back,
-    ]);
+    const cardBox = el('div', { class: 'card study-card', role: 'button', tabindex: '0', 'aria-label': 'Karte umdrehen', onclick: flip }, [front, back]);
 
     const showBtn = el('button', { class: 'btn primary big', id: 'show-answer', onclick: flip, text: 'Antwort zeigen' });
     const ratings = el(
@@ -108,9 +169,11 @@ export function renderStudy(main) {
         ]),
       ),
     );
-    const bar = el('div', { class: 'bottom-bar' }, [showBtn, ratings]);
+    const undoBtn = el('button', { class: 'btn small', id: 'undo', disabled: state.lastRating ? null : true, onclick: undo, text: 'Rückgängig' });
+    const bar = el('div', { class: 'bottom-bar' }, [showBtn, ratings, el('div', { class: 'study-tools' }, [undoBtn])]);
 
     wrap.replaceChildren(header, cardBox, bar);
+    shownAt = performance.now();
 
     if (state.settings.autoSpeak) speak(card.es);
 
@@ -128,11 +191,15 @@ export function renderStudy(main) {
     if (busy || !showingBack) return;
     busy = true;
     try {
-      const after = await rateCard(currentId, grade);
+      flushNote();
+      const durationMs = performance.now() - shownAt;
+      const { after } = await rateCard(current, grade, { durationMs });
       const S = state.sch.State;
       const dueIn = new Date(after.due).getTime() - Date.now();
+      lastQueuePush = null;
       if ((after.state === S.Learning || after.state === S.Relearning) && dueIn <= LEARN_AHEAD_MS) {
-        queue.push(currentId); // Lernkarte später in dieser Sitzung erneut zeigen
+        queue.push(current); // Lernkarte später in dieser Sitzung erneut zeigen
+        lastQueuePush = queue.length - 1;
       }
       index++;
       showCard();
@@ -144,8 +211,34 @@ export function renderStudy(main) {
     }
   }
 
+  async function undo() {
+    if (busy || !state.lastRating) return;
+    busy = true;
+    try {
+      const id = await undoLastRating();
+      if (!id) return;
+      if (lastQueuePush !== null && queue[lastQueuePush] === id) {
+        queue.splice(lastQueuePush, 1);
+        lastQueuePush = null;
+      }
+      // Karte wieder an der aktuellen Stelle anzeigen.
+      const prevIdx = index - 1;
+      if (prevIdx >= 0 && queue[prevIdx] === id) index = prevIdx;
+      else queue.splice(index, 0, id);
+      toast('Bewertung zurückgenommen');
+      showCard();
+    } catch (e) {
+      console.error(e);
+      toast(`Rückgängig fehlgeschlagen: ${e.message}`, { error: true });
+    } finally {
+      busy = false;
+    }
+  }
+
   function onKey(e) {
     if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
     if (e.key === ' ' || e.key === 'Enter') {
       if (!showingBack) {
         e.preventDefault();
@@ -153,6 +246,10 @@ export function renderStudy(main) {
       }
     } else if (/^[1-4]$/.test(e.key) && showingBack) {
       rate(Number(e.key));
+    } else if (k === 'z') {
+      undo();
+    } else if (k === 's') {
+      speakCurrent();
     }
   }
   document.addEventListener('keydown', onKey);
@@ -161,6 +258,7 @@ export function renderStudy(main) {
   return {
     destroy() {
       document.removeEventListener('keydown', onKey);
+      flushNote();
       stopSpeech();
     },
   };

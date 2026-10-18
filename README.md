@@ -16,18 +16,38 @@ Danach startet die App wie eine native App und funktioniert nach dem ersten Lade
 begrenzt durch das Tageslimit).
 
 **Lernen:** Vorderseite zeigt nur das spanische Wort (wird automatisch vorgelesen, abschaltbar).
-Antippen oder „Antwort zeigen“ → Rückseite mit Deutsch, Wortart, Beispielsatz Spanisch (🔊 vorlesen)
-und Beispielsatz Deutsch. Bewertung mit **Nochmal / Schwer / Gut / Einfach**; jeder Knopf zeigt das
-nächste Intervall. Lernkarten mit kurzem Intervall (Minuten) kommen in derselben Sitzung noch einmal dran.
-Tastatur (Desktop): Leertaste = Antwort zeigen, 1–4 = bewerten.
+Antippen oder „Antwort zeigen“ → Rückseite: **Hauptbedeutung** groß (Teil des Deutsch-Felds vor dem
+ersten Semikolon außerhalb von Klammern), Wortart, Nebenbedeutungen kleiner und grau, Beispielsatz
+Spanisch (🔊 vorlesen), Beispielsatz Deutsch, Notizfeld. Bewertung mit **Nochmal / Schwer / Gut /
+Einfach**; jeder Knopf zeigt das nächste Intervall. Bewerte nur die Hauptbedeutung. Lernkarten mit
+kurzem Intervall (Minuten) kommen in derselben Sitzung noch einmal dran. „Rückgängig“ nimmt die letzte
+Bewertung zurück (Lernstand, Protokoll und Tageszähler wie davor, Karte wird erneut gezeigt).
+„Aussetzen“ nimmt die Karte aus der Planung (in der Kartenliste wieder aufnehmbar).
+Tastatur (PC): Leertaste/Enter = Antwort zeigen, 1–4 = bewerten, Z = Rückgängig, S = vorlesen.
 
-**Karten:** Liste aller Vokabeln mit Suche (Spanisch, Deutsch, Kennung, Wortart, Schlagwort).
-Antippen zeigt Details inkl. Lernstand (Fälligkeit, Stabilität, Abrufwahrscheinlichkeit).
+**Schwierige Karten:** Ab 8× „Nochmal“ gilt eine Karte als „schwierig“ (Markierung auf der Karte,
+Filter in der Kartenliste). Aussetzen und Wieder aufnehmen sind auf der Karte und in der Liste möglich.
+
+**Karten:** Liste aller Vokabeln mit Suche (Spanisch, Deutsch, Kennung, Wortart, Schlagwort) und Filtern
+(Alle / Schwierig / Ausgesetzt / Mit Notiz). Antippen zeigt Details inkl. Lernstand, Notiz und Aussetzen.
+
+**Statistik:** Wiederholungen pro Tag der letzten 30 Tage, Anteil richtiger Antworten (Bewertung 2–4),
+Karten je Zustand (neu / lernen / wiederholen / ausgesetzt / schwierig), fällige Karten der nächsten
+7 Tage, Tage in Folge.
 
 **Einstellungen:**
-- Neue Karten pro Tag (Standard 20), automatisches Vorlesen an/aus, Sprachtest.
+- Neue Karten pro Tag (0–50, Standard 15), Zielretention 80–95 % (Standard 90 %; höher = kürzere
+  Intervalle; gilt für künftige Planungen, bestehende Fälligkeiten bleiben), automatisches Vorlesen, Sprachtest.
+  Hörmodus (Stufe 2) und Verbmodus (Stufe 3) sind vorbereitet und noch ausgegraut.
+- FSRS-Parameter: Textfeld für die vom [FSRS-Optimizer](https://github.com/open-spaced-repetition/fsrs-optimizer)
+  berechneten Werte (17, 19 oder 21 Zahlen, kommagetrennt; leer = Standard). „Protokoll exportieren (CSV)“
+  liefert dessen Eingabeformat mit den Spalten `card_id, review_time, review_rating, review_state, review_duration`
+  (Zeit in Unix-Millisekunden, Zustand 0 neu / 1 lernen / 2 wiederholen / 3 neu lernen, Dauer in ms).
 - Vokabelpakete: Übersicht, „Paket importieren (.txt)“ (auf dem iPhone aus der Dateien-App), importierte Pakete entfernen.
-- Lernstand: als JSON exportieren (Teilen-Dialog, sonst Download), JSON importieren, „Lernstand zurücksetzen“ (mit Rückfrage).
+- Sicherung: Export als JSON (Lernstand, Protokoll, Notizen, Markierungen, Einstellungen; Schemaversion 2)
+  über den Teilen-Dialog, sonst Download. Import stellt alles wieder her und **ersetzt** den bisherigen Stand
+  (mit Rückfrage). Liegt die letzte Sicherung länger als 7 Tage zurück, zeigt der Start „Lernstand sichern“.
+- „Lernstand zurücksetzen“ (mit Rückfrage).
 
 ## Vokabelpakete hinzufügen
 
@@ -73,14 +93,21 @@ neue Version beim nächsten Start mit Netz im Hintergrund und nutzen sie ab dem 
 | --- | --- |
 | Lernalgorithmus | FSRS, ts-fsrs 5.4.2, Standardparameter, Zielretention 0,9. Laden als ES-Modul von `https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.2/+esm`; bei Fehler oder Zeitüberschreitung die identische lokale Kopie `lib/ts-fsrs.js` (MIT-Lizenz, `lib/LICENSE-ts-fsrs.txt`). Der Service Worker cached das CDN-Modul für den Offline-Betrieb und liefert ohne Netz die lokale Kopie. |
 | Fälligkeit | Wiederholungskarten tagesgenau (fällig, wenn das Datum heute oder früher ist); Lern-/Wiederlernkarten minutengenau mit 20 Minuten Vorlauf. „Fällig heute“ auf dem Start zählt beides. |
-| Speicherung | IndexedDB (`spanisch-trainer`: `progress`, `packages`, `days`, `meta`), Fallback localStorage. |
+| Speicherung | IndexedDB (`spanisch-trainer`, Schemaversion 2: `progress`, `packages`, `days`, `meta`, `reviews`, `cardmeta`), Fallback localStorage. Beim Start wird ein älteres Schema verlustfrei migriert (`js/migrate.js`). |
+| Protokoll | Jede Bewertung als Datensatz: Kartenschlüssel, Kartentyp, Zeitpunkt (ms), Bewertung 1–4, Zustand davor, Antwortdauer (ms), geplantes Intervall (Tage), FSRS-Log. |
+| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); vorgesehen: Hörkarte `ES-0001:H` (Stufe 2), Verbform `V:lemma:form:tempus` (Stufe 3). |
 | Sprachausgabe | Web Speech API, `es-ES`; bevorzugt eine Stimme mit `lang` `es-ES` (iOS: Mónica/Jorge), sonst eine andere spanische. Stimmen werden über `voiceschanged` nachgeladen, die Wiedergabe wird bei der ersten Berührung freigeschaltet, vor jeder Ausgabe `speechSynthesis.cancel()`. |
 | Offline | `sw.js` cached App-Dateien, `data/index.json` und alle dort gelisteten Datendateien beim Installieren; danach Stale-while-revalidate. |
 | PWA | `manifest.webmanifest`, iOS-Meta-Tags, Icons 180/192/512 px (`tools/make-icons.py`). |
 
 Dateien: `index.html`, `css/app.css`, `js/app.js` (Status, Router), `js/parser.js` (Anki-Format),
-`js/scheduler.js` (FSRS, Warteschlange, Kennzahlen), `js/storage.js`, `js/data.js` (Pakete laden),
-`js/speech.js`, `js/views/*.js` (Start, Lernen, Karten, Einstellungen), `sw.js`, `data/`.
+`js/scheduler.js` (FSRS, Warteschlange, Kennzahlen, Prognose), `js/storage.js`, `js/migrate.js`,
+`js/data.js` (Pakete laden), `js/speech.js`, `js/views/*.js` (Start, Lernen, Karten, Statistik,
+Einstellungen), `sw.js`, `data/`.
+
+Alle Pakete in `data/index.json` bilden einen einzigen Lernstrom nach Rang; Paketgrenzen spielen beim
+Lernen keine Rolle. Wird eine Datei geändert und neu geladen, werden die Felder (auch der Rang) anhand der
+Kennung aktualisiert, der Lernstand bleibt.
 
 ## Tests
 
@@ -93,6 +120,7 @@ npm run test:e2e       # Abnahme im Chromium unter dem Pfad /spanisch-trainer/ (
 npm run serve          # lokal unter http://localhost:8080/ ausprobieren
 ```
 
-Der E2E-Test prüft: Laden der Karten und Startzahlen, Bewerten und Erhalt des Lernstands nach Neuladen,
-Paket-Import sowie Lernstand-Export/-Import, Offline-Betrieb über den Service Worker und eine fehlerfreie
-Browserkonsole.
+Der E2E-Test prüft: Laden der Karten und Startzahlen, Zielretention, Bewerten und Erhalt des Lernstands
+nach Neuladen, Rückgängig, Protokoll-CSV, FSRS-Parameter, Notizen, Aussetzen, schwierige Karten, Statistik,
+Paket-Import, Sicherung (Export → Löschen → Import), Migration eines Lernstands aus Schemaversion 1,
+Offline-Betrieb über den Service Worker und eine fehlerfreie Browserkonsole.
