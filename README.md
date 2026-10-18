@@ -25,6 +25,17 @@ Bewertung zurück (Lernstand, Protokoll und Tageszähler wie davor, Karte wird e
 „Aussetzen“ nimmt die Karte aus der Planung (in der Kartenliste wieder aufnehmbar).
 Tastatur (PC): Leertaste/Enter = Antwort zeigen, 1–4 = bewerten, Z = Rückgängig, S = vorlesen.
 
+**Hörmodus (zweiter Kartentyp):** Zu jeder Vokabel mit Beispielsatz gibt es eine Hörkarte mit eigenem
+Lernstand (Schlüssel Kennung + „:H“). Sie wird frei, sobald die Vokabelkarte den Zustand „Wiederholen“
+erreicht hat. Vorderseite: kein Text, nur ein großes Lautsprecher-Symbol; der spanische Beispielsatz wird
+beim Erscheinen automatisch vorgelesen, „Noch einmal“ und „Langsamer“ (Tempo 0,8) wiederholen ihn.
+„Antwort zeigen“ deckt auf: Beispielsatz mit hervorgehobenem Lernwort, deutscher Satz, Lernwort mit
+Hauptbedeutung; Bewertung wie bei Vokabelkarten. In den Einstellungen ein-/ausschaltbar (aus = Hörkarten
+werden nicht eingeplant, ihr Lernstand bleibt) mit eigenem Tageslimit „Neue Hörkarten pro Tag“ (Standard 10).
+Reihenfolge einer Sitzung: alle fälligen Karten beider Typen zufällig gemischt, dann neue Vokabelkarten
+nach Rang, dann neue Hörkarten nach Rang. Start und Statistik zeigen die Zahlen je Kartentyp; das
+Protokoll führt den Kartentyp mit.
+
 **Schwierige Karten:** Ab 8× „Nochmal“ gilt eine Karte als „schwierig“ (Markierung auf der Karte,
 Filter in der Kartenliste). Aussetzen und Wieder aufnehmen sind auf der Karte und in der Liste möglich.
 
@@ -38,7 +49,7 @@ Karten je Zustand (neu / lernen / wiederholen / ausgesetzt / schwierig), fällig
 **Einstellungen:**
 - Neue Karten pro Tag (0–50, Standard 15), Zielretention 80–95 % (Standard 90 %; höher = kürzere
   Intervalle; gilt für künftige Planungen, bestehende Fälligkeiten bleiben), automatisches Vorlesen, Sprachtest.
-  Hörmodus (Stufe 2) und Verbmodus (Stufe 3) sind vorbereitet und noch ausgegraut.
+  Hörmodus mit „Neue Hörkarten pro Tag“ (0–50, Standard 10). Verbmodus (Stufe 3) ist vorbereitet und noch ausgegraut.
 - FSRS-Parameter: Textfeld für die vom [FSRS-Optimizer](https://github.com/open-spaced-repetition/fsrs-optimizer)
   berechneten Werte (17, 19 oder 21 Zahlen, kommagetrennt; leer = Standard). „Protokoll exportieren (CSV)“
   liefert dessen Eingabeformat mit den Spalten `card_id, review_time, review_rating, review_state, review_duration`
@@ -95,7 +106,7 @@ neue Version beim nächsten Start mit Netz im Hintergrund und nutzen sie ab dem 
 | Fälligkeit | Wiederholungskarten tagesgenau (fällig, wenn das Datum heute oder früher ist); Lern-/Wiederlernkarten minutengenau mit 20 Minuten Vorlauf. „Fällig heute“ auf dem Start zählt beides. |
 | Speicherung | IndexedDB (`spanisch-trainer`, Schemaversion 2: `progress`, `packages`, `days`, `meta`, `reviews`, `cardmeta`), Fallback localStorage. Beim Start wird ein älteres Schema verlustfrei migriert (`js/migrate.js`). |
 | Protokoll | Jede Bewertung als Datensatz: Kartenschlüssel, Kartentyp, Zeitpunkt (ms), Bewertung 1–4, Zustand davor, Antwortdauer (ms), geplantes Intervall (Tage), FSRS-Log. |
-| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); vorgesehen: Hörkarte `ES-0001:H` (Stufe 2), Verbform `V:lemma:form:tempus` (Stufe 3). |
+| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); Hörkarte `ES-0001:H`; vorgesehen: Verbform `V:lemma:form:tempus` (Stufe 3). Notizen und „schwierig“ gelten je Schlüssel; die Notiz der Hörkarte ist die der Vokabel. |
 | Sprachausgabe | Web Speech API, `es-ES`; bevorzugt eine Stimme mit `lang` `es-ES` (iOS: Mónica/Jorge), sonst eine andere spanische. Stimmen werden über `voiceschanged` nachgeladen, die Wiedergabe wird bei der ersten Berührung freigeschaltet, vor jeder Ausgabe `speechSynthesis.cancel()`. |
 | Offline | `sw.js` cached App-Dateien, `data/index.json` und alle dort gelisteten Datendateien beim Installieren; danach Stale-while-revalidate. |
 | PWA | `manifest.webmanifest`, iOS-Meta-Tags, Icons 180/192/512 px (`tools/make-icons.py`). |
@@ -123,4 +134,6 @@ npm run serve          # lokal unter http://localhost:8080/ ausprobieren
 Der E2E-Test prüft: Laden der Karten und Startzahlen, Zielretention, Bewerten und Erhalt des Lernstands
 nach Neuladen, Rückgängig, Protokoll-CSV, FSRS-Parameter, Notizen, Aussetzen, schwierige Karten, Statistik,
 Paket-Import, Sicherung (Export → Löschen → Import), Migration eines Lernstands aus Schemaversion 1,
-Offline-Betrieb über den Service Worker und eine fehlerfreie Browserkonsole.
+Hörmodus (Freischaltung, Vorderseite ohne Text, automatische Ansage und Tempo über einen Stub der
+Sprachausgabe, Modus aus, Export beider Typen), Offline-Betrieb über den Service Worker und eine
+fehlerfreie Browserkonsole.

@@ -389,3 +389,17 @@ h2 { font-size: 1.1rem; margin: 0 0 10px; }
 .bar[data-count="0"] { background: var(--border); }
 .bar-label { position: absolute; bottom: -18px; left: 0; right: 0; font-size: 0.6rem; color: var(--muted); text-align: center; white-space: nowrap; }
 .bars { margin-bottom: 22px; }
+
+/* --- Stufe 2: Hörmodus --- */
+.badge-type { background: rgba(241, 183, 0, 0.2); color: #8a6a00; margin-left: 6px; }
+@media (prefers-color-scheme: dark) { .badge-type { color: var(--accent); } }
+.hear-front { min-height: 40vh; justify-content: center; }
+.speaker.huge { width: 112px; height: 112px; font-size: 3rem; background: var(--primary); color: #fff; border: none; box-shadow: var(--shadow); }
+.hear-tools { width: 100%; max-width: 320px; margin-top: 8px; }
+.hear-word { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 12px; }
+mark { background: rgba(241, 183, 0, 0.45); color: inherit; padding: 0 2px; border-radius: 3px; }
+.type-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.95rem; }
+.type-table th, .type-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); }
+.type-table th:first-child { text-align: left; font-weight: 600; }
+.type-table thead th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+.type-table tbody tr:last-child th, .type-table tbody tr:last-child td { border-bottom: none; }

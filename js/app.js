@@ -13,7 +13,7 @@ import { renderBrowse } from './views/browse.js';
 import { renderStats } from './views/stats.js';
 import { renderSettings } from './views/settings.js';
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 export const EXPORT_FORMAT = 2;
 export const BACKUP_REMINDER_DAYS = 7;
 export const DEFAULT_SETTINGS = {
@@ -21,7 +21,8 @@ export const DEFAULT_SETTINGS = {
   requestRetention: 0.9,
   fsrsParams: '',
   autoSpeak: true,
-  hearingMode: false, // Stufe 2
+  hearingMode: false, // Stufe 2: Hörkarten einplanen
+  newHearPerDay: 10,
   verbMode: false, // Stufe 3
 };
 
@@ -276,6 +277,7 @@ export async function importBackupJson(text) {
 export function sanitizeSettings(src) {
   const out = {};
   if (Number.isFinite(Number(src.newPerDay))) out.newPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newPerDay))));
+  if (Number.isFinite(Number(src.newHearPerDay))) out.newHearPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newHearPerDay))));
   if (Number.isFinite(Number(src.requestRetention))) out.requestRetention = clampRetention(src.requestRetention);
   if (typeof src.fsrsParams === 'string' && !parseFsrsParams(src.fsrsParams).error) out.fsrsParams = src.fsrsParams;
   for (const k of ['autoSpeak', 'hearingMode', 'verbMode']) if (typeof src[k] === 'boolean') out[k] = src[k];

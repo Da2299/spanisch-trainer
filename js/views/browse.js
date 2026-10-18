@@ -1,7 +1,7 @@
 // Karten durchsuchen: Liste mit Suche, Filter (alle / schwierig / ausgesetzt) und Detailansicht.
 import { state, getProgress, getCardMeta, setCardMeta, toast } from '../app.js';
 import { compareByRank } from '../parser.js';
-import { isDifficult } from '../scheduler.js';
+import { isDifficult, hearKeyOf } from '../scheduler.js';
 import { speak } from '../speech.js';
 import { el, formatDate, splitMeaning } from '../util.js';
 
@@ -18,7 +18,14 @@ function statusOf(id) {
   const m = getCardMeta(id);
   const S = state.sch.State;
   if (m.suspended) return { text: 'Ausgesetzt', cls: 'badge-off' };
-  if (!p || state.sch.isNew(p)) return { text: 'Neu', cls: 'badge-new' };
+  if (!p || state.sch.isNew(p)) {
+    // Hörkarte: gesperrt, bis die Vokabelkarte im Zustand Review ist
+    if (id.endsWith(':H')) {
+      const vp = state.progress.get(id.slice(0, -2));
+      if (!vp || state.sch.isNew(vp) || vp.state !== S.Review) return { text: 'Gesperrt', cls: 'badge-off' };
+    }
+    return { text: 'Neu', cls: 'badge-new' };
+  }
   const due = new Date(p.due);
   if (state.sch.isDue(p)) return { text: 'Fällig', cls: 'badge-due' };
   if (p.state === S.Learning || p.state === S.Relearning) return { text: 'Lernen', cls: 'badge-learn' };
@@ -134,6 +141,12 @@ export function renderBrowse(main) {
       rows.push(['Wiederholungen', `${p.reps} (${p.lapses} vergessen, ${p.againCount || 0}× Nochmal)`]);
       rows.push(['Stabilität', `${Math.round(p.stability * 10) / 10} Tage`]);
       if (r !== null) rows.push(['Abrufwahrscheinlichkeit', `${Math.round(r * 100)} %`]);
+    }
+    if (c.exEs) {
+      const hk = hearKeyOf(c.id);
+      const hs = statusOf(hk);
+      const hp = state.progress.get(hk);
+      rows.push(['Hörkarte', `${hs.text}${hp && !state.sch.isNew(hp) ? `, fällig am ${formatDate(hp.due)}` : ''}${state.settings.hearingMode ? '' : ' (Hörmodus aus)'}`]);
     }
     let noteTimer = null;
     const noteField = el('textarea', {

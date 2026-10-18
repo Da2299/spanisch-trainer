@@ -74,7 +74,32 @@ export function renderSettings(main) {
       await saveSettings({ autoSpeak: !!e.target.checked });
     },
   });
-  const hearingMode = el('input', { type: 'checkbox', id: 'hearing-mode', disabled: true, checked: state.settings.hearingMode || null });
+  const hearingMode = el('input', {
+    type: 'checkbox',
+    id: 'hearing-mode',
+    checked: state.settings.hearingMode || null,
+    onchange: async (e) => {
+      await saveSettings({ hearingMode: !!e.target.checked });
+      toast(e.target.checked ? 'Hörmodus ein: Hörkarten werden eingeplant' : 'Hörmodus aus: Hörkarten werden nicht eingeplant, Lernstand bleibt');
+    },
+  });
+  const newHearPerDay = el('input', {
+    type: 'number',
+    id: 'new-hear-per-day',
+    min: '0',
+    max: '50',
+    step: '1',
+    inputmode: 'numeric',
+    value: String(state.settings.newHearPerDay),
+    onchange: async (e) => {
+      let v = Math.round(Number(e.target.value));
+      if (!Number.isFinite(v) || v < 0) v = 0;
+      if (v > 50) v = 50;
+      e.target.value = String(v);
+      await saveSettings({ newHearPerDay: v });
+      toast(`Neue Hörkarten pro Tag: ${v}`);
+    },
+  });
   const verbMode = el('input', { type: 'checkbox', id: 'verb-mode', disabled: true, checked: state.settings.verbMode || null });
   const ss = speechStatus();
   main.append(
@@ -91,7 +116,8 @@ export function renderSettings(main) {
         el('span', { class: 'muted small-text', text: ss.supported ? (ss.voice ? `Stimme: ${ss.voice}` : 'Spanische Stimme: wird beim ersten Abspielen gewählt') : 'Sprachausgabe nicht verfügbar' }),
         el('button', { class: 'btn small', onclick: () => (speak('Hola, ¿qué tal?') ? null : toast('Keine Sprachausgabe möglich', { error: true })), text: 'Test' }),
       ]),
-      el('label', { class: 'row disabled', for: 'hearing-mode' }, [el('span', { text: 'Hörmodus (kommt mit Stufe 2)' }), hearingMode]),
+      el('label', { class: 'row', for: 'hearing-mode' }, [el('span', { text: 'Hörmodus (Hörkarten zu Vokabeln im Zustand Wiederholen)' }), hearingMode]),
+      el('label', { class: 'row', for: 'new-hear-per-day' }, [el('span', { text: 'Neue Hörkarten pro Tag (0–50)' }), newHearPerDay]),
       el('label', { class: 'row disabled', for: 'verb-mode' }, [el('span', { text: 'Verbmodus (kommt mit Stufe 3)' }), verbMode]),
       el('p', { class: 'hint-box', id: 'meaning-hint', text: MEANING_HINT }),
     ]),
