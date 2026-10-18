@@ -1,6 +1,6 @@
 // Service Worker: Offline-Cache für App-Dateien, Datendateien und die FSRS-Bibliothek.
 // Bei Änderungen an der App CACHE_VERSION erhöhen, damit alte Caches ersetzt werden.
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `spanisch-trainer-${CACHE_VERSION}`;
 const TS_FSRS_CDN_URL = 'https://cdn.jsdelivr.net/npm/ts-fsrs@5.4.2/+esm';
 
@@ -18,16 +18,18 @@ const APP_SHELL = [
   './js/speech.js',
   './js/storage.js',
   './js/util.js',
+  './js/verbs.js',
   './js/views/home.js',
   './js/views/study.js',
   './js/views/browse.js',
   './js/views/settings.js',
   './js/views/stats.js',
+  './js/views/verbs.js',
   './lib/ts-fsrs.js',
   './data/index.json',
 ];
 // Nicht kritisch für den Betrieb: Fehlen darf die Installation nicht verhindern.
-const OPTIONAL = ['./icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-512-maskable.png'];
+const OPTIONAL = ['./icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-512-maskable.png', './data/verben.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

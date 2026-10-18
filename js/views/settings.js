@@ -100,7 +100,43 @@ export function renderSettings(main) {
       toast(`Neue Hörkarten pro Tag: ${v}`);
     },
   });
-  const verbMode = el('input', { type: 'checkbox', id: 'verb-mode', disabled: true, checked: state.settings.verbMode || null });
+  const verbsLoaded = state.verbs.length > 0;
+  const verbMode = el('input', {
+    type: 'checkbox',
+    id: 'verb-mode',
+    disabled: verbsLoaded ? null : true,
+    checked: state.settings.verbMode || null,
+    onchange: async (e) => {
+      await saveSettings({ verbMode: !!e.target.checked });
+      toast(e.target.checked ? 'Verbmodus ein: Verbformen werden eingeplant' : 'Verbmodus aus: Verbformen werden nicht eingeplant, Lernstand bleibt');
+    },
+  });
+  const newVerbPerDay = el('input', {
+    type: 'number',
+    id: 'new-verb-per-day',
+    min: '0',
+    max: '50',
+    step: '1',
+    inputmode: 'numeric',
+    value: String(state.settings.newVerbPerDay),
+    onchange: async (e) => {
+      let v = Math.round(Number(e.target.value));
+      if (!Number.isFinite(v) || v < 0) v = 0;
+      if (v > 50) v = 50;
+      e.target.value = String(v);
+      await saveSettings({ newVerbPerDay: v });
+      toast(`Neue Verbformen pro Tag: ${v}`);
+    },
+  });
+  const tipMode = el('input', {
+    type: 'checkbox',
+    id: 'tip-mode',
+    checked: state.settings.tipMode || null,
+    onchange: async (e) => {
+      await saveSettings({ tipMode: !!e.target.checked });
+      toast(e.target.checked ? 'Tipp-Modus ein: Verbform eintippen' : 'Tipp-Modus aus');
+    },
+  });
   const ss = speechStatus();
   main.append(
     el('section', { class: 'card' }, [
@@ -118,7 +154,16 @@ export function renderSettings(main) {
       ]),
       el('label', { class: 'row', for: 'hearing-mode' }, [el('span', { text: 'Hörmodus (Hörkarten zu Vokabeln im Zustand Wiederholen)' }), hearingMode]),
       el('label', { class: 'row', for: 'new-hear-per-day' }, [el('span', { text: 'Neue Hörkarten pro Tag (0–50)' }), newHearPerDay]),
-      el('label', { class: 'row disabled', for: 'verb-mode' }, [el('span', { text: 'Verbmodus (kommt mit Stufe 3)' }), verbMode]),
+      el('label', { class: `row${verbsLoaded ? '' : ' disabled'}`, for: 'verb-mode' }, [
+        el('span', {}, [
+          'Verbmodus (Verbformen nach Häufigkeit)',
+          el('span', { class: 'muted small-text', id: 'verbs-info', text: verbsLoaded ? ` – ${state.verbs.length} Verben, ${state.verbForms.size} Formen aus data/verben.json` : ' – data/verben.json fehlt' }),
+        ]),
+        verbMode,
+      ]),
+      el('label', { class: 'row', for: 'new-verb-per-day' }, [el('span', { text: 'Neue Verbformen pro Tag (0–50)' }), newVerbPerDay]),
+      el('label', { class: 'row', for: 'tip-mode' }, [el('span', { text: 'Tipp-Modus (Verbform eintippen statt „Antwort zeigen“)' }), tipMode]),
+      el('div', { class: 'row' }, [el('a', { class: 'link', href: '#muster', text: 'Verbtabellen und Muster öffnen' })]),
       el('p', { class: 'hint-box', id: 'meaning-hint', text: MEANING_HINT }),
     ]),
   );
