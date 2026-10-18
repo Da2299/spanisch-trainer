@@ -1,9 +1,11 @@
 // Lernansicht: Vorderseite (Wort), Rückseite (Hauptbedeutung, Rest, Wortart, Beispiele, Notiz), Bewertung.
 // Tastatur: Leertaste/Enter = Antwort zeigen, 1–4 = bewerten, Z = Rückgängig, S = vorlesen.
 import { state, plan, rateCard, undoLastRating, getProgress, getCardMeta, setCardMeta, navigate, rerender, toast } from '../app.js';
-import { RATINGS, LEARN_AHEAD_MS, isDifficult } from '../scheduler.js';
+import { RATINGS, LEARN_AHEAD_MS, isDifficult, cardTypeOf, baseIdOf, CARD_TYPES } from '../scheduler.js';
 import { speak, stopSpeech } from '../speech.js';
-import { el, formatInterval, splitMeaning } from '../util.js';
+import { el, formatInterval, splitMeaning, highlightWord } from '../util.js';
+
+const SLOW_RATE = 0.8;
 
 export function renderStudy(main) {
   const p = plan();
@@ -47,13 +49,18 @@ export function renderStudy(main) {
   }
 
   function currentCard() {
-    return state.cards.get(current);
+    return state.cards.get(baseIdOf(current));
+  }
+
+  function currentType() {
+    return cardTypeOf(current);
   }
 
   function speakCurrent() {
     const card = currentCard();
     if (!card) return;
-    speak(showingBack && card.exEs ? card.exEs : card.es);
+    if (currentType() === 'hear') speak(card.exEs);
+    else speak(showingBack && card.exEs ? card.exEs : card.es);
   }
 
   function showCard() {
@@ -63,9 +70,10 @@ export function renderStudy(main) {
       return;
     }
     current = queue[index];
+    const type = currentType();
     const card = currentCard();
     const meta = getCardMeta(current);
-    if (!card || meta.suspended) {
+    if (!card || meta.suspended || (type === 'hear' && (!card.exEs || getCardMeta(card.id).suspended))) {
       index++;
       showCard();
       return;
@@ -78,28 +86,65 @@ export function renderStudy(main) {
     const status = isNew ? 'Neu' : prog.state === state.sch.State.Review ? 'Wiederholung' : 'Lernen';
     const difficult = isDifficult(prog);
     const meaning = splitMeaning(card.de);
+    const noteId = card.id; // Notiz gehört zur Vokabel, auch bei der Hörkarte
 
     const header = el('div', { class: 'study-head' }, [
       el('span', {}, [
         el('span', { class: `badge ${isNew ? 'badge-new' : 'badge-due'}`, text: status }),
+        type !== 'vocab' ? el('span', { class: 'badge badge-type', id: 'type-badge', text: CARD_TYPES[type].label }) : null,
         difficult ? el('span', { class: 'badge badge-leech', id: 'leech-badge', text: 'schwierig' }) : null,
       ]),
       el('span', { class: 'muted', text: `${index + 1} / ${queue.length}` }),
       el('button', { class: 'link', onclick: () => navigate('start'), 'aria-label': 'Lernen beenden', text: 'Beenden' }),
     ]);
 
-    const front = el('div', { class: 'face front', id: 'card-front' }, [
-      el('div', { class: 'word', lang: 'es', text: card.es }),
-      el('button', {
-        class: 'speaker',
-        'aria-label': 'Wort vorlesen',
-        onclick: (e) => {
-          e.stopPropagation();
-          speak(card.es);
-        },
-        text: '🔊',
-      }),
-    ]);
+    const front =
+      type === 'hear'
+        ? el('div', { class: 'face front hear-front', id: 'card-front', 'data-type': 'hear', 'data-key': current }, [
+            el('button', {
+              class: 'speaker huge',
+              id: 'hear-play',
+              'aria-label': 'Satz vorlesen',
+              onclick: (e) => {
+                e.stopPropagation();
+                speak(card.exEs);
+              },
+              text: '🔊',
+            }),
+            el('div', { class: 'muted small-text', text: 'Nur hören – was wurde gesagt?' }),
+            el('div', { class: 'btn-row hear-tools' }, [
+              el('button', {
+                class: 'btn small',
+                id: 'hear-again',
+                onclick: (e) => {
+                  e.stopPropagation();
+                  speak(card.exEs);
+                },
+                text: 'Noch einmal',
+              }),
+              el('button', {
+                class: 'btn small',
+                id: 'hear-slow',
+                onclick: (e) => {
+                  e.stopPropagation();
+                  speak(card.exEs, { rate: SLOW_RATE });
+                },
+                text: 'Langsamer',
+              }),
+            ]),
+          ])
+        : el('div', { class: 'face front', id: 'card-front', 'data-type': 'vocab', 'data-key': current }, [
+            el('div', { class: 'word', lang: 'es', text: card.es }),
+            el('button', {
+              class: 'speaker',
+              'aria-label': 'Wort vorlesen',
+              onclick: (e) => {
+                e.stopPropagation();
+                speak(card.es);
+              },
+              text: '🔊',
+            }),
+          ]);
 
     const noteField = el('textarea', {
       class: 'note',
@@ -109,36 +154,55 @@ export function renderStudy(main) {
       'aria-label': 'Notiz zur Karte',
       onclick: (e) => e.stopPropagation(),
       oninput: (e) => {
-        pendingNote = { id: current, note: e.target.value };
+        pendingNote = { id: noteId, note: e.target.value };
         clearTimeout(noteTimer);
         noteTimer = setTimeout(flushNote, 500);
       },
     });
-    noteField.value = meta.note || '';
+    noteField.value = getCardMeta(noteId).note || '';
 
-    const back = el('div', { class: 'face back hidden', id: 'card-back' }, [
-      el('div', { class: 'word small', lang: 'es', text: card.es }),
-      el('div', { class: 'meaning-main', lang: 'de', text: meaning.main }),
-      card.pos ? el('div', { class: 'pos', text: card.pos }) : null,
-      meaning.rest ? el('div', { class: 'meaning-rest muted', lang: 'de', text: meaning.rest }) : null,
-      card.exEs
-        ? el('div', { class: 'example' }, [
-            el('div', { class: 'example-es', lang: 'es' }, [
-              el('span', { text: card.exEs }),
-              el('button', {
-                class: 'speaker inline',
-                'aria-label': 'Beispielsatz vorlesen',
-                onclick: (e) => {
-                  e.stopPropagation();
-                  speak(card.exEs);
-                },
-                text: '🔊',
-              }),
+    const exampleBlock = card.exEs
+      ? el('div', { class: 'example' }, [
+          el('div', { class: 'example-es', lang: 'es' }, [
+            el(
+              'span',
+              { id: 'example-text' },
+              type === 'hear' ? highlightWord(card.exEs, card.es).map((seg) => (seg.mark ? el('mark', { text: seg.text }) : seg.text)) : [card.exEs],
+            ),
+            el('button', {
+              class: 'speaker inline',
+              'aria-label': 'Beispielsatz vorlesen',
+              onclick: (e) => {
+                e.stopPropagation();
+                speak(card.exEs);
+              },
+              text: '🔊',
+            }),
+          ]),
+          card.exDe ? el('div', { class: 'example-de muted', lang: 'de', text: card.exDe }) : null,
+        ])
+      : null;
+
+    const back =
+      type === 'hear'
+        ? el('div', { class: 'face back hidden', id: 'card-back', 'data-type': 'hear' }, [
+            exampleBlock,
+            el('div', { class: 'hear-word' }, [
+              el('span', { class: 'word small', lang: 'es', text: card.es }),
+              el('span', { class: 'meaning-main', lang: 'de', text: meaning.main }),
             ]),
-            card.exDe ? el('div', { class: 'example-de muted', lang: 'de', text: card.exDe }) : null,
+            card.pos ? el('div', { class: 'pos', text: card.pos }) : null,
+            noteField,
           ])
-        : null,
-      noteField,
+        : el('div', { class: 'face back hidden', id: 'card-back', 'data-type': 'vocab' }, [
+            el('div', { class: 'word small', lang: 'es', text: card.es }),
+            el('div', { class: 'meaning-main', lang: 'de', text: meaning.main }),
+            card.pos ? el('div', { class: 'pos', text: card.pos }) : null,
+            meaning.rest ? el('div', { class: 'meaning-rest muted', lang: 'de', text: meaning.rest }) : null,
+            exampleBlock,
+            noteField,
+          ]);
+    back.append(
       el('div', { class: 'card-tools' }, [
         el('button', {
           class: 'link',
@@ -154,7 +218,7 @@ export function renderStudy(main) {
           text: 'Aussetzen',
         }),
       ]),
-    ]);
+    );
 
     const cardBox = el('div', { class: 'card study-card', role: 'button', tabindex: '0', 'aria-label': 'Karte umdrehen', onclick: flip }, [front, back]);
 
@@ -175,7 +239,8 @@ export function renderStudy(main) {
     wrap.replaceChildren(header, cardBox, bar);
     shownAt = performance.now();
 
-    if (state.settings.autoSpeak) speak(card.es);
+    if (type === 'hear') speak(card.exEs);
+    else if (state.settings.autoSpeak) speak(card.es);
 
     function flip() {
       if (showingBack) return;

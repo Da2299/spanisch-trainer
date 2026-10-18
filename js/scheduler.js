@@ -204,58 +204,118 @@ export function newCountField(type) {
   return type === 'hear' ? 'newHearCount' : type === 'verb' ? 'newVerbCount' : 'newCount';
 }
 
+/** Schlüssel der Hörkarte zu einer Kennung. */
+export function hearKeyOf(id) {
+  return `${id}:H`;
+}
+
+/** Zufällig mischen (Fisher-Yates, in place). */
+export function shuffle(arr, rand = Math.random) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function typeSummary() {
+  return { due: 0, new: 0, learned: 0, unseen: 0, suspended: 0, locked: 0 };
+}
+
 /**
- * Kennzahlen und Warteschlange berechnen (Stufe 1: nur Vokabelkarten).
+ * Kennzahlen und Warteschlange berechnen.
+ * Reihenfolge der Sitzung: fällige Karten aller aktiven Typen zufällig gemischt, danach neue
+ * Vokabelkarten nach Rang, danach neue Hörkarten nach Rang (Stufe 2).
  * @param {Scheduler} sch
  * @param {Map<string, Card>} cards  alle Vokabelkarten nach Kennung
  * @param {Map<string, object>} progress Lernstand nach Kartenschlüssel
  * @param {Map<string, object>} cardmeta Notizen/Aussetzen nach Kartenschlüssel
  * @param {Map<string, object>} days Tagesstatistik
- * @param {{newPerDay:number}} settings
+ * @param {{newPerDay:number, hearingMode?:boolean, newHearPerDay?:number}} settings
+ * @param {Date} [now]
+ * @param {{rand?: () => number}} [opts] Zufallsquelle (für Tests)
  */
-export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = new Date()) {
+export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = new Date(), opts = {}) {
   const today = dateKey(now);
   const todayStats = days.get(today) || emptyDay(today);
+  const S = sch.State;
+  const hearingOn = !!settings.hearingMode;
   const due = [];
-  const unseen = [];
-  let learnedTotal = 0;
-  let suspendedCount = 0;
+  const unseenVocab = [];
+  const unseenHear = [];
+  const types = { vocab: typeSummary(), hear: typeSummary() };
   let difficultCount = 0;
+
   for (const card of cards.values()) {
     const p = progress.get(card.id);
     const m = cardmeta.get(card.id);
+    const vocabSuspended = !!(m && m.suspended);
     if (isDifficult(p)) difficultCount++;
-    if (m && m.suspended) {
-      suspendedCount++;
-      if (!sch.isNew(p)) learnedTotal++;
+    const vocabNew = sch.isNew(p);
+    if (vocabSuspended) {
+      types.vocab.suspended++;
+      if (!vocabNew) types.vocab.learned++;
+    } else if (vocabNew) {
+      types.vocab.unseen++;
+      unseenVocab.push(card);
+    } else {
+      types.vocab.learned++;
+      if (sch.isDue(p, now)) due.push({ key: card.id, type: 'vocab', card, dueAt: new Date(p.due).getTime() });
+    }
+
+    // Hörkarte: nur mit Beispielsatz; freigeschaltet, sobald die Vokabelkarte im Zustand Review ist.
+    if (!hearingOn || !card.exEs) continue;
+    const hk = hearKeyOf(card.id);
+    const hp = progress.get(hk);
+    const hm = cardmeta.get(hk);
+    const hearNew = sch.isNew(hp);
+    if (isDifficult(hp)) difficultCount++;
+    if (vocabSuspended || (hm && hm.suspended)) {
+      types.hear.suspended++;
+      if (!hearNew) types.hear.learned++;
       continue;
     }
-    if (sch.isNew(p)) {
-      unseen.push(card);
+    if (hearNew) {
+      if (p && !vocabNew && p.state === S.Review) {
+        types.hear.unseen++;
+        unseenHear.push(card);
+      } else {
+        types.hear.locked++;
+      }
     } else {
-      learnedTotal++;
-      if (sch.isDue(p, now)) due.push({ card, dueAt: new Date(p.due).getTime() });
+      types.hear.learned++;
+      if (sch.isDue(hp, now)) due.push({ key: hk, type: 'hear', card, dueAt: new Date(hp.due).getTime() });
     }
   }
-  due.sort((a, b) => a.dueAt - b.dueAt);
-  unseen.sort(compareByRank);
+
+  shuffle(due, opts.rand || Math.random);
+  unseenVocab.sort(compareByRank);
+  unseenHear.sort(compareByRank);
   const newLimit = Math.max(0, (Number(settings.newPerDay) || 0) - (todayStats.newCount || 0));
-  const newCards = unseen.slice(0, newLimit);
-  const entry = (card) => ({ key: card.id, type: 'vocab', card });
+  const newHearLimit = hearingOn ? Math.max(0, (Number(settings.newHearPerDay) || 0) - (todayStats.newHearCount || 0)) : 0;
+  const newVocab = unseenVocab.slice(0, newLimit).map((card) => ({ key: card.id, type: 'vocab', card }));
+  const newHear = unseenHear.slice(0, newHearLimit).map((card) => ({ key: hearKeyOf(card.id), type: 'hear', card }));
+  for (const d of due) types[d.type].due++;
+  types.vocab.new = newVocab.length;
+  types.hear.new = newHear.length;
+
+  const queue = [...due.map(({ key, type, card }) => ({ key, type, card })), ...newVocab, ...newHear];
   return {
     today,
     dueCount: due.length,
-    newCount: newCards.length,
+    newCount: newVocab.length + newHear.length,
     newDoneToday: todayStats.newCount || 0,
+    newHearDoneToday: todayStats.newHearCount || 0,
     reviewsToday: todayStats.reviewCount || 0,
-    unseenCount: unseen.length,
-    learnedTotal,
-    suspendedCount,
+    unseenCount: types.vocab.unseen,
+    learnedTotal: types.vocab.learned + types.hear.learned,
+    suspendedCount: types.vocab.suspended + types.hear.suspended,
     difficultCount,
     totalCards: cards.size,
+    hearingOn,
     streak: computeStreak(days, now),
-    queue: [...due.map((d) => entry(d.card)), ...newCards.map(entry)],
-    types: { vocab: { due: due.length, new: newCards.length, learned: learnedTotal } },
+    queue,
+    types,
   };
 }
 

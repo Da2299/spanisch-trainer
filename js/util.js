@@ -147,3 +147,44 @@ export function uid() {
   const r = Math.random().toString(36).slice(2, 8);
   return `${Date.now().toString(36)}-${r}`;
 }
+
+const LETTER = /\p{L}/u;
+
+/**
+ * Lernwort im Satz finden (Wortgrenzen, Groß-/Kleinschreibung ignorieren). Kandidaten aus dem
+ * Spanisch-Feld: durch „,“ oder „/“ getrennte Varianten, jeweils mit und ohne Artikel.
+ * @returns {{text: string, mark: boolean}[]} Segmente; ohne Treffer ein einziges Segment ohne Markierung
+ */
+export function highlightWord(sentence, es) {
+  const text = String(sentence ?? '');
+  const variants = [];
+  for (const raw of String(es ?? '').split(/[,/]/)) {
+    const v = raw.trim();
+    if (!v) continue;
+    variants.push(v);
+    const noArticle = v.replace(/^(el|la|los|las|un|una)\s+/i, '');
+    if (noArticle !== v) variants.push(noArticle);
+  }
+  variants.sort((a, b) => b.length - a.length);
+  const lower = text.toLowerCase();
+  for (const v of variants) {
+    const needle = v.toLowerCase();
+    if (!needle) continue;
+    let from = 0;
+    while (from <= lower.length - needle.length) {
+      const i = lower.indexOf(needle, from);
+      if (i < 0) break;
+      const before = i > 0 ? text[i - 1] : '';
+      const after = text[i + needle.length] || '';
+      if (!LETTER.test(before) && !LETTER.test(after)) {
+        return [
+          { text: text.slice(0, i), mark: false },
+          { text: text.slice(i, i + needle.length), mark: true },
+          { text: text.slice(i + needle.length), mark: false },
+        ].filter((seg) => seg.text.length);
+      }
+      from = i + 1;
+    }
+  }
+  return [{ text, mark: false }];
+}
