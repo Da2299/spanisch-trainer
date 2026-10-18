@@ -77,7 +77,7 @@ export function renderStats(main) {
     s.perDay.map((d, i) =>
       el('div', { class: 'bar-col', title: `${d.date}: ${d.count}` }, [
         el('div', { class: 'bar', style: `height:${Math.round((d.count / max) * 100)}%`, 'data-count': String(d.count) }),
-        el('div', { class: 'bar-label', text: i === 0 || i === DAYS - 1 || (DAYS - 1 - i) % 7 === 0 ? d.date.slice(8) + '.' : '' }),
+        el('div', { class: 'bar-label', text: (DAYS - 1 - i) % 7 === 0 ? d.date.slice(8) + '.' : '' }),
       ]),
     ),
   );
@@ -115,7 +115,7 @@ export function renderStats(main) {
     el('section', { class: 'card' }, [
       el('h2', { text: 'Fällig in den nächsten 7 Tagen' }),
       el('dl', { class: 'kv', id: 'forecast' }, s.forecast.flatMap((f) => [el('dt', { text: labels[f.offset] || `+${f.offset} Tage (${f.date.slice(8)}.${f.date.slice(5, 7)}.)` }), el('dd', { text: String(f.count) })])),
-      el('p', { class: 'muted small-text', text: 'Heute enthält überfällige Karten. Neue Karten und Lernschritte am selben Tag sind nicht enthalten.' }),
+      el('p', { class: 'muted small-text', text: 'Heute enthält überfällige Karten und heute fällige Lernschritte. Neue Karten sind nicht enthalten.' }),
     ]),
   );
 }
