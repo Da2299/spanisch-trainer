@@ -15,7 +15,7 @@ import { renderStats } from './views/stats.js';
 import { renderSettings } from './views/settings.js';
 import { renderVerbTable, renderPatterns } from './views/verbs.js';
 
-export const APP_VERSION = '1.3.0';
+export const APP_VERSION = '1.4.0';
 export const EXPORT_FORMAT = 2;
 export const BACKUP_REMINDER_DAYS = 7;
 export const DEFAULT_SETTINGS = {
@@ -23,12 +23,13 @@ export const DEFAULT_SETTINGS = {
   requestRetention: 0.9,
   fsrsParams: '',
   autoSpeak: true,
-  hearingMode: false, // Stufe 2: Hörkarten einplanen
   newHearPerDay: 10,
-  verbMode: false, // Stufe 3: Verbformen einplanen
   newVerbPerDay: 10,
-  tipMode: false, // Stufe 3: Form eintippen statt „Antwort zeigen“
+  tipMode: false, // Verbform eintippen statt „Antwort zeigen“
+  ratingMode: 'simple', // 'simple' = Vergessen/Gewusst, 'full' = vier Stufen
+  sessionSize: 15, // Karten je Lernsitzung
 };
+export const SECONDS_PER_CARD = 20; // Schätzwert ohne Protokoll
 
 export const state = {
   storage: null,
@@ -61,12 +62,24 @@ const ROUTES = {
   muster: renderPatterns,
 };
 /** Tab, der für eine Route hervorgehoben wird. */
-const TAB_OF = { verb: 'karten', muster: 'karten' };
+const TAB_OF = { verb: 'karten', muster: 'karten', statistik: 'start' };
 
 // ---------- Status-Operationen (für Views) ----------
 
 export function plan(now = new Date()) {
   return buildPlan(state.sch, state.cards, state.progress, state.cardmeta, state.days, state.settings, now, { verbForms: state.verbForms });
+}
+
+/** Geschätzte Dauer in Minuten für n Karten (Median der letzten Antwortdauern, sonst Schätzwert). */
+export function estimateMinutes(n) {
+  if (!n) return 0;
+  const recent = state.reviews.slice(-100).map((r) => r.duration).filter((d) => d > 0);
+  let perCard = SECONDS_PER_CARD;
+  if (recent.length >= 10) {
+    const sorted = [...recent].sort((a, b) => a - b);
+    perCard = Math.min(90, Math.max(5, sorted[Math.floor(sorted.length / 2)] / 1000 + 4));
+  }
+  return Math.max(1, Math.ceil((n * perCard) / 60));
 }
 
 export function getVerb(lemma) {
@@ -308,7 +321,9 @@ export function sanitizeSettings(src) {
   if (Number.isFinite(Number(src.newVerbPerDay))) out.newVerbPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newVerbPerDay))));
   if (Number.isFinite(Number(src.requestRetention))) out.requestRetention = clampRetention(src.requestRetention);
   if (typeof src.fsrsParams === 'string' && !parseFsrsParams(src.fsrsParams).error) out.fsrsParams = src.fsrsParams;
-  for (const k of ['autoSpeak', 'hearingMode', 'verbMode', 'tipMode']) if (typeof src[k] === 'boolean') out[k] = src[k];
+  if (Number.isFinite(Number(src.sessionSize))) out.sessionSize = Math.min(100, Math.max(5, Math.round(Number(src.sessionSize))));
+  if (src.ratingMode === 'simple' || src.ratingMode === 'full') out.ratingMode = src.ratingMode;
+  for (const k of ['autoSpeak', 'tipMode']) if (typeof src[k] === 'boolean') out[k] = src[k];
   return out;
 }
 
@@ -455,4 +470,4 @@ boot().catch((e) => {
 });
 
 // Für Tests/Debugging im Browser.
-window.__spanischTrainer = { state, plan, parsePackage, mergeSources, reviewsCsv, exportObject, rateCard, APP_VERSION, SCHEMA_VERSION };
+window.__spanischTrainer = { state, plan, parsePackage, mergeSources, reviewsCsv, exportObject, rateCard, rerender, APP_VERSION, SCHEMA_VERSION };

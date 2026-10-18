@@ -10,7 +10,7 @@ ES-0004	4	la	die	Artikel	La casa es grande.	Das Haus ist groß.	grundwortschatz 
 ES-0005	5	y	und	Konjunktion	Pan y agua.	Brot und Wasser.	grundwortschatz
 ES-0006	6	ser	sein	Verb	Mi hermana es médica.	Meine Schwester ist Ärztin.	grundwortschatz verb
 ES-0007	7	estar	sich befinden, sein	Verb	Estoy en casa.	Ich bin zu Hause.	grundwortschatz verb
-ES-0008	8	tener	haben	Verb	Tengo dos gatos.	Ich habe zwei Katzen.	grundwortschatz verb
+ES-0008	8	tener	haben; tener que + Infinitiv = müssen	Verb	Tengo dos gatos.	Ich habe zwei Katzen.	grundwortschatz verb
 ES-0009	9	hacer	machen, tun	Verb	¿Qué haces hoy?	Was machst du heute?	grundwortschatz verb
 ES-0010	10	poder	können	Verb	No puedo venir mañana.	Ich kann morgen nicht kommen.	grundwortschatz verb
 ES-0011	11	tener	haben	Verb	¿Tienes tiempo mañana?	Hast du morgen Zeit?	grundwortschatz verb

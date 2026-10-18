@@ -1,63 +1,56 @@
-// Startbildschirm: Kennzahlen, Sicherungshinweis und Einstieg ins Lernen.
-import { state, plan, navigate, backupDue } from '../app.js';
-import { CARD_TYPES } from '../scheduler.js';
+// Startbildschirm: eine Entscheidung – heute lernen. Zusammenfassung, ein Hauptknopf, Einstiege je Lernmodus.
+import { state, plan, navigate, backupDue, estimateMinutes } from '../app.js';
+import { CARD_TYPES, TYPE_ORDER } from '../scheduler.js';
 import { el } from '../util.js';
 
 export function renderHome(main) {
   const p = plan();
-  const tiles = [
-    ['Fällig heute', p.dueCount, 'due'],
-    ['Neu heute', p.newCount, 'new'],
-    ['Gelernt gesamt', p.learnedTotal, 'learned'],
-    ['Tage in Folge', p.streak, 'streak'],
-  ];
-  main.append(
-    el('h1', { class: 'title', text: 'Spanisch-Trainer' }),
-    el(
-      'section',
-      { class: 'stats', 'aria-label': 'Statistik' },
-      tiles.map(([label, value, key]) =>
-        el('div', { class: 'stat', 'data-stat': key }, [
-          el('div', { class: 'stat-value', text: String(value) }),
-          el('div', { class: 'stat-label', text: label }),
-        ]),
-      ),
+  const s = p.sessions;
+  const todayTotal = TYPE_ORDER.reduce((n, t) => n + s[t].total, 0);
+  const minutes = estimateMinutes(todayTotal);
+
+  main.append(el('h1', { class: 'title', text: 'Spanisch-Trainer' }));
+
+  if (!state.cards.size) {
+    main.append(el('p', { class: 'muted center', id: 'home-meta', text: 'Keine Vokabeln geladen. Füge unter Einstellungen ein Paket hinzu.' }));
+  } else {
+    main.append(
+      el('section', { class: 'card today', id: 'today-summary', 'data-total': String(todayTotal), 'data-due': String(p.dueCount), 'data-new': String(p.newCount), 'data-minutes': String(minutes) }, [
+        el('div', { class: 'today-main', text: todayTotal ? `Heute: ${todayTotal} Karten` : 'Heute ist alles erledigt' }),
+        el('div', { class: 'muted', text: todayTotal ? `etwa ${minutes} Min · ${p.dueCount} fällig, ${p.newCount} neu` : p.reviewsToday ? `${p.reviewsToday} Karten bewertet – bis morgen!` : 'Komm morgen wieder.' }),
+      ]),
+    );
+  }
+
+  // Einstiege je Lernmodus (Hören/Verben nur, wenn es dort etwas gibt)
+  const modes = TYPE_ORDER.filter((t) => t === 'vocab' || s[t].total || p.types[t].learned);
+  const modeList = el(
+    'div',
+    { class: 'modes', id: 'modes' },
+    modes.map((t) =>
+      el('button', {
+        class: `btn mode ${t === 'vocab' ? 'primary big' : ''}`,
+        id: `start-${t}`,
+        'data-count': String(s[t].total),
+        disabled: s[t].total ? null : true,
+        onclick: () => navigate(t === 'vocab' ? 'lernen' : `lernen/${t}`),
+      }, [
+        el('span', { class: 'mode-label', text: t === 'vocab' ? 'Lernen' : CARD_TYPES[t].session }),
+        el('span', { class: 'mode-count', text: s[t].total ? `${s[t].total}` : '✓' }),
+      ]),
     ),
   );
+  if (state.cards.size) main.append(modeList);
+  const lockedModes = TYPE_ORDER.filter((t) => t !== 'vocab' && !modes.includes(t) && p.types[t].locked);
+  if (lockedModes.length) {
+    main.append(el('p', { class: 'muted small-text center', id: 'locked-hint', text: `${lockedModes.map((t) => CARD_TYPES[t].session).join(' und ')} ${lockedModes.length > 1 ? 'werden' : 'wird'} frei, sobald Vokabeln den Zustand „Wiederholen“ erreichen.` }));
+  }
 
-  // Zahlen je Kartentyp (Hörkarten nur bei aktivem Hörmodus)
-  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
   main.append(
-    el('table', { class: 'type-table', id: 'type-table' }, [
-      el('thead', {}, [el('tr', {}, [el('th', { text: '' }), el('th', { text: 'Fällig' }), el('th', { text: 'Neu' }), el('th', { text: 'Gelernt' })])]),
-      el(
-        'tbody',
-        {},
-        typeKeys.map((t) =>
-          el('tr', { 'data-type': t }, [
-            el('th', { text: CARD_TYPES[t].labelPlural }),
-            el('td', { 'data-col': 'due', text: String(p.types[t].due) }),
-            el('td', { 'data-col': 'new', text: String(p.types[t].new) }),
-            el('td', { 'data-col': 'learned', text: String(p.types[t].learned) }),
-          ]),
-        ),
-      ),
+    el('p', { class: 'center streak-line', id: 'streak-line' }, [
+      el('a', { href: '#statistik', text: `🔥 ${p.streak} ${p.streak === 1 ? 'Tag' : 'Tage'} in Folge · Statistik` }),
     ]),
   );
-
-  const meta = el('p', { class: 'muted center', id: 'home-meta' });
-  if (!state.cards.size) {
-    meta.textContent = 'Keine Vokabeln geladen. Füge unter Einstellungen ein Paket hinzu.';
-  } else {
-    const parts = [`${p.totalCards} Karten in ${state.sources.length} Paket${state.sources.length === 1 ? '' : 'en'}`];
-    if (p.reviewsToday) parts.push(`${p.reviewsToday} Bewertungen heute`);
-    if (p.unseenCount > p.types.vocab.new) parts.push(`${p.unseenCount} noch ungelernt`);
-    if (p.hearingOn && p.types.hear.locked) parts.push(`${p.types.hear.locked} Hörkarten noch gesperrt`);
-    if (p.verbOn && p.types.verb.locked) parts.push(`${p.types.verb.locked} Verbformen noch gesperrt`);
-    if (p.suspendedCount) parts.push(`${p.suspendedCount} ausgesetzt`);
-    meta.textContent = parts.join(' · ');
-  }
-  main.append(meta);
 
   if (backupDue()) {
     main.append(
@@ -68,25 +61,14 @@ export function renderHome(main) {
     );
   }
 
-  if (state.loadErrors.length) {
-    main.append(
-      el('div', { class: 'card error-box' }, [
-        el('strong', { text: 'Hinweise beim Laden' }),
-        el('ul', {}, state.loadErrors.map((e) => el('li', { text: e }))),
-      ]),
-    );
+  if (state.cards.size) {
+    const parts = [`${p.totalCards} Karten`];
+    if (p.unseenCount) parts.push(`${p.unseenCount} noch ungelernt`);
+    if (p.types.vocab.suspended) parts.push(`${p.types.vocab.suspended} ausgesetzt`);
+    main.append(el('p', { class: 'muted small-text center', id: 'home-meta', text: parts.join(' · ') }));
   }
 
-  const queueLen = p.queue.length;
-  main.append(
-    el('div', { class: 'bottom-bar' }, [
-      el('button', {
-        class: 'btn primary big',
-        id: 'start-study',
-        disabled: queueLen === 0 || null,
-        onclick: () => navigate('lernen'),
-        text: queueLen ? `Lernen starten (${queueLen})` : 'Nichts fällig – gut gemacht!',
-      }),
-    ]),
-  );
+  if (state.loadErrors.length) {
+    main.append(el('div', { class: 'card error-box' }, [el('strong', { text: 'Hinweise beim Laden' }), el('ul', {}, state.loadErrors.map((e) => el('li', { text: e })))]));
+  }
 }
