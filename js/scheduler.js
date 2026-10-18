@@ -3,6 +3,7 @@ import { dateKey, endOfDay, addDays } from './util.js';
 import { compareByRank } from './parser.js';
 
 export const LEARN_AHEAD_MS = 20 * 60 * 1000; // Lernkarten bis 20 Min. im Voraus zeigen
+export const LEECH_THRESHOLD = 8; // ab so vielen „Nochmal“ gilt eine Karte als schwierig
 export const RATINGS = [
   { grade: 1, key: 'again', label: 'Nochmal' },
   { grade: 2, key: 'hard', label: 'Schwer' },
@@ -10,19 +11,72 @@ export const RATINGS = [
   { grade: 4, key: 'easy', label: 'Einfach' },
 ];
 
+/** Kartentypen. Der Typ ergibt sich aus dem Kartenschlüssel. */
+export const CARD_TYPES = {
+  vocab: { key: 'vocab', label: 'Vokabel', labelPlural: 'Vokabeln' },
+  hear: { key: 'hear', label: 'Hören', labelPlural: 'Hörkarten' },
+  verb: { key: 'verb', label: 'Verbform', labelPlural: 'Verbformen' },
+};
+export const TYPE_ORDER = ['vocab', 'hear', 'verb'];
+
+export function cardTypeOf(key) {
+  if (typeof key !== 'string') return 'vocab';
+  if (key.startsWith('V:')) return 'verb';
+  if (key.endsWith(':H')) return 'hear';
+  return 'vocab';
+}
+
+/** Kennung der Vokabelkarte, zu der ein Schlüssel gehört (Hörkarte → Kennung). */
+export function baseIdOf(key) {
+  if (cardTypeOf(key) === 'hear') return key.slice(0, -2);
+  return key;
+}
+
+/** Akzeptierte Längen für eigene FSRS-Parameter (ts-fsrs füllt auf 21 auf). */
+export const FSRS_PARAM_LENGTHS = [17, 19, 21];
+
+/**
+ * Parametertext („w1, w2, …“) in eine Zahlenliste wandeln.
+ * @returns {{w: number[]|null, error: string|null}} w = null bedeutet Standardparameter.
+ */
+export function parseFsrsParams(text) {
+  const t = String(text || '').trim();
+  if (!t) return { w: null, error: null };
+  const parts = t.split(/[\s,;]+/).filter(Boolean);
+  const w = parts.map((x) => Number(x.replace(',', '.')));
+  if (w.some((x) => !Number.isFinite(x))) return { w: null, error: 'Enthält ungültige Zahlen.' };
+  if (!FSRS_PARAM_LENGTHS.includes(w.length)) {
+    return { w: null, error: `Erwartet 17, 19 oder 21 Werte, gefunden: ${w.length}.` };
+  }
+  return { w, error: null };
+}
+
 export class Scheduler {
-  /** @param {object} lib Das ts-fsrs-Modul */
-  constructor(lib) {
+  /**
+   * @param {object} lib Das ts-fsrs-Modul
+   * @param {{requestRetention?: number, w?: number[]|null}} [opts]
+   */
+  constructor(lib, opts = {}) {
     this.lib = lib;
     this.State = lib.State;
     this.Rating = lib.Rating;
-    this.params = lib.generatorParameters({ request_retention: 0.9 });
-    this.f = lib.fsrs(this.params);
+    this.configure(opts);
   }
 
-  /** Neuen (leeren) FSRS-Datensatz für eine Kennung erzeugen. */
+  /** Parameter neu setzen (Zielretention, eigene Gewichte). Gilt für alle künftigen Planungen. */
+  configure({ requestRetention = 0.9, w = null } = {}) {
+    const rr = clampRetention(requestRetention);
+    const input = { request_retention: rr };
+    if (Array.isArray(w) && FSRS_PARAM_LENGTHS.includes(w.length)) input.w = w;
+    this.params = this.lib.generatorParameters(input);
+    this.f = this.lib.fsrs(this.params);
+    this.requestRetention = rr;
+    this.customW = input.w ? [...input.w] : null;
+  }
+
+  /** Neuen (leeren) FSRS-Datensatz für einen Kartenschlüssel erzeugen. */
   emptyProgress(id, now = new Date()) {
-    return { id, ...serializeCard(this.lib.createEmptyCard(now)) };
+    return { id, ...serializeCard(this.lib.createEmptyCard(now)), againCount: 0 };
   }
 
   /** Ist der Lernstand "neu" (noch nie bewertet)? */
@@ -52,10 +106,19 @@ export class Scheduler {
     return out;
   }
 
-  /** Bewertung anwenden; liefert den neuen (serialisierten) Lernstand. */
+  /**
+   * Bewertung anwenden.
+   * @returns {{progress: object, log: object}} neuer (serialisierter) Lernstand und FSRS-Log
+   */
   rate(progress, grade, now = new Date()) {
     const item = this.f.next(toCardInput(progress), now, grade);
-    return { id: progress.id, ...serializeCard(item.card), firstReview: progress.firstReview || now.toISOString() };
+    const next = {
+      id: progress.id,
+      ...serializeCard(item.card),
+      firstReview: progress.firstReview || now.toISOString(),
+      againCount: (progress.againCount || 0) + (grade === 1 ? 1 : 0),
+    };
+    return { progress: next, log: serializeLog(item.log) };
   }
 
   /** Abrufwahrscheinlichkeit 0..1 (nur für bewertete Karten). */
@@ -63,6 +126,22 @@ export class Scheduler {
     if (this.isNew(progress)) return null;
     return this.f.get_retrievability(toCardInput(progress), now, false);
   }
+
+  /** Zustandscode vor einer Bewertung für das Protokoll: 0 neu, 1 lernen, 2 wiederholen, 3 neu lernen. */
+  stateCode(progress) {
+    return this.isNew(progress) ? 0 : Number(progress.state) || 0;
+  }
+}
+
+export function clampRetention(x) {
+  const n = Number(x);
+  if (!Number.isFinite(n)) return 0.9;
+  return Math.min(0.95, Math.max(0.8, Math.round(n * 100) / 100));
+}
+
+/** Gilt die Karte als schwierig (Leech)? */
+export function isDifficult(progress) {
+  return !!progress && (progress.againCount || 0) >= LEECH_THRESHOLD;
 }
 
 /** FSRS-Card in ein JSON-taugliches Objekt umwandeln. */
@@ -78,6 +157,21 @@ export function serializeCard(card) {
     lapses: card.lapses,
     state: card.state,
     last_review: card.last_review ? toIso(card.last_review) : undefined,
+  };
+}
+
+export function serializeLog(log) {
+  return {
+    rating: log.rating,
+    state: log.state,
+    due: toIso(log.due),
+    stability: log.stability,
+    difficulty: log.difficulty,
+    elapsed_days: log.elapsed_days,
+    last_elapsed_days: log.last_elapsed_days,
+    scheduled_days: log.scheduled_days,
+    learning_steps: log.learning_steps ?? 0,
+    review: toIso(log.review),
   };
 }
 
@@ -101,22 +195,41 @@ export function toCardInput(p) {
   };
 }
 
+function emptyDay(key) {
+  return { id: key, newCount: 0, reviewCount: 0, newHearCount: 0, newVerbCount: 0 };
+}
+
+/** Feldname der Tagesstatistik für neue Karten eines Typs. */
+export function newCountField(type) {
+  return type === 'hear' ? 'newHearCount' : type === 'verb' ? 'newVerbCount' : 'newCount';
+}
+
 /**
- * Kennzahlen und Warteschlange berechnen.
+ * Kennzahlen und Warteschlange berechnen (Stufe 1: nur Vokabelkarten).
  * @param {Scheduler} sch
- * @param {Map<string, Card>} cards  alle Karten nach Kennung
- * @param {Map<string, object>} progress Lernstand nach Kennung
- * @param {Map<string, {id:string,newCount:number,reviewCount:number}>} days Tagesstatistik
+ * @param {Map<string, Card>} cards  alle Vokabelkarten nach Kennung
+ * @param {Map<string, object>} progress Lernstand nach Kartenschlüssel
+ * @param {Map<string, object>} cardmeta Notizen/Aussetzen nach Kartenschlüssel
+ * @param {Map<string, object>} days Tagesstatistik
  * @param {{newPerDay:number}} settings
  */
-export function buildPlan(sch, cards, progress, days, settings, now = new Date()) {
+export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = new Date()) {
   const today = dateKey(now);
-  const todayStats = days.get(today) || { id: today, newCount: 0, reviewCount: 0 };
+  const todayStats = days.get(today) || emptyDay(today);
   const due = [];
   const unseen = [];
   let learnedTotal = 0;
+  let suspendedCount = 0;
+  let difficultCount = 0;
   for (const card of cards.values()) {
     const p = progress.get(card.id);
+    const m = cardmeta.get(card.id);
+    if (isDifficult(p)) difficultCount++;
+    if (m && m.suspended) {
+      suspendedCount++;
+      if (!sch.isNew(p)) learnedTotal++;
+      continue;
+    }
     if (sch.isNew(p)) {
       unseen.push(card);
     } else {
@@ -126,19 +239,23 @@ export function buildPlan(sch, cards, progress, days, settings, now = new Date()
   }
   due.sort((a, b) => a.dueAt - b.dueAt);
   unseen.sort(compareByRank);
-  const newLimit = Math.max(0, (Number(settings.newPerDay) || 0) - todayStats.newCount);
+  const newLimit = Math.max(0, (Number(settings.newPerDay) || 0) - (todayStats.newCount || 0));
   const newCards = unseen.slice(0, newLimit);
+  const entry = (card) => ({ key: card.id, type: 'vocab', card });
   return {
     today,
     dueCount: due.length,
     newCount: newCards.length,
-    newDoneToday: todayStats.newCount,
-    reviewsToday: todayStats.reviewCount,
+    newDoneToday: todayStats.newCount || 0,
+    reviewsToday: todayStats.reviewCount || 0,
     unseenCount: unseen.length,
     learnedTotal,
+    suspendedCount,
+    difficultCount,
     totalCards: cards.size,
     streak: computeStreak(days, now),
-    queue: [...due.map((d) => d.card), ...newCards],
+    queue: [...due.map((d) => entry(d.card)), ...newCards.map(entry)],
+    types: { vocab: { due: due.length, new: newCards.length, learned: learnedTotal } },
   };
 }
 
@@ -160,4 +277,26 @@ export function computeStreak(days, now = new Date()) {
     if (streak > 36500) break;
   }
   return streak;
+}
+
+/**
+ * Prognose: fällige Wiederholungskarten je Tag für die nächsten n Tage (Tag 0 = heute inkl. überfällig).
+ */
+export function forecastDue(sch, progress, cardmeta, now = new Date(), daysAhead = 7) {
+  const out = Array.from({ length: daysAhead }, (_, i) => ({ offset: i, date: dateKey(addDays(now, i)), count: 0 }));
+  const todayEnd = endOfDay(now).getTime();
+  const dayMs = 86400000;
+  for (const p of progress.values()) {
+    if (sch.isNew(p)) continue;
+    const m = cardmeta.get(p.id);
+    if (m && m.suspended) continue;
+    const due = new Date(p.due).getTime();
+    if (due <= todayEnd) {
+      out[0].count++;
+      continue;
+    }
+    const idx = Math.ceil((due - todayEnd) / dayMs);
+    if (idx >= 1 && idx < daysAhead) out[idx].count++;
+  }
+  return out;
 }

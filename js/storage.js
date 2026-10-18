@@ -1,10 +1,11 @@
 // Persistenz: IndexedDB mit localStorage-Fallback.
-// Stores: progress (Lernstand je Kennung), packages (importierte Pakete),
-//         days (Tagesstatistik je Datum), meta (Einstellungen u. a.).
+// Stores: progress (Lernstand je Kartenschlüssel), packages (importierte Pakete),
+//         days (Tagesstatistik je Datum), meta (Einstellungen, Schema u. a.),
+//         reviews (Bewertungsprotokoll), cardmeta (Notizen, Aussetzen je Karte).
 
 const DB_NAME = 'spanisch-trainer';
-const DB_VERSION = 1;
-export const STORES = ['progress', 'packages', 'days', 'meta'];
+const DB_VERSION = 2; // v2: Stores reviews und cardmeta
+export const STORES = ['progress', 'packages', 'days', 'meta', 'reviews', 'cardmeta'];
 
 class IdbStorage {
   constructor(db) {

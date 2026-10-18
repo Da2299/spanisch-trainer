@@ -4,7 +4,7 @@
 #deck column:0
 #tags column:8
 ES-0001	1	de	von, aus	Präposition	Soy de Madrid.	Ich bin aus Madrid.	grundwortschatz praeposition
-ES-0002	2	que	dass, der/die/das	Konjunktion	Creo que tienes razón.	Ich glaube, dass du recht hast.	grundwortschatz
+ES-0002	2	que	dass; der/die/das (Relativpronomen)	Konjunktion	Creo que tienes razón.	Ich glaube, dass du recht hast.	grundwortschatz
 ES-0003	3	el	der	Artikel	El libro está en la mesa.	Das Buch liegt auf dem Tisch.	grundwortschatz artikel
 ES-0004	4	la	die	Artikel	La casa es grande.	Das Haus ist groß.	grundwortschatz artikel
 ES-0005	5	y	und	Konjunktion	Pan y agua.	Brot und Wasser.	grundwortschatz

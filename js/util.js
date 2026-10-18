@@ -108,3 +108,42 @@ export function downloadBlob(blob, filename) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+
+/**
+ * Deutsch-Feld in Hauptbedeutung und Rest teilen (am ersten Semikolon).
+ * @returns {{main: string, rest: string}}
+ */
+export function splitMeaning(de) {
+  const s = String(de ?? '').trim();
+  // Erstes Semikolon außerhalb von Klammern.
+  let depth = 0;
+  let i = -1;
+  for (let k = 0; k < s.length; k++) {
+    const ch = s[k];
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+    else if (ch === ';' && depth === 0) {
+      i = k;
+      break;
+    }
+  }
+  if (i < 0) return { main: s, rest: '' };
+  return { main: s.slice(0, i).trim(), rest: s.slice(i + 1).trim() };
+}
+
+/** CSV-Feld nach RFC 4180 maskieren. */
+export function csvField(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** Zeilen (Arrays) als CSV-Text (CRLF, UTF-8 ohne BOM). */
+export function toCsv(rows) {
+  return rows.map((r) => r.map(csvField).join(',')).join('\r\n') + '\r\n';
+}
+
+/** Kurze zufällige Kennung für Protokolleinträge. */
+export function uid() {
+  const r = Math.random().toString(36).slice(2, 8);
+  return `${Date.now().toString(36)}-${r}`;
+}

@@ -324,3 +324,68 @@ h2 { font-size: 1.1rem; margin: 0 0 10px; }
   .word { font-size: 3.2rem; }
   .study-card { min-height: 46vh; }
 }
+
+/* --- Stufe 1 --- */
+.tabs a { font-size: 0.68rem; }
+.meaning-main { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.meaning-rest { font-size: 1rem; line-height: 1.35; }
+.note {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  resize: vertical;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.note.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
+.card-tools { margin-top: 6px; }
+.study-tools { display: flex; justify-content: flex-end; }
+.study-tools .btn { width: auto; }
+.badge-leech { background: rgba(214, 69, 69, 0.15); color: var(--again); margin-left: 6px; }
+.badge-off { background: var(--border); color: var(--muted); }
+.hint { font-size: 0.95rem; margin: 4px 0 12px; }
+.hint a { color: var(--primary); font-weight: 600; }
+.hint-box {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 4px solid var(--accent);
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.row.column { flex-direction: column; align-items: stretch; gap: 6px; }
+.row-inline { display: flex; justify-content: space-between; align-items: center; }
+.row.disabled { opacity: 0.55; }
+.row input[type="range"] { width: 100%; accent-color: var(--primary); margin: 0; }
+.value { font-weight: 600; }
+.chips { display: flex; gap: 8px; margin: 0 0 8px; overflow-x: auto; padding-bottom: 2px; }
+.chip {
+  flex: none;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 140px;
+  padding-top: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.bar-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-width: 0; position: relative; }
+.bar { background: var(--primary); border-radius: 3px 3px 0 0; min-height: 1px; opacity: 0.9; }
+.bar[data-count="0"] { background: var(--border); }
+.bar-label { position: absolute; bottom: -18px; left: 0; right: 0; font-size: 0.6rem; color: var(--muted); text-align: center; white-space: nowrap; }
+.bars { margin-bottom: 22px; }
