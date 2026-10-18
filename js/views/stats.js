@@ -1,12 +1,12 @@
 // Statistik: Wiederholungen pro Tag (30 Tage), Trefferquote, Karten je Zustand, Prognose, Serie.
 import { state, plan } from '../app.js';
-import { forecastDue } from '../scheduler.js';
+import { forecastDue, cardTypeOf, hearKeyOf, CARD_TYPES } from '../scheduler.js';
 import { el, dateKey, addDays } from '../util.js';
 
 const DAYS = 30;
 
 /** Kennzahlen aus Protokoll, Lernstand und Markierungen berechnen (reine Funktion, testbar). */
-export function computeStats(sch, cards, progress, cardmeta, reviews, days, now = new Date()) {
+export function computeStats(sch, cards, progress, cardmeta, reviews, days, now = new Date(), verbForms = new Map()) {
   const start = addDays(now, -(DAYS - 1));
   start.setHours(0, 0, 0, 0);
   const perDay = [];
@@ -19,43 +19,70 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
   }
   let total = 0;
   let correct = 0;
+  const byType = { vocab: { total: 0, correct: 0 }, hear: { total: 0, correct: 0 }, verb: { total: 0, correct: 0 } };
   for (const r of reviews) {
     const key = dateKey(new Date(r.time));
     const i = index.get(key);
     if (i === undefined) continue;
+    const t = byType[r.cardType || cardTypeOf(r.cardId)] || byType.vocab;
     perDay[i].count++;
     total++;
+    t.total++;
     if (r.rating >= 2) {
       perDay[i].correct++;
       correct++;
+      t.correct++;
     }
   }
   const S = sch.State;
-  const byState = { new: 0, learning: 0, review: 0, suspended: 0 };
+  const emptyState = () => ({ new: 0, learning: 0, review: 0, suspended: 0, locked: 0 });
+  const byState = emptyState(); // Vokabelkarten (abwärtskompatibel)
+  const byStateType = { vocab: byState, hear: emptyState(), verb: emptyState() };
+  for (const f of verbForms.values()) {
+    const vp = progress.get(f.verb.kennung);
+    const fp = progress.get(f.key);
+    const v = byStateType.verb;
+    if (cardmeta.get(f.verb.kennung)?.suspended || cardmeta.get(f.key)?.suspended) v.suspended++;
+    else if (sch.isNew(fp)) {
+      if (vp && !sch.isNew(vp) && vp.state === S.Review) v.new++;
+      else v.locked++;
+    } else if (fp.state === S.Review) v.review++;
+    else v.learning++;
+  }
   for (const card of cards.values()) {
     const m = cardmeta.get(card.id);
-    if (m && m.suspended) {
-      byState.suspended++;
-      continue;
-    }
     const p = progress.get(card.id);
-    if (sch.isNew(p)) byState.new++;
+    if (m && m.suspended) byState.suspended++;
+    else if (sch.isNew(p)) byState.new++;
     else if (p.state === S.Review) byState.review++;
     else byState.learning++;
+    if (!card.exEs) continue;
+    const hk = hearKeyOf(card.id);
+    const hp = progress.get(hk);
+    const hm = cardmeta.get(hk);
+    const h = byStateType.hear;
+    if ((m && m.suspended) || (hm && hm.suspended)) h.suspended++;
+    else if (sch.isNew(hp)) {
+      if (p && !sch.isNew(p) && p.state === S.Review) h.new++;
+      else h.locked++;
+    } else if (hp.state === S.Review) h.review++;
+    else h.learning++;
   }
   return {
     perDay,
     total,
     correct,
     accuracy: total ? correct / total : null,
+    byType,
     byState,
+    byStateType,
     forecast: forecastDue(sch, progress, cardmeta, now, 7),
   };
 }
 
 export function renderStats(main) {
   const p = plan();
-  const s = computeStats(state.sch, state.cards, state.progress, state.cardmeta, state.reviews, state.days);
+  const s = computeStats(state.sch, state.cards, state.progress, state.cardmeta, state.reviews, state.days, new Date(), p.verbOn ? state.verbForms : new Map());
   main.append(el('h1', { class: 'title', text: 'Statistik' }));
 
   // Kennzahlen
@@ -89,11 +116,29 @@ export function renderStats(main) {
     ]),
   );
 
-  // Karten je Zustand
+  // Karten je Zustand (je Kartentyp)
   const st = s.byState;
+  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
+  const rowsDef = [
+    ['Neu', 'new'],
+    ['Lernen', 'learning'],
+    ['Wiederholen', 'review'],
+    ['Ausgesetzt', 'suspended'],
+    ['Gesperrt', 'locked'],
+  ];
   main.append(
     el('section', { class: 'card' }, [
       el('h2', { text: 'Karten je Zustand' }),
+      el('table', { class: 'type-table', id: 'by-state-table' }, [
+        el('thead', {}, [el('tr', {}, [el('th', { text: '' }), ...typeKeys.map((t) => el('th', { text: CARD_TYPES[t].labelPlural }))])]),
+        el(
+          'tbody',
+          {},
+          rowsDef
+            .filter(([, key]) => key !== 'locked' || typeKeys.length > 1)
+            .map(([label, key]) => el('tr', {}, [el('th', { text: label }), ...typeKeys.map((t) => el('td', { 'data-type': t, 'data-state': key, text: String(s.byStateType[t][key]) }))])),
+        ),
+      ]),
       el('dl', { class: 'kv', id: 'by-state' }, [
         el('dt', { text: 'Neu' }),
         el('dd', { 'data-state': 'new', text: String(st.new) }),
@@ -106,6 +151,7 @@ export function renderStats(main) {
         el('dt', { text: 'Schwierig' }),
         el('dd', { 'data-state': 'difficult', text: String(p.difficultCount) }),
       ]),
+      el('p', { class: 'muted small-text', text: `Bewertungen der letzten 30 Tage je Typ: ${typeKeys.map((t) => `${CARD_TYPES[t].labelPlural} ${s.byType[t].total}${s.byType[t].total ? ` (${Math.round((s.byType[t].correct / s.byType[t].total) * 100)} % richtig)` : ''}`).join(' · ')}` }),
     ]),
   );
 

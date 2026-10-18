@@ -86,7 +86,7 @@ async function stats(page) {
   await page.locator('[data-stat="due"]').waitFor();
   return { due: await stat(page, 'due'), neu: await stat(page, 'new'), learned: await stat(page, 'learned'), streak: await stat(page, 'streak') };
 }
-const dbg = (page, fn) => page.evaluate(fn);
+const dbg = (page, fn, arg) => page.evaluate(fn, arg);
 
 async function rateOne(page, grade) {
   await page.locator('#card-front .word').waitFor();
@@ -103,6 +103,17 @@ async function main() {
   const base = `http://127.0.0.1:${port}${PREFIX}`;
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'de-DE', acceptDownloads: true });
+  // Sprachausgabe abfangen: Text und Tempo jeder Ansage protokollieren.
+  await context.addInitScript(() => {
+    window.__spoken = [];
+    if (window.speechSynthesis) {
+      const orig = window.speechSynthesis.speak.bind(window.speechSynthesis);
+      window.speechSynthesis.speak = (u) => {
+        window.__spoken.push({ text: u.text, rate: u.rate, lang: u.lang });
+        return orig(u);
+      };
+    }
+  });
   const page = await context.newPage();
   const consoleErrors = [];
   const consoleAll = [];
@@ -157,7 +168,7 @@ async function main() {
     await page.reload();
     check('S1a-4 Zielretention bleibt nach Neuladen gespeichert', (await page.locator('#retention').inputValue()) === '0.9' && (await page.locator('#retention-value').innerText()) === '90 %');
     check('S1a-5 Hinweistext zur Hauptbedeutung vorhanden', (await page.locator('#meaning-hint').innerText()) === 'Bewerte nur die Hauptbedeutung. Wendungen und Nebenbedeutungen sind Zusatzwissen.');
-    check('S1a-6 Hörmodus/Verbmodus ausgegraut', (await page.locator('#hearing-mode').isDisabled()) && (await page.locator('#verb-mode').isDisabled()));
+    check('S1a-6 Hörmodus (Stufe 2) und Verbmodus (Stufe 3) schaltbar, beide aus', (await page.locator('#hearing-mode').isEnabled()) && !(await page.locator('#hearing-mode').isChecked()) && (await page.locator('#verb-mode').isEnabled()) && !(await page.locator('#verb-mode').isChecked()) && (await page.locator('#verbs-info').innerText()).includes('3 Verben, 17 Formen'));
 
     // ---- 2. Bewerten plant neu; Rückseite; Rückgängig; Lernstand überlebt Neuladen ----
     await page.goto(base + '#lernen');
@@ -195,12 +206,10 @@ async function main() {
     await page.locator('#card-front .word').waitFor();
     st = await dbg(page, () => ({ size: window.__spanischTrainer.state.progress.size, reviews: window.__spanischTrainer.state.reviews.length }));
     check('S1c-4 Rückgängig ist persistent (nach Neuladen 4/4)', st.size === 4 && st.reviews === 4, JSON.stringify(st));
-    const dueFirst = await rateOne(page, 3); // ES-0004 (Lernkarte, 1 Min) ist zuerst fällig
-    check('S1c-5 Nach Neuladen kommt die fällige Lernkarte ES-0004 („la“) zuerst', dueFirst === 'la', dueFirst);
-    const w6 = await rateOne(page, 3); // ES-0001 → Review
-    const w7 = await rateOne(page, 3); // ES-0003 → Review
+    // Fällige Lernkarten (ES-0001, ES-0003, ES-0004; gemischt) kommen vor der neuen Karte ES-0005.
+    const dueWords = [await rateOne(page, 3), await rateOne(page, 3), await rateOne(page, 3)];
     const w8 = await rateOne(page, 3); // ES-0005 (neu) → Lernen
-    check('S1c-6 Reihenfolge: fällige Lernkarten, dann neue nach Rang', `${w6},${w7},${w8}` === 'de,el,y', `${w6},${w7},${w8}`);
+    check('S1c-5 Nach Neuladen zuerst die drei fälligen Lernkarten (gemischt), dann die neue Karte nach Rang', [...dueWords].sort().join(',') === 'de,el,la' && w8 === 'y', `${dueWords.join(',')} | ${w8}`);
 
     // Rückseite: Notiz + Aussetzen über die Lernansicht
     await page.locator('#card-front .word').waitFor(); // ES-0006 ser
@@ -294,8 +303,8 @@ async function main() {
 
     // ---- S1d. Sicherung: Export → Löschen → Import → identisch ----
     await page.goto(base + '#start');
-    const before = await stats(page);
-    const metaBefore = await page.locator('#home-meta').innerText();
+    let before = await stats(page);
+    let metaBefore = await page.locator('#home-meta').innerText();
     await page.goto(base + '#einstellungen');
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#export-progress')]);
     const exportPath = path.join(OUT, download.suggestedFilename());
@@ -320,6 +329,223 @@ async function main() {
     st = await dbg(page, () => ({ reviews: window.__spanischTrainer.state.reviews.length, note: window.__spanischTrainer.state.cardmeta.get('ES-0006')?.note, susp: window.__spanischTrainer.state.cardmeta.get('ES-0006')?.suspended }));
     check('S1d-4 Nach Import identischer Stand (Startzahlen, Protokoll, Notiz, Markierung)', JSON.stringify(s) === JSON.stringify(before) && metaAfter === metaBefore && st.reviews === 16 && st.note === 'Merkhilfe für ser' && st.susp === true, `${JSON.stringify(s)} vs ${JSON.stringify(before)}; ${JSON.stringify(st)}`);
 
+    // ---- Stufe 2: Hörmodus ----
+    await page.goto(base + '#einstellungen');
+    await page.locator('#new-per-day').fill('0');
+    await page.locator('#new-per-day').dispatchEvent('change');
+    await page.locator('#toast.show', { hasText: 'Neue Karten pro Tag: 0' }).waitFor();
+    await page.locator('#hearing-mode').check();
+    await page.locator('#toast.show', { hasText: 'Hörmodus ein' }).waitFor();
+    await page.goto(base + '#start');
+    await page.locator('#type-table').waitFor();
+    const typeRows = await dbg(page, () => Object.fromEntries([...document.querySelectorAll('#type-table tbody tr')].map((tr) => [tr.dataset.type, [...tr.querySelectorAll('td')].map((td) => td.textContent)])));
+    const hearPlan = await dbg(page, () => window.__spanischTrainer.plan().types.hear);
+    check('S2a-1 Startbildschirm zeigt Zahlen je Kartentyp; Hörkarten der 3 Review-Vokabeln sind neu, übrige gesperrt', typeRows.vocab && typeRows.hear && typeRows.hear[1] === '3' && typeRows.vocab[1] === '0' && hearPlan.new === 3 && hearPlan.locked > 0, JSON.stringify({ typeRows, hearPlan }));
+    await page.click('#start-study');
+    // fällige Karten (Lernkarten, gemischt) zuerst abarbeiten
+    let hearSeen = null;
+    for (let i = 0; i < 12; i++) {
+      await page.locator('#card-front').waitFor();
+      const t = await page.locator('#card-front').getAttribute('data-type');
+      if (t === 'hear') {
+        hearSeen = true;
+        break;
+      }
+      await rateOne(page, 3);
+    }
+    check('S2a-2 Hörkarte erscheint nach den fälligen Karten als neue Karte', hearSeen === true && (await page.locator('#type-badge').innerText()) === 'Hören');
+    const hearKey = await dbg(page, () => [...document.querySelectorAll('.badge')].map((b) => b.textContent).join('|'));
+    const frontText = await page.locator('#card-front').innerText();
+    const spokenBefore = await dbg(page, () => window.__spoken.slice(-1)[0]);
+    const hearCardId = (await page.locator('#card-front').getAttribute('data-key')).replace(/:H$/, '');
+    const hearCard = await dbg(page, (id) => window.__spanischTrainer.state.cards.get(id), hearCardId);
+    check('S2b-1 Vorderseite ohne Lernwort/Satz, nur Lautsprecher und Knöpfe', (await page.locator('#card-front .word').count()) === 0 && !frontText.includes(hearCard.exEs) && frontText.replace(/\s+/g, ' ').trim() === '🔊 Nur hören – was wurde gesagt? Noch einmal Langsamer' && (await page.locator('#hear-play').count()) === 1 && (await page.locator('#hear-again').count()) === 1 && (await page.locator('#hear-slow').count()) === 1, `${hearCardId}: „${frontText.replace(/\n/g, ' | ')}“ (${hearKey})`);
+    check('S2b-2 Beispielsatz wurde beim Erscheinen automatisch vorgelesen (es-ES)', spokenBefore && spokenBefore.text === hearCard.exEs && spokenBefore.lang === 'es-ES', JSON.stringify(spokenBefore));
+    await page.click('#hear-slow');
+    const slow = await dbg(page, () => window.__spoken.slice(-1)[0]);
+    check('S2b-3 „Langsamer“ liest mit Tempo 0,8', slow.text === hearCard.exEs && Math.abs(slow.rate - 0.8) < 1e-6, JSON.stringify(slow));
+    await page.click('#show-answer');
+    const markText = await page.locator('#card-back[data-type="hear"] #example-text mark').allInnerTexts();
+    const backHear = await page.locator('#card-back').innerText();
+    check('S2b-4 Rückseite: Satz mit hervorgehobenem Lernwort, deutscher Satz, Lernwort + Hauptbedeutung', markText.length === 1 && hearCard.exEs.toLowerCase().includes(markText[0].toLowerCase()) && backHear.includes(hearCard.exDe) && backHear.includes(hearCard.es), `mark=„${markText[0]}“ | ${backHear.replace(/\n/g, ' | ')}`);
+    await page.click('[data-grade="3"]');
+    await page.locator('#card-front').waitFor();
+    const hearProg = await dbg(page, (id) => window.__spanischTrainer.state.progress.get(id + ':H'), hearCardId);
+    const hearReview = await dbg(page, () => window.__spanischTrainer.state.reviews.slice(-1)[0]);
+    check('S2b-5 Hörkarte hat eigenen Lernstand (Schlüssel Kennung:H) und Protokolleintrag mit Kartentyp „hear“', hearProg && hearProg.reps === 1 && hearReview.cardType === 'hear' && hearReview.cardId === hearCardId + ':H', JSON.stringify({ hearProg, hearReview: { cardId: hearReview.cardId, cardType: hearReview.cardType } }));
+    await page.goto(base + '#start');
+    await page.locator('#type-table').waitFor();
+    await page.goto(base + '#statistik');
+    const hearStats = await dbg(page, () => {
+      const st = window.__spanischTrainer.state;
+      const col = Object.fromEntries([...document.querySelectorAll('#by-state-table td[data-type="hear"]')].map((td) => [td.dataset.state, Number(td.textContent)]));
+      // erwartet: neue Hörkarten = Vokabeln im Zustand Review mit Beispielsatz, nicht ausgesetzt, ohne bereits bewertete Hörkarte
+      let expectedNew = 0;
+      for (const [k, p] of st.progress) {
+        if (k.includes(':') || p.state !== 2) continue;
+        const c = st.cards.get(k);
+        if (!c || !c.exEs || st.cardmeta.get(k)?.suspended) continue;
+        const hp = st.progress.get(k + ':H');
+        if (!hp || !hp.reps) expectedNew++;
+      }
+      return { col, expectedNew };
+    });
+    check('S2e Statistik führt den Kartentyp: Spalte Hörkarten (1 lernen, neue = freigeschaltete Review-Vokabeln)', hearStats.col.learning === 1 && hearStats.col.new === hearStats.expectedNew && hearStats.col.new >= 2, JSON.stringify(hearStats));
+
+    // (c) Hörmodus aus → keine Hörkarten, Zahlen entsprechend
+    await page.goto(base + '#einstellungen');
+    await page.locator('#hearing-mode').uncheck();
+    await page.locator('#toast.show', { hasText: 'Hörmodus aus' }).waitFor();
+    await page.goto(base + '#start');
+    await page.locator('#type-table').waitFor();
+    const offPlan = await dbg(page, () => {
+      const pl = window.__spanischTrainer.plan();
+      return { rows: document.querySelectorAll('#type-table tbody tr').length, hear: pl.types.hear, hearInQueue: pl.queue.filter((e) => e.type === 'hear').length, progressH: [...window.__spanischTrainer.state.progress.keys()].filter((k) => k.endsWith(':H')).length };
+    });
+    check('S2c Hörmodus aus: keine Hörkarten in der Sitzung, keine Hörzeile, Lernstand der Hörkarte bleibt', offPlan.rows === 1 && offPlan.hear.new === 0 && offPlan.hear.due === 0 && offPlan.hearInQueue === 0 && offPlan.progressH === 1, JSON.stringify(offPlan));
+
+    // (d) Export enthält beide Typen
+    await page.goto(base + '#einstellungen');
+    const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('#export-progress')]);
+    const exp2Path = path.join(OUT, 'export-stufe2.json');
+    await dl2.saveAs(exp2Path);
+    const exp2 = JSON.parse(await fs.readFile(exp2Path, 'utf8'));
+    check('S2d Export enthält Lernstand beider Typen (Kennung und Kennung:H) und newHearPerDay', exp2.progress.some((p) => p.id.endsWith(':H')) && exp2.progress.some((p) => !p.id.includes(':')) && exp2.settings.newHearPerDay === 10 && exp2.settings.hearingMode === false, `${exp2.progress.length} Lernstände`);
+    await page.locator('#toast.show', { hasText: 'Sicherung als Datei' }).waitFor();
+
+    // ---- Stufe 3: Verbmodus ----
+    await page.reload();
+    await page.goto(base + '#einstellungen');
+    await page.locator('#verb-mode').waitFor();
+    await page.locator('#verb-mode').check();
+    await page.locator('#toast.show', { hasText: 'Verbmodus ein' }).waitFor();
+    await dbg(page, async () => {
+      await window.__spanischTrainer.rateCard('ES-0011', 4, { durationMs: 1000 }); // tener → Review
+    });
+    await page.goto(base + '#start');
+    await page.locator('#type-table tr[data-type="verb"]').waitFor();
+    const verbRow = await dbg(page, () => [...document.querySelectorAll('#type-table tr[data-type="verb"] td')].map((td) => td.textContent));
+    const verbPlan = await dbg(page, () => window.__spanischTrainer.plan().types.verb);
+    check('S3a-1 ES-0011 (tener) in Review → 9 Verbformen von tener neu, hablar/ir gesperrt', verbRow[1] === '9' && verbPlan.new === 9 && verbPlan.locked === 8, JSON.stringify({ verbRow, verbPlan }));
+    await page.click('#start-study');
+    let verbSeen = false;
+    for (let i = 0; i < 12; i++) {
+      await page.locator('#card-front').waitFor();
+      if ((await page.locator('#card-front').getAttribute('data-type')) === 'verb') {
+        verbSeen = true;
+        break;
+      }
+      await rateOne(page, 3);
+    }
+    check('S3a-2 Erste Verbformkarte: tengo (Infinitiv vorn, „ich · Präsens“)', verbSeen && (await page.locator('#verb-lemma').innerText()) === 'tener' && (await page.locator('#form-meta').innerText()) === 'ich · Präsens' && (await page.locator('#card-front').getAttribute('data-key')) === 'V:tener:tengo:Präsens');
+    await page.click('#show-answer');
+    const spokenForm = await dbg(page, () => window.__spoken.slice(-1)[0]);
+    check('S3a-3 Rückseite: Form „tengo“ groß, automatisch vorgelesen, Hinweis „unregelmäßig“ mit Mustern', (await page.locator('#verb-form').innerText()) === 'tengo' && spokenForm.text === 'tengo' && (await page.locator('#irregular-hint').innerText()).includes('e→ie'), JSON.stringify(spokenForm));
+    await page.click('[data-grade="4"]'); // Einfach → Review (nicht gleich wieder fällig)
+    await page.locator('#card-front').waitFor();
+    check('S3a-4 Zweite Verbformkarte: tiene', (await page.locator('#card-front').getAttribute('data-key')) === 'V:tener:tiene:Präsens');
+    await page.click('#show-answer');
+    await page.click('[data-grade="4"]');
+    await page.locator('#card-front').waitFor();
+    check('S3b-1 Dritte Karte tienes: Lückentext ersetzt die Form im Satz', (await page.locator('#card-front').getAttribute('data-key')) === 'V:tener:tienes:Präsens' && (await page.locator('#gap-sentence').innerText()) === '¿____ (tener) tiempo mañana?' && (await page.locator('#form-meta').innerText()) === 'du · Präsens');
+    await page.click('#show-answer');
+    const gapBack = await page.locator('#card-back').innerText();
+    check('S3b-2 Nach dem Aufdecken: vollständiger Satz mit hervorgehobener Form und Übersetzung', (await page.locator('#example-text mark').innerText()) === 'Tienes' && gapBack.includes('¿Tienes tiempo mañana?') && gapBack.includes('Hast du morgen Zeit?') && (await page.locator('#verb-table-link').count()) === 1, gapBack.replace(/\n/g, ' | '));
+    await page.click('[data-grade="4"]');
+    await page.locator('#card-front').waitFor();
+    const verbReview = await dbg(page, () => window.__spanischTrainer.state.reviews.slice(-1)[0]);
+    check('S3-Protokoll führt Kartentyp „verb“', verbReview.cardType === 'verb' && verbReview.cardId === 'V:tener:tienes:Präsens' && verbReview.rating === 4);
+
+    // (c) Tipp-Modus
+    await page.goto(base + '#einstellungen');
+    await page.locator('#tip-mode').check();
+    await page.locator('#toast.show', { hasText: 'Tipp-Modus ein' }).waitFor();
+    await page.goto(base + '#lernen');
+    for (let i = 0; i < 12; i++) {
+      await page.locator('#card-front').waitFor();
+      if ((await page.locator('#card-front').getAttribute('data-type')) === 'verb') break;
+      await rateOne(page, 4); // fällige Vokabel-/Hörkarten mit Einfach abschließen
+    }
+    check('S3c-1 Tipp-Modus: Textfeld statt „Antwort zeigen“ (Karte tenemos)', (await page.locator('#tip-input').count()) === 1 && (await page.locator('#show-answer').count()) === 0 && (await page.locator('#card-front').getAttribute('data-key')) === 'V:tener:tenemos:Präsens');
+    await page.locator('#tip-input').fill(' Tenemos ');
+    await page.keyboard.press('Enter');
+    await page.locator('#tip-verdict').waitFor();
+    check('S3c-2 „ Tenemos “ gilt als richtig → „Gut“ vorbelegt', (await page.locator('#tip-verdict').innerText()) === 'Richtig' && (await page.locator('.rate.preselected').getAttribute('data-grade')) === '3' && (await page.locator('#confirm-rating').innerText()) === 'Bestätigen: Gut');
+    await page.click('#confirm-rating');
+    await page.locator('#card-front').waitFor();
+    let lastR = await dbg(page, () => window.__spanischTrainer.state.reviews.slice(-1)[0]);
+    check('S3c-3 Bestätigen übernimmt die vorbelegte Bewertung (3)', lastR.cardId === 'V:tener:tenemos:Präsens' && lastR.rating === 3);
+    check('S3c-4 Nächste Karte tenía', (await page.locator('#card-front').getAttribute('data-key')) === 'V:tener:tenía:Imperfekt');
+    await page.locator('#tip-input').fill('tenia');
+    await page.click('#tip-check');
+    await page.locator('#tip-verdict').waitFor();
+    const diffExpected = await page.locator('#tip-expected .diff').allInnerTexts();
+    check('S3c-5 „tenia“ gilt als falsch (Akzent) → „Nochmal“ vorbelegt, Unterschied markiert (í)', (await page.locator('#tip-verdict').innerText()) === 'Falsch' && (await page.locator('.rate.preselected').getAttribute('data-grade')) === '1' && diffExpected.join('') === 'í', diffExpected.join(','));
+    await page.click('[data-grade="2"]'); // Bewertung vor dem Bestätigen geändert
+    await page.locator('#card-front').waitFor();
+    lastR = await dbg(page, () => window.__spanischTrainer.state.reviews.slice(-1)[0]);
+    check('S3c-6 Nutzer kann die Bewertung ändern (Schwer statt Nochmal)', lastR.cardId === 'V:tener:tenía:Imperfekt' && lastR.rating === 2);
+    await page.goto(base + '#einstellungen');
+    await page.locator('#tip-mode').uncheck();
+    await page.locator('#toast.show', { hasText: 'Tipp-Modus aus' }).waitFor();
+
+    // (d) Tabellenansicht
+    await page.goto(base + '#karten');
+    await page.fill('#search', 'ES-0011');
+    await page.click('#card-list .list-item');
+    check('S3d-1 Kartendetails verlinken die Formentabelle', (await page.locator('#detail-verb-link').innerText()) === 'Alle Formen von tener');
+    await page.click('#detail-verb-link');
+    await page.locator('.verb-group').first().waitFor();
+    const tempora = await dbg(page, () => [...document.querySelectorAll('.verb-group')].map((g) => g.dataset.tempus));
+    const irregularRows = await dbg(page, () => [...document.querySelectorAll('.verb-table .vt-row.irregular')].map((r) => r.dataset.form).sort());
+    const regularRows = await dbg(page, () => [...document.querySelectorAll('.verb-table .vt-row:not(.irregular)')].map((r) => r.dataset.form).sort());
+    const bars = await dbg(page, () => [...document.querySelectorAll('.verb-table .freq-bar')].map((b) => b.style.width));
+    check('S3d-2 Tabelle: Tempus-Gruppen in fester Reihenfolge, unregelmäßige Formen hervorgehoben, Häufigkeitsbalken', tempora.join(',') === 'Präsens,Indefinido,Imperfekt,Subjuntivo Präsens,Partizip' && irregularRows.join(',') === 'tenga,tengo,tiene,tienen,tienes,tuve' && regularRows.join(',') === 'tenemos,tenido,tenía' && bars[0] === '100%' && bars.length === 9, JSON.stringify({ tempora, irregularRows, regularRows, bars }));
+    await page.screenshot({ path: path.join(OUT, '05-verbtabelle.png'), fullPage: true });
+    await page.goto(base + '#muster');
+    const musterGroups = await dbg(page, () => [...document.querySelectorAll('section[data-muster]')].map((s) => `${s.dataset.muster}:${[...s.querySelectorAll('[data-lemma]')].map((l) => l.dataset.lemma).join('+')}`));
+    check('S3d-3 Muster-Übersicht gruppiert Verben nach Muster', musterGroups.includes('e→ie:tener') && musterGroups.includes('Präsens voy/vas/va:ir') && musterGroups.includes(':hablar'), musterGroups.join(' | '));
+
+    // (e) Verbmodus aus
+    await page.goto(base + '#einstellungen');
+    await page.locator('#verb-mode').uncheck();
+    await page.locator('#toast.show', { hasText: 'Verbmodus aus' }).waitFor();
+    await page.goto(base + '#start');
+    await page.locator('#type-table').waitFor();
+    const verbOff = await dbg(page, () => {
+      const pl = window.__spanischTrainer.plan();
+      return { rows: document.querySelectorAll('#type-table tr[data-type="verb"]').length, inQueue: pl.queue.filter((e) => e.type === 'verb').length, progressV: [...window.__spanischTrainer.state.progress.keys()].filter((k) => k.startsWith('V:')).length };
+    });
+    check('S3e Verbmodus aus: keine Formkarten in der Sitzung, Lernstand bleibt (5 Formen)', verbOff.rows === 0 && verbOff.inQueue === 0 && verbOff.progressV === 5, JSON.stringify(verbOff));
+
+    // (f) Austausch der Datei gegen mehr Verben ohne Codeänderung (eigener Kontext ohne Cache)
+    const bigger = JSON.parse(await fs.readFile(path.join(ROOT, 'data/verben.json'), 'utf8'));
+    bigger.verben.push({ lemma: 'comer', kennung: 'ES-0099', label: 'Verb', muster: ['regelmäßig -er'], formen: [{ form: 'como', tempus: 'Präsens', person: 'ich', haeufigkeit: 50000, unregelmaessig: false }, { form: 'comí', tempus: 'Indefinido', person: 'ich', haeufigkeit: 20000, unregelmaessig: false }], saetze: [] });
+    await fs.writeFile(path.join(site, 'data/verben.json'), JSON.stringify(bigger));
+    const ctx3 = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'de-DE' });
+    const p4 = await ctx3.newPage();
+    attach(p4, '(verben)');
+    await p4.goto(base + '#muster');
+    await p4.locator('section[data-muster]').first().waitFor();
+    const lemmas = await dbg(p4, () => [...new Set([...document.querySelectorAll('[data-lemma]')].map((l) => l.dataset.lemma))].sort());
+    await p4.goto(base + '#verb/comer');
+    await p4.locator('.verb-group').first().waitFor();
+    const comerForms = await dbg(p4, () => [...document.querySelectorAll('.verb-table .vt-row')].map((r) => r.dataset.form));
+    check('S3f Datei mit 4 Verben → Übersicht und Tabelle ohne Codeänderung', lemmas.join(',') === 'comer,hablar,ir,tener' && comerForms.join(',') === 'como,comí', JSON.stringify({ lemmas, comerForms }));
+    await ctx3.close();
+    await fs.writeFile(path.join(site, 'data/verben.json'), JSON.stringify(JSON.parse(await fs.readFile(path.join(ROOT, 'data/verben.json'), 'utf8'))));
+
+    await page.reload();
+    await page.goto(base + '#einstellungen');
+    await page.locator('#new-per-day').waitFor();
+    await page.locator('#new-per-day').fill('15');
+    await page.locator('#new-per-day').dispatchEvent('change');
+    await page.locator('#toast.show', { hasText: 'Neue Karten pro Tag: 15' }).waitFor();
+    await page.goto(base + '#start');
+    before = await stats(page);
+    metaBefore = await page.locator('#home-meta').innerText();
+    const reviewsBeforeOffline = await dbg(page, () => window.__spanischTrainer.state.reviews.length);
+
     // ---- 4. Offline ----
     await page.goto(base);
     const swState = await page.evaluate(async () => {
@@ -331,7 +557,7 @@ async function main() {
       return { scope: reg.scope, controlled: !!navigator.serviceWorker.controller, cached, keys };
     });
     check('4a Service Worker aktiv mit Scope /spanisch-trainer/', swState.controlled && swState.scope === base, JSON.stringify({ scope: swState.scope, controlled: swState.controlled, keys: swState.keys }));
-    check('4b Datendatei, Statistik-Modul und lokale FSRS-Kopie im Cache', ['data/Spanisch_00_Rang_0001-0030.txt', 'lib/ts-fsrs.js', 'js/views/stats.js', 'js/migrate.js'].every((f) => swState.cached.includes(PREFIX + f)), `${swState.cached.length} Einträge`);
+    check('4b Datendatei, Verbdaten, Module und lokale FSRS-Kopie im Cache', ['data/Spanisch_00_Rang_0001-0030.txt', 'data/verben.json', 'lib/ts-fsrs.js', 'js/views/stats.js', 'js/views/verbs.js', 'js/verbs.js', 'js/migrate.js'].every((f) => swState.cached.includes(PREFIX + f)), `${swState.cached.length} Einträge`);
     await context.setOffline(true);
     await page.reload();
     s = await stats(page);
@@ -344,12 +570,12 @@ async function main() {
       const today = [...st.days.values()].pop();
       return { reviews: today.reviewCount, log: st.reviews.length };
     });
-    check('4d Offline lernen und bewerten funktioniert (17. Bewertung)', offlineState.reviews === 17 && offlineState.log === 17, JSON.stringify(offlineState));
+    check('4d Offline lernen und bewerten funktioniert (eine Bewertung mehr)', offlineState.log === reviewsBeforeOffline + 1 && offlineState.reviews === reviewsBeforeOffline + 1, JSON.stringify({ ...offlineState, reviewsBeforeOffline }));
     const page2 = await context.newPage();
     attach(page2, '(page2)');
     await page2.goto(base + '#statistik');
     await page2.locator('#bars').waitFor();
-    check('4e Offline: zweite Seite /spanisch-trainer/#statistik lädt', (await page2.locator('#bars .bar').last().getAttribute('data-count')) === '17');
+    check('4e Offline: zweite Seite /spanisch-trainer/#statistik lädt', (await page2.locator('#bars .bar').last().getAttribute('data-count')) === String(reviewsBeforeOffline + 1));
     await page2.close();
     await context.setOffline(false);
 

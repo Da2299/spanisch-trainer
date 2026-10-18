@@ -1,5 +1,6 @@
 // Startbildschirm: Kennzahlen, Sicherungshinweis und Einstieg ins Lernen.
 import { state, plan, navigate, backupDue } from '../app.js';
+import { CARD_TYPES } from '../scheduler.js';
 import { el } from '../util.js';
 
 export function renderHome(main) {
@@ -24,13 +25,35 @@ export function renderHome(main) {
     ),
   );
 
+  // Zahlen je Kartentyp (Hörkarten nur bei aktivem Hörmodus)
+  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
+  main.append(
+    el('table', { class: 'type-table', id: 'type-table' }, [
+      el('thead', {}, [el('tr', {}, [el('th', { text: '' }), el('th', { text: 'Fällig' }), el('th', { text: 'Neu' }), el('th', { text: 'Gelernt' })])]),
+      el(
+        'tbody',
+        {},
+        typeKeys.map((t) =>
+          el('tr', { 'data-type': t }, [
+            el('th', { text: CARD_TYPES[t].labelPlural }),
+            el('td', { 'data-col': 'due', text: String(p.types[t].due) }),
+            el('td', { 'data-col': 'new', text: String(p.types[t].new) }),
+            el('td', { 'data-col': 'learned', text: String(p.types[t].learned) }),
+          ]),
+        ),
+      ),
+    ]),
+  );
+
   const meta = el('p', { class: 'muted center', id: 'home-meta' });
   if (!state.cards.size) {
     meta.textContent = 'Keine Vokabeln geladen. Füge unter Einstellungen ein Paket hinzu.';
   } else {
     const parts = [`${p.totalCards} Karten in ${state.sources.length} Paket${state.sources.length === 1 ? '' : 'en'}`];
     if (p.reviewsToday) parts.push(`${p.reviewsToday} Bewertungen heute`);
-    if (p.unseenCount > p.newCount) parts.push(`${p.unseenCount} noch ungelernt`);
+    if (p.unseenCount > p.types.vocab.new) parts.push(`${p.unseenCount} noch ungelernt`);
+    if (p.hearingOn && p.types.hear.locked) parts.push(`${p.types.hear.locked} Hörkarten noch gesperrt`);
+    if (p.verbOn && p.types.verb.locked) parts.push(`${p.types.verb.locked} Verbformen noch gesperrt`);
     if (p.suspendedCount) parts.push(`${p.suspendedCount} ausgesetzt`);
     meta.textContent = parts.join(' · ');
   }

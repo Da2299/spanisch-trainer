@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as lib from '../../lib/ts-fsrs.js';
-import { Scheduler, buildPlan, computeStreak, serializeCard, parseFsrsParams, isDifficult, forecastDue, cardTypeOf, baseIdOf } from '../../js/scheduler.js';
+import { Scheduler, buildPlan, computeStreak, serializeCard, parseFsrsParams, isDifficult, forecastDue, cardTypeOf, baseIdOf, hearKeyOf, shuffle } from '../../js/scheduler.js';
 import { formatInterval, dateKey, splitMeaning, toCsv } from '../../js/util.js';
 import { mergeSources } from '../../js/data.js';
 import { parsePackage } from '../../js/parser.js';
@@ -62,7 +62,7 @@ test('Fälligkeit: Review tagesgenau, Lernen minutengenau mit Vorlauf', () => {
   assert.ok(!sch.isDue(learningLater, NOW));
 });
 
-test('buildPlan: Fällige zuerst (nach Fälligkeit), dann neue in Rangreihenfolge mit Tageslimit', () => {
+test('buildPlan: Fällige zuerst (gemischt), dann neue in Rangreihenfolge mit Tageslimit', () => {
   const cards = mkCards(50);
   const progress = new Map();
   const dueA = sch.rate(sch.emptyProgress('ES-0040', new Date('2026-10-01T10:00:00')), 4, new Date('2026-10-01T10:00:00')).progress;
@@ -78,7 +78,7 @@ test('buildPlan: Fällige zuerst (nach Fälligkeit), dann neue in Rangreihenfolg
   assert.equal(plan.learnedTotal, 3);
   assert.equal(plan.unseenCount, 47);
   assert.equal(plan.totalCards, 50);
-  assert.deepEqual(plan.queue.slice(0, 2).map((c) => c.key), ['ES-0040', 'ES-0030']);
+  assert.deepEqual(plan.queue.slice(0, 2).map((c) => c.key).sort(), ['ES-0030', 'ES-0040']);
   assert.deepEqual(plan.queue.slice(2, 5).map((c) => c.key), ['ES-0001', 'ES-0002', 'ES-0003']);
   assert.equal(plan.queue.length, 17);
   assert.ok(!plan.queue.some((c) => c.key === 'ES-0020'));
@@ -183,4 +183,66 @@ test('splitMeaning: erstes Semikolon außerhalb von Klammern', () => {
 
 test('CSV-Maskierung', () => {
   assert.equal(toCsv([['card_id', 'review_time'], ['ES-0001', 1], ['a,b', 'x"y']]), 'card_id,review_time\r\nES-0001,1\r\n"a,b","x""y"\r\n');
+});
+
+function mkCardsWithExamples(n) {
+  const m = mkCards(n);
+  for (const c of m.values()) c.exEs = `Frase con ${c.es}.`;
+  return m;
+}
+
+test('Hörmodus: Hörkarte erst freigeschaltet, wenn die Vokabelkarte im Zustand Review ist', () => {
+  const cards = mkCardsWithExamples(5);
+  const progress = new Map();
+  const review = sch.rate(sch.emptyProgress('ES-0001', NOW), 4, NOW).progress; // Review
+  const learning = sch.rate(sch.emptyProgress('ES-0002', NOW), 3, NOW).progress; // Learning
+  progress.set(review.id, review);
+  progress.set(learning.id, learning);
+  const later = new Date(NOW.getTime() + 60 * 60000);
+  const off = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, hearingMode: false, newHearPerDay: 10 }, later);
+  assert.equal(off.types.hear.new, 0);
+  assert.equal(off.queue.length, 1, 'nur die fällige Lernkarte, keine Hörkarten');
+  const on = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, hearingMode: true, newHearPerDay: 10 }, later);
+  assert.equal(on.types.hear.new, 1);
+  assert.equal(on.types.hear.locked, 4, 'übrige Hörkarten gesperrt (Vokabel nicht in Review)');
+  assert.deepEqual(on.queue.map((e) => [e.key, e.type]), [['ES-0002', 'vocab'], ['ES-0001:H', 'hear']]);
+  assert.equal(on.queue[1].card.id, 'ES-0001');
+});
+
+test('Hörmodus: Reihenfolge fällig (gemischt, beide Typen) → neue Vokabeln → neue Hörkarten; Tageslimits getrennt', () => {
+  const cards = mkCardsWithExamples(10);
+  const progress = new Map();
+  const t0 = new Date('2026-10-01T10:00:00');
+  for (const id of ['ES-0001', 'ES-0002', 'ES-0003']) {
+    const p = sch.rate(sch.emptyProgress(id, t0), 4, t0).progress; // Review, fällig am 9.10.
+    progress.set(id, p);
+  }
+  const hp = sch.rate(sch.emptyProgress(hearKeyOf('ES-0001'), t0), 4, t0).progress; // Hörkarte, fällig
+  progress.set(hp.id, hp);
+  const days = new Map([[dateKey(NOW), { id: dateKey(NOW), newCount: 0, reviewCount: 0, newHearCount: 9 }]]);
+  const plan = buildPlan(sch, cards, progress, new Map(), days, { newPerDay: 2, hearingMode: true, newHearPerDay: 10 }, NOW, { rand: () => 0 });
+  const keys = plan.queue.map((e) => e.key);
+  assert.equal(plan.types.vocab.due, 3);
+  assert.equal(plan.types.hear.due, 1);
+  assert.deepEqual(keys.slice(0, 4).sort(), ['ES-0001', 'ES-0001:H', 'ES-0002', 'ES-0003']);
+  assert.deepEqual(keys.slice(4), ['ES-0004', 'ES-0005', 'ES-0002:H'], 'neue Vokabeln (Limit 2), dann eine neue Hörkarte (Limit 10−9)');
+  assert.equal(plan.types.hear.new, 1);
+  assert.equal(plan.newCount, 3);
+});
+
+test('Hörkarte ohne Beispielsatz und bei ausgesetzter Vokabel nicht eingeplant', () => {
+  const cards = mkCardsWithExamples(3);
+  cards.get('ES-0003').exEs = '';
+  const progress = new Map();
+  for (const id of ['ES-0001', 'ES-0002', 'ES-0003']) progress.set(id, sch.rate(sch.emptyProgress(id, NOW), 4, NOW).progress);
+  const cardmeta = new Map([['ES-0002', { id: 'ES-0002', suspended: true }]]);
+  const plan = buildPlan(sch, cards, progress, cardmeta, new Map(), { newPerDay: 0, hearingMode: true, newHearPerDay: 10 }, new Date(NOW.getTime() + 60000));
+  assert.deepEqual(plan.queue.map((e) => e.key), ['ES-0001:H']);
+  assert.equal(plan.types.hear.suspended, 1);
+});
+
+test('shuffle: Permutation, deterministisch bei fester Zufallsquelle', () => {
+  const a = shuffle([1, 2, 3, 4, 5], () => 0);
+  assert.deepEqual([...a].sort(), [1, 2, 3, 4, 5]);
+  assert.deepEqual(shuffle([1, 2, 3], () => 0), [2, 3, 1]);
 });

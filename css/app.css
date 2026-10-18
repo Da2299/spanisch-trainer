@@ -389,3 +389,58 @@ h2 { font-size: 1.1rem; margin: 0 0 10px; }
 .bar[data-count="0"] { background: var(--border); }
 .bar-label { position: absolute; bottom: -18px; left: 0; right: 0; font-size: 0.6rem; color: var(--muted); text-align: center; white-space: nowrap; }
 .bars { margin-bottom: 22px; }
+
+/* --- Stufe 2: Hörmodus --- */
+.badge-type { background: rgba(241, 183, 0, 0.2); color: #8a6a00; margin-left: 6px; }
+@media (prefers-color-scheme: dark) { .badge-type { color: var(--accent); } }
+.hear-front { min-height: 40vh; justify-content: center; }
+.speaker.huge { width: 112px; height: 112px; font-size: 3rem; background: var(--primary); color: #fff; border: none; box-shadow: var(--shadow); }
+.hear-tools { width: 100%; max-width: 320px; margin-top: 8px; }
+.hear-word { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 12px; }
+mark { background: rgba(241, 183, 0, 0.45); color: inherit; padding: 0 2px; border-radius: 3px; }
+.type-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 0.95rem; }
+.type-table th, .type-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--border); }
+.type-table th:first-child { text-align: left; font-weight: 600; }
+.type-table thead th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+.type-table tbody tr:last-child th, .type-table tbody tr:last-child td { border-bottom: none; }
+
+/* --- Stufe 3: Verbmodus --- */
+.verb-front { gap: 8px; }
+.gap-sentence { font-size: 1.5rem; font-weight: 600; line-height: 1.3; }
+.form-meta { color: var(--muted); font-size: 0.95rem; }
+.verb-answer { display: flex; align-items: center; gap: 12px; }
+.badge-irregular { background: rgba(224, 138, 30, 0.2); color: var(--hard); }
+.irregular-hint { margin-top: 4px; }
+.tip-row { display: flex; gap: 8px; }
+.tip-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.1rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.tip-row .btn { width: auto; min-width: 100px; }
+.tip-result { width: 100%; margin-bottom: 8px; }
+.tip-verdict { font-weight: 700; font-size: 1.1rem; }
+.tip-verdict.ok { color: var(--good); }
+.tip-verdict.wrong { color: var(--again); }
+.tip-diff { font-size: 1.1rem; margin-top: 4px; }
+.tip-diff .diff { background: rgba(214, 69, 69, 0.25); border-radius: 3px; text-decoration: underline; }
+.rate.preselected { outline: 3px solid var(--text); outline-offset: 2px; }
+.verb-table { list-style: none; margin: 0; padding: 0; }
+.vt-row { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.vt-row:last-child { border-bottom: none; }
+.vt-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vt-line + .vt-line { margin-top: 4px; }
+.vt-row.irregular .form-text { color: var(--hard); font-weight: 700; }
+.vt-form { font-weight: 600; font-size: 1.05rem; }
+.vt-form .badge { margin-left: 6px; }
+.vt-person { font-size: 0.85rem; }
+.vt-freq { flex: 0 0 45%; max-width: 45%; }
+.freq-bar { height: 8px; border-radius: 4px; background: var(--primary); opacity: 0.8; }
+.verb-group h2 { margin-bottom: 6px; }
+a.chip { text-decoration: none; }

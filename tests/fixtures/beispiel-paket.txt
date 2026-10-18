@@ -13,7 +13,7 @@ ES-0007	7	estar	sich befinden, sein	Verb	Estoy en casa.	Ich bin zu Hause.	grundw
 ES-0008	8	tener	haben	Verb	Tengo dos gatos.	Ich habe zwei Katzen.	grundwortschatz verb
 ES-0009	9	hacer	machen, tun	Verb	¿Qué haces hoy?	Was machst du heute?	grundwortschatz verb
 ES-0010	10	poder	können	Verb	No puedo venir mañana.	Ich kann morgen nicht kommen.	grundwortschatz verb
-ES-0011	11	decir	sagen	Verb	Dime la verdad.	Sag mir die Wahrheit.	grundwortschatz verb
+ES-0011	11	tener	haben	Verb	¿Tienes tiempo mañana?	Hast du morgen Zeit?	grundwortschatz verb
 ES-0012	12	ir	gehen, fahren	Verb	Vamos al cine.	Wir gehen ins Kino.	grundwortschatz verb
 ES-0013	13	ver	sehen	Verb	¿Ves aquel coche?	Siehst du jenes Auto?	grundwortschatz verb
 ES-0014	14	dar	geben	Verb	Te doy mi número.	Ich gebe dir meine Nummer.	grundwortschatz verb

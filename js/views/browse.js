@@ -1,7 +1,7 @@
 // Karten durchsuchen: Liste mit Suche, Filter (alle / schwierig / ausgesetzt) und Detailansicht.
-import { state, getProgress, getCardMeta, setCardMeta, toast } from '../app.js';
+import { state, getProgress, getCardMeta, setCardMeta, getVerbByKennung, toast } from '../app.js';
 import { compareByRank } from '../parser.js';
-import { isDifficult } from '../scheduler.js';
+import { isDifficult, hearKeyOf } from '../scheduler.js';
 import { speak } from '../speech.js';
 import { el, formatDate, splitMeaning } from '../util.js';
 
@@ -18,7 +18,14 @@ function statusOf(id) {
   const m = getCardMeta(id);
   const S = state.sch.State;
   if (m.suspended) return { text: 'Ausgesetzt', cls: 'badge-off' };
-  if (!p || state.sch.isNew(p)) return { text: 'Neu', cls: 'badge-new' };
+  if (!p || state.sch.isNew(p)) {
+    // Hörkarte: gesperrt, bis die Vokabelkarte im Zustand Review ist
+    if (id.endsWith(':H')) {
+      const vp = state.progress.get(id.slice(0, -2));
+      if (!vp || state.sch.isNew(vp) || vp.state !== S.Review) return { text: 'Gesperrt', cls: 'badge-off' };
+    }
+    return { text: 'Neu', cls: 'badge-new' };
+  }
   const due = new Date(p.due);
   if (state.sch.isDue(p)) return { text: 'Fällig', cls: 'badge-due' };
   if (p.state === S.Learning || p.state === S.Relearning) return { text: 'Lernen', cls: 'badge-learn' };
@@ -65,7 +72,9 @@ export function renderBrowse(main) {
   const info = el('p', { class: 'muted', id: 'browse-info' });
   const list = el('ul', { class: 'list', id: 'card-list' });
   const detail = el('div', { class: 'detail hidden', id: 'card-detail' });
-  main.append(el('h1', { class: 'title', text: 'Karten' }), input, chips, info, list, detail);
+  main.append(el('h1', { class: 'title', text: 'Karten' }), input, chips);
+  if (state.verbs.length) main.append(el('p', { class: 'hint', id: 'verbs-link' }, [el('a', { href: '#muster', text: `Verbtabellen und Muster (${state.verbs.length} Verben)` })]));
+  main.append(info, list, detail);
 
   function matches(c) {
     if (filter === 'difficult' && !isDifficult(state.progress.get(c.id))) return false;
@@ -135,6 +144,12 @@ export function renderBrowse(main) {
       rows.push(['Stabilität', `${Math.round(p.stability * 10) / 10} Tage`]);
       if (r !== null) rows.push(['Abrufwahrscheinlichkeit', `${Math.round(r * 100)} %`]);
     }
+    if (c.exEs) {
+      const hk = hearKeyOf(c.id);
+      const hs = statusOf(hk);
+      const hp = state.progress.get(hk);
+      rows.push(['Hörkarte', `${hs.text}${hp && !state.sch.isNew(hp) ? `, fällig am ${formatDate(hp.due)}` : ''}${state.settings.hearingMode ? '' : ' (Hörmodus aus)'}`]);
+    }
     let noteTimer = null;
     const noteField = el('textarea', {
       class: 'note',
@@ -180,6 +195,10 @@ export function renderBrowse(main) {
           : null,
         noteField,
         el('dl', { class: 'kv' }, rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })])),
+        (() => {
+          const verb = getVerbByKennung(c.id);
+          return verb ? el('a', { class: 'btn', id: 'detail-verb-link', href: `#verb/${encodeURIComponent(verb.lemma)}`, text: `Alle Formen von ${verb.lemma}` }) : null;
+        })(),
         el('div', { class: 'btn-row' }, [suspendBtn, el('button', { class: 'btn', onclick: () => detail.classList.add('hidden'), text: 'Schließen' })]),
       ]),
     );
