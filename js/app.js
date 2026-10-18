@@ -5,6 +5,7 @@ import { loadFsrsLibrary } from './fsrs-lib.js';
 import { Scheduler, buildPlan, parseFsrsParams, clampRetention, cardTypeOf, newCountField } from './scheduler.js';
 import { loadAllCards, storeImportedPackage, mergeSources } from './data.js';
 import { parsePackage } from './parser.js';
+import { loadVerbs, buildVerbForms } from './verbs.js';
 import { initSpeech } from './speech.js';
 import { dateKey, el, readFileAsText, downloadBlob, toCsv, uid } from './util.js';
 import { renderHome } from './views/home.js';
@@ -12,8 +13,9 @@ import { renderStudy } from './views/study.js';
 import { renderBrowse } from './views/browse.js';
 import { renderStats } from './views/stats.js';
 import { renderSettings } from './views/settings.js';
+import { renderVerbTable, renderPatterns } from './views/verbs.js';
 
-export const APP_VERSION = '1.2.0';
+export const APP_VERSION = '1.3.0';
 export const EXPORT_FORMAT = 2;
 export const BACKUP_REMINDER_DAYS = 7;
 export const DEFAULT_SETTINGS = {
@@ -23,7 +25,9 @@ export const DEFAULT_SETTINGS = {
   autoSpeak: true,
   hearingMode: false, // Stufe 2: Hörkarten einplanen
   newHearPerDay: 10,
-  verbMode: false, // Stufe 3
+  verbMode: false, // Stufe 3: Verbformen einplanen
+  newVerbPerDay: 10,
+  tipMode: false, // Stufe 3: Form eintippen statt „Antwort zeigen“
 };
 
 export const state = {
@@ -38,6 +42,8 @@ export const state = {
   settings: { ...DEFAULT_SETTINGS },
   backup: { lastExportAt: null },
   sources: [],
+  verbs: [],
+  verbForms: new Map(),
   loadErrors: [],
   schema: null,
   ready: false,
@@ -51,12 +57,24 @@ const ROUTES = {
   karten: renderBrowse,
   statistik: renderStats,
   einstellungen: renderSettings,
+  verb: renderVerbTable, // #verb/<lemma>
+  muster: renderPatterns,
 };
+/** Tab, der für eine Route hervorgehoben wird. */
+const TAB_OF = { verb: 'karten', muster: 'karten' };
 
 // ---------- Status-Operationen (für Views) ----------
 
 export function plan(now = new Date()) {
-  return buildPlan(state.sch, state.cards, state.progress, state.cardmeta, state.days, state.settings, now);
+  return buildPlan(state.sch, state.cards, state.progress, state.cardmeta, state.days, state.settings, now, { verbForms: state.verbForms });
+}
+
+export function getVerb(lemma) {
+  return state.verbs.find((v) => v.lemma === lemma) || null;
+}
+
+export function getVerbByKennung(id) {
+  return state.verbs.find((v) => v.kennung === id) || null;
 }
 
 export function getProgress(id, now = new Date()) {
@@ -180,6 +198,15 @@ export async function reloadCards() {
   state.cards = cards;
   state.sources = sources;
   state.loadErrors = errors;
+  state.verbForms = buildVerbForms(state.verbs, state.cards);
+}
+
+/** data/verben.json laden (optional) und Formkarten aufbauen. */
+export async function reloadVerbs() {
+  const { verbs, error } = await loadVerbs();
+  state.verbs = verbs;
+  if (error) state.loadErrors.push(error);
+  state.verbForms = buildVerbForms(state.verbs, state.cards);
 }
 
 // ---------- Sicherung ----------
@@ -278,9 +305,10 @@ export function sanitizeSettings(src) {
   const out = {};
   if (Number.isFinite(Number(src.newPerDay))) out.newPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newPerDay))));
   if (Number.isFinite(Number(src.newHearPerDay))) out.newHearPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newHearPerDay))));
+  if (Number.isFinite(Number(src.newVerbPerDay))) out.newVerbPerDay = Math.min(50, Math.max(0, Math.round(Number(src.newVerbPerDay))));
   if (Number.isFinite(Number(src.requestRetention))) out.requestRetention = clampRetention(src.requestRetention);
   if (typeof src.fsrsParams === 'string' && !parseFsrsParams(src.fsrsParams).error) out.fsrsParams = src.fsrsParams;
-  for (const k of ['autoSpeak', 'hearingMode', 'verbMode']) if (typeof src[k] === 'boolean') out[k] = src[k];
+  for (const k of ['autoSpeak', 'hearingMode', 'verbMode', 'tipMode']) if (typeof src[k] === 'boolean') out[k] = src[k];
   return out;
 }
 
@@ -317,24 +345,28 @@ export function navigate(route) {
   location.hash = `#${route}`;
 }
 
+/** Route und Parameter aus dem Hash: „#verb/tener“ → { route: 'verb', param: 'tener' }. */
 function currentRoute() {
-  const r = (location.hash || '#start').replace(/^#\/?/, '').split('?')[0];
-  return ROUTES[r] ? r : 'start';
+  const raw = (location.hash || '#start').replace(/^#\/?/, '').split('?')[0];
+  const [r, ...rest] = raw.split('/');
+  const param = rest.length ? decodeURIComponent(rest.join('/')) : '';
+  return ROUTES[r] ? { route: r, param } : { route: 'start', param: '' };
 }
 
 let activeView = null;
 function render() {
-  const route = currentRoute();
+  const { route, param } = currentRoute();
   if (activeView && typeof activeView.destroy === 'function') activeView.destroy();
   const main = document.getElementById('view');
   main.replaceChildren();
+  const tab = TAB_OF[route] || route;
   document.querySelectorAll('#tabs a').forEach((a) => {
-    const on = a.dataset.route === route;
+    const on = a.dataset.route === tab;
     a.classList.toggle('active', on);
     if (on) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   });
-  activeView = ROUTES[route](main) || null;
+  activeView = ROUTES[route](main, param) || null;
   window.scrollTo(0, 0);
 }
 
@@ -402,6 +434,7 @@ async function boot() {
   applySchedulerSettings();
 
   await reloadCards();
+  await reloadVerbs();
   state.ready = true;
   for (const e of state.loadErrors) console.warn(e);
 

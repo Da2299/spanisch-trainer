@@ -26,7 +26,7 @@ export function renderHome(main) {
   );
 
   // Zahlen je Kartentyp (Hörkarten nur bei aktivem Hörmodus)
-  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : [])];
+  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
   main.append(
     el('table', { class: 'type-table', id: 'type-table' }, [
       el('thead', {}, [el('tr', {}, [el('th', { text: '' }), el('th', { text: 'Fällig' }), el('th', { text: 'Neu' }), el('th', { text: 'Gelernt' })])]),
@@ -53,6 +53,7 @@ export function renderHome(main) {
     if (p.reviewsToday) parts.push(`${p.reviewsToday} Bewertungen heute`);
     if (p.unseenCount > p.types.vocab.new) parts.push(`${p.unseenCount} noch ungelernt`);
     if (p.hearingOn && p.types.hear.locked) parts.push(`${p.types.hear.locked} Hörkarten noch gesperrt`);
+    if (p.verbOn && p.types.verb.locked) parts.push(`${p.types.verb.locked} Verbformen noch gesperrt`);
     if (p.suspendedCount) parts.push(`${p.suspendedCount} ausgesetzt`);
     meta.textContent = parts.join(' · ');
   }

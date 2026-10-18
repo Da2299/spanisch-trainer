@@ -4,6 +4,7 @@ import { state, plan, rateCard, undoLastRating, getProgress, getCardMeta, setCar
 import { RATINGS, LEARN_AHEAD_MS, isDifficult, cardTypeOf, baseIdOf, CARD_TYPES } from '../scheduler.js';
 import { speak, stopSpeech } from '../speech.js';
 import { el, formatInterval, splitMeaning, highlightWord } from '../util.js';
+import { compareAnswer } from '../verbs.js';
 
 const SLOW_RATE = 0.8;
 
@@ -48,20 +49,33 @@ export function renderStudy(main) {
     );
   }
 
-  function currentCard() {
-    return state.cards.get(baseIdOf(current));
-  }
-
   function currentType() {
     return cardTypeOf(current);
   }
 
+  function currentForm() {
+    return currentType() === 'verb' ? state.verbForms.get(current) || null : null;
+  }
+
+  function currentCard() {
+    const form = currentForm();
+    if (form) return state.cards.get(form.verb.kennung) || null;
+    return state.cards.get(baseIdOf(current));
+  }
+
   function speakCurrent() {
+    const form = currentForm();
+    if (form) {
+      speak(showingBack ? form.form : form.sentence ? form.sentence.gap.replace(/____ \([^)]*\)/, '…') : form.verb.lemma);
+      return;
+    }
     const card = currentCard();
     if (!card) return;
     if (currentType() === 'hear') speak(card.exEs);
     else speak(showingBack && card.exEs ? card.exEs : card.es);
   }
+
+  let preselected = null; // Tipp-Modus: vorbelegte Bewertung
 
   function showCard() {
     flushNote();
@@ -71,20 +85,32 @@ export function renderStudy(main) {
     }
     current = queue[index];
     const type = currentType();
+    const form = currentForm();
     const card = currentCard();
     const meta = getCardMeta(current);
-    if (!card || meta.suspended || (type === 'hear' && (!card.exEs || getCardMeta(card.id).suspended))) {
+    if (type === 'verb') {
+      if (!form || meta.suspended || getCardMeta(form.verb.kennung).suspended) {
+        index++;
+        showCard();
+        return;
+      }
+    } else if (!card || meta.suspended || (type === 'hear' && (!card.exEs || getCardMeta(card.id).suspended))) {
       index++;
       showCard();
       return;
     }
     showingBack = false;
+    preselected = null;
     const now = new Date();
     const prog = getProgress(current, now);
     preview = state.sch.preview(prog, now);
     const isNew = state.sch.isNew(prog);
     const status = isNew ? 'Neu' : prog.state === state.sch.State.Review ? 'Wiederholung' : 'Lernen';
     const difficult = isDifficult(prog);
+    if (type === 'verb') {
+      showVerbCard({ form, card, isNew, status, difficult });
+      return;
+    }
     const meaning = splitMeaning(card.de);
     const noteId = card.id; // Notiz gehört zur Vokabel, auch bei der Hörkarte
 
@@ -252,6 +278,189 @@ export function renderStudy(main) {
     }
   }
 
+  /** Verbformkarte (Stufe 3): Lückentext oder Infinitiv vorn, Form hinten; optional Tipp-Modus. */
+  function showVerbCard({ form, card, isNew, status, difficult }) {
+    const verb = form.verb;
+    const tipMode = !!state.settings.tipMode;
+    const noteId = card ? card.id : current;
+    const personTempus = [form.person, form.tempus].filter(Boolean).join(' · ');
+
+    const header = el('div', { class: 'study-head' }, [
+      el('span', {}, [
+        el('span', { class: `badge ${isNew ? 'badge-new' : 'badge-due'}`, text: status }),
+        el('span', { class: 'badge badge-type', id: 'type-badge', text: CARD_TYPES.verb.label }),
+        difficult ? el('span', { class: 'badge badge-leech', id: 'leech-badge', text: 'schwierig' }) : null,
+      ]),
+      el('span', { class: 'muted', text: `${index + 1} / ${queue.length}` }),
+      el('button', { class: 'link', onclick: () => navigate('start'), 'aria-label': 'Lernen beenden', text: 'Beenden' }),
+    ]);
+
+    const front = el('div', { class: 'face front verb-front', id: 'card-front', 'data-type': 'verb', 'data-key': current }, [
+      form.sentence
+        ? el('div', { class: 'gap-sentence', id: 'gap-sentence', lang: 'es', text: form.sentence.gap })
+        : el('div', { class: 'word', id: 'verb-lemma', lang: 'es', text: verb.lemma }),
+      el('div', { class: 'form-meta', id: 'form-meta', text: personTempus }),
+      el('div', { class: 'muted small-text', text: tipMode ? 'Form eintippen' : 'Form laut sprechen, dann Antwort zeigen' }),
+    ]);
+
+    const noteField = el('textarea', {
+      class: 'note',
+      id: 'note',
+      rows: '2',
+      placeholder: 'Notiz (nur auf diesem Gerät)',
+      'aria-label': 'Notiz zur Karte',
+      onclick: (e) => e.stopPropagation(),
+      oninput: (e) => {
+        pendingNote = { id: noteId, note: e.target.value };
+        clearTimeout(noteTimer);
+        noteTimer = setTimeout(flushNote, 500);
+      },
+    });
+    noteField.value = getCardMeta(noteId).note || '';
+
+    const result = el('div', { class: 'tip-result hidden', id: 'tip-result' });
+    const back = el('div', { class: 'face back hidden', id: 'card-back', 'data-type': 'verb' }, [
+      result,
+      el('div', { class: 'verb-answer' }, [
+        el('div', { class: 'word', id: 'verb-form', lang: 'es', text: form.form }),
+        el('button', {
+          class: 'speaker',
+          'aria-label': 'Form vorlesen',
+          onclick: (e) => {
+            e.stopPropagation();
+            speak(form.form);
+          },
+          text: '🔊',
+        }),
+      ]),
+      el('div', { class: 'form-meta', text: `${verb.lemma} · ${personTempus}` }),
+      form.unregelmaessig
+        ? el('div', { class: 'irregular-hint', id: 'irregular-hint' }, [
+            el('span', { class: 'badge badge-irregular', text: 'unregelmäßig' }),
+            verb.muster.length ? el('span', { class: 'muted small-text', text: ` Muster: ${verb.muster.join(' · ')}` }) : null,
+          ])
+        : null,
+      form.sentence
+        ? el('div', { class: 'example' }, [
+            el('div', { class: 'example-es', lang: 'es' }, [
+              el('span', { id: 'example-text' }, form.sentence.segments.map((seg) => (seg.mark ? el('mark', { text: seg.text }) : seg.text))),
+              el('button', {
+                class: 'speaker inline',
+                'aria-label': 'Beispielsatz vorlesen',
+                onclick: (e) => {
+                  e.stopPropagation();
+                  speak(form.sentence.es);
+                },
+                text: '🔊',
+              }),
+            ]),
+            form.sentence.de ? el('div', { class: 'example-de muted', lang: 'de', text: form.sentence.de }) : null,
+          ])
+        : null,
+      el('div', { class: 'card-tools' }, [
+        el('a', { class: 'link', id: 'verb-table-link', href: `#verb/${encodeURIComponent(verb.lemma)}`, text: `Alle Formen von ${verb.lemma}` }),
+      ]),
+      noteField,
+      el('div', { class: 'card-tools' }, [
+        el('button', {
+          class: 'link',
+          id: 'suspend-card',
+          onclick: async (e) => {
+            e.stopPropagation();
+            if (!confirm('Karte aussetzen? Sie wird nicht mehr eingeplant (in der Kartenliste wieder aufnehmbar).')) return;
+            await setCardMeta(current, { suspended: true });
+            toast('Karte ausgesetzt');
+            index++;
+            showCard();
+          },
+          text: 'Aussetzen',
+        }),
+      ]),
+    ]);
+
+    const cardBox = el('div', { class: 'card study-card', role: 'button', tabindex: '0', 'aria-label': 'Karte umdrehen', onclick: () => (tipMode ? null : flip()) }, [front, back]);
+
+    const ratings = el(
+      'div',
+      { class: 'ratings hidden', id: 'ratings' },
+      RATINGS.map((r) =>
+        el('button', { class: `btn rate rate-${r.key}`, 'data-grade': String(r.grade), onclick: () => rate(r.grade) }, [
+          el('span', { class: 'rate-label', text: r.label }),
+          el('span', { class: 'rate-interval', text: formatInterval(preview[r.grade].intervalMs) }),
+        ]),
+      ),
+    );
+    const confirmBtn = el('button', { class: 'btn primary big hidden', id: 'confirm-rating', onclick: () => rate(preselected), text: 'Bestätigen' });
+    const undoBtn = el('button', { class: 'btn small', id: 'undo', disabled: state.lastRating ? null : true, onclick: undo, text: 'Rückgängig' });
+
+    let showBtn;
+    let tipInput = null;
+    if (tipMode) {
+      tipInput = el('input', {
+        type: 'text',
+        id: 'tip-input',
+        class: 'tip-input',
+        lang: 'es',
+        placeholder: 'Form eingeben …',
+        autocomplete: 'off',
+        autocapitalize: 'off',
+        autocorrect: 'off',
+        spellcheck: 'false',
+        'aria-label': 'Form eingeben',
+        onkeydown: (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            checkTip();
+          }
+        },
+      });
+      showBtn = el('div', { class: 'tip-row', id: 'tip-row' }, [tipInput, el('button', { class: 'btn primary', id: 'tip-check', onclick: checkTip, text: 'Prüfen' })]);
+    } else {
+      showBtn = el('button', { class: 'btn primary big', id: 'show-answer', onclick: flip, text: 'Antwort zeigen' });
+    }
+    const bar = el('div', { class: 'bottom-bar' }, [showBtn, confirmBtn, ratings, el('div', { class: 'study-tools' }, [undoBtn])]);
+
+    wrap.replaceChildren(header, cardBox, bar);
+    shownAt = performance.now();
+    if (tipInput) tipInput.focus();
+
+    function reveal() {
+      showingBack = true;
+      front.classList.add('hidden');
+      back.classList.remove('hidden');
+      showBtn.classList.add('hidden');
+      ratings.classList.remove('hidden');
+      speak(form.form);
+    }
+
+    function flip() {
+      if (showingBack) return;
+      reveal();
+    }
+
+    function checkTip() {
+      if (showingBack) return;
+      const { correct, expected, given } = compareAnswer(tipInput.value, form.form);
+      preselected = correct ? 3 : 1;
+      result.replaceChildren(
+        el('div', { class: `tip-verdict ${correct ? 'ok' : 'wrong'}`, id: 'tip-verdict', text: correct ? 'Richtig' : 'Falsch' }),
+        correct
+          ? null
+          : el('div', { class: 'tip-diff', lang: 'es' }, [
+              el('span', { class: 'muted small-text', text: 'Eingabe: ' }),
+              el('span', { id: 'tip-given' }, given.length ? given.map((c) => el('span', { class: c.diff ? 'diff' : '', text: c.ch })) : [el('span', { class: 'muted', text: '(leer)' })]),
+              el('span', { class: 'muted small-text', text: ' · richtig: ' }),
+              el('span', { id: 'tip-expected' }, expected.map((c) => el('span', { class: c.diff ? 'diff' : '', text: c.ch }))),
+            ]),
+      );
+      result.classList.remove('hidden');
+      reveal();
+      ratings.querySelectorAll('.rate').forEach((b) => b.classList.toggle('preselected', Number(b.dataset.grade) === preselected));
+      confirmBtn.textContent = `Bestätigen: ${RATINGS.find((r) => r.grade === preselected).label}`;
+      confirmBtn.classList.remove('hidden');
+    }
+  }
+
   async function rate(grade) {
     if (busy || !showingBack) return;
     busy = true;
@@ -308,6 +517,9 @@ export function renderStudy(main) {
       if (!showingBack) {
         e.preventDefault();
         document.getElementById('show-answer')?.click();
+      } else if (e.key === 'Enter' && preselected) {
+        e.preventDefault();
+        rate(preselected);
       }
     } else if (/^[1-4]$/.test(e.key) && showingBack) {
       rate(Number(e.key));

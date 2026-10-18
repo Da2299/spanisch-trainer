@@ -6,7 +6,7 @@ import { el, dateKey, addDays } from '../util.js';
 const DAYS = 30;
 
 /** Kennzahlen aus Protokoll, Lernstand und Markierungen berechnen (reine Funktion, testbar). */
-export function computeStats(sch, cards, progress, cardmeta, reviews, days, now = new Date()) {
+export function computeStats(sch, cards, progress, cardmeta, reviews, days, now = new Date(), verbForms = new Map()) {
   const start = addDays(now, -(DAYS - 1));
   start.setHours(0, 0, 0, 0);
   const perDay = [];
@@ -37,7 +37,18 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
   const S = sch.State;
   const emptyState = () => ({ new: 0, learning: 0, review: 0, suspended: 0, locked: 0 });
   const byState = emptyState(); // Vokabelkarten (abwärtskompatibel)
-  const byStateType = { vocab: byState, hear: emptyState() };
+  const byStateType = { vocab: byState, hear: emptyState(), verb: emptyState() };
+  for (const f of verbForms.values()) {
+    const vp = progress.get(f.verb.kennung);
+    const fp = progress.get(f.key);
+    const v = byStateType.verb;
+    if (cardmeta.get(f.verb.kennung)?.suspended || cardmeta.get(f.key)?.suspended) v.suspended++;
+    else if (sch.isNew(fp)) {
+      if (vp && !sch.isNew(vp) && vp.state === S.Review) v.new++;
+      else v.locked++;
+    } else if (fp.state === S.Review) v.review++;
+    else v.learning++;
+  }
   for (const card of cards.values()) {
     const m = cardmeta.get(card.id);
     const p = progress.get(card.id);
@@ -71,7 +82,7 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
 
 export function renderStats(main) {
   const p = plan();
-  const s = computeStats(state.sch, state.cards, state.progress, state.cardmeta, state.reviews, state.days);
+  const s = computeStats(state.sch, state.cards, state.progress, state.cardmeta, state.reviews, state.days, new Date(), p.verbOn ? state.verbForms : new Map());
   main.append(el('h1', { class: 'title', text: 'Statistik' }));
 
   // Kennzahlen
@@ -107,7 +118,7 @@ export function renderStats(main) {
 
   // Karten je Zustand (je Kartentyp)
   const st = s.byState;
-  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : [])];
+  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
   const rowsDef = [
     ['Neu', 'new'],
     ['Lernen', 'learning'],
@@ -124,7 +135,7 @@ export function renderStats(main) {
           'tbody',
           {},
           rowsDef
-            .filter(([, key]) => key !== 'locked' || typeKeys.includes('hear'))
+            .filter(([, key]) => key !== 'locked' || typeKeys.length > 1)
             .map(([label, key]) => el('tr', {}, [el('th', { text: label }), ...typeKeys.map((t) => el('td', { 'data-type': t, 'data-state': key, text: String(s.byStateType[t][key]) }))])),
         ),
       ]),

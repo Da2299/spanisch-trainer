@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "verben": [
+    {
+      "lemma": "tener",
+      "kennung": "ES-0011",
+      "label": "Verb, unregelmäßig",
+      "muster": ["e→ie", "Indefinido-Stamm tuv-", "Futur tendr-"],
+      "formen": [
+        {"form": "tengo",   "tempus": "Präsens",   "person": "ich",        "haeufigkeit": 954371, "unregelmaessig": true},
+        {"form": "tiene",   "tempus": "Präsens",   "person": "er/sie/usted", "haeufigkeit": 807065, "unregelmaessig": true},
+        {"form": "tienes",  "tempus": "Präsens",   "person": "du",         "haeufigkeit": 670767, "unregelmaessig": true},
+        {"form": "tenemos", "tempus": "Präsens",   "person": "wir",        "haeufigkeit": 473895, "unregelmaessig": false},
+        {"form": "tenía",   "tempus": "Imperfekt", "person": "ich / er/sie/usted", "haeufigkeit": 282966, "unregelmaessig": false},
+        {"form": "tienen",  "tempus": "Präsens",   "person": "sie/ustedes", "haeufigkeit": 200708, "unregelmaessig": true},
+        {"form": "tenido",  "tempus": "Partizip",  "person": "",           "haeufigkeit": 99237,  "unregelmaessig": false},
+        {"form": "tuve",    "tempus": "Indefinido","person": "ich",        "haeufigkeit": 83608,  "unregelmaessig": true},
+        {"form": "tenga",   "tempus": "Subjuntivo Präsens", "person": "ich / er/sie/usted", "haeufigkeit": 73994, "unregelmaessig": true}
+      ],
+      "saetze": [
+        {"kennung": "ES-0011", "form": "tienes"}
+      ]
+    },
+    {
+      "lemma": "hablar",
+      "kennung": "ES-0097",
+      "label": "Verb",
+      "muster": [],
+      "formen": [
+        {"form": "hablar", "tempus": "Infinitiv", "person": "", "haeufigkeit": 150000, "unregelmaessig": false},
+        {"form": "hablo",  "tempus": "Präsens",   "person": "ich", "haeufigkeit": 60000, "unregelmaessig": false},
+        {"form": "habla",  "tempus": "Präsens",   "person": "er/sie/usted", "haeufigkeit": 50000, "unregelmaessig": false},
+        {"form": "hablé",  "tempus": "Indefinido","person": "ich", "haeufigkeit": 20000, "unregelmaessig": false}
+      ],
+      "saetze": []
+    },
+    {
+      "lemma": "ir",
+      "kennung": "ES-0016",
+      "label": "Verb, unregelmäßig",
+      "muster": ["Präsens voy/vas/va", "Indefinido fui/fuiste/fue", "Imperfekt iba"],
+      "formen": [
+        {"form": "vamos", "tempus": "Präsens",   "person": "wir", "haeufigkeit": 1049315, "unregelmaessig": true},
+        {"form": "voy",   "tempus": "Präsens",   "person": "ich", "haeufigkeit": 639418,  "unregelmaessig": true},
+        {"form": "va",    "tempus": "Präsens",   "person": "er/sie/usted", "haeufigkeit": 535397, "unregelmaessig": true},
+        {"form": "iba",   "tempus": "Imperfekt", "person": "ich / er/sie/usted", "haeufigkeit": 90000, "unregelmaessig": true}
+      ],
+      "saetze": []
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // Karten durchsuchen: Liste mit Suche, Filter (alle / schwierig / ausgesetzt) und Detailansicht.
-import { state, getProgress, getCardMeta, setCardMeta, toast } from '../app.js';
+import { state, getProgress, getCardMeta, setCardMeta, getVerbByKennung, toast } from '../app.js';
 import { compareByRank } from '../parser.js';
 import { isDifficult, hearKeyOf } from '../scheduler.js';
 import { speak } from '../speech.js';
@@ -72,7 +72,9 @@ export function renderBrowse(main) {
   const info = el('p', { class: 'muted', id: 'browse-info' });
   const list = el('ul', { class: 'list', id: 'card-list' });
   const detail = el('div', { class: 'detail hidden', id: 'card-detail' });
-  main.append(el('h1', { class: 'title', text: 'Karten' }), input, chips, info, list, detail);
+  main.append(el('h1', { class: 'title', text: 'Karten' }), input, chips);
+  if (state.verbs.length) main.append(el('p', { class: 'hint', id: 'verbs-link' }, [el('a', { href: '#muster', text: `Verbtabellen und Muster (${state.verbs.length} Verben)` })]));
+  main.append(info, list, detail);
 
   function matches(c) {
     if (filter === 'difficult' && !isDifficult(state.progress.get(c.id))) return false;
@@ -193,6 +195,10 @@ export function renderBrowse(main) {
           : null,
         noteField,
         el('dl', { class: 'kv' }, rows.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })])),
+        (() => {
+          const verb = getVerbByKennung(c.id);
+          return verb ? el('a', { class: 'btn', id: 'detail-verb-link', href: `#verb/${encodeURIComponent(verb.lemma)}`, text: `Alle Formen von ${verb.lemma}` }) : null;
+        })(),
         el('div', { class: 'btn-row' }, [suspendBtn, el('button', { class: 'btn', onclick: () => detail.classList.add('hidden'), text: 'Schließen' })]),
       ]),
     );

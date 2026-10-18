@@ -36,6 +36,24 @@ Reihenfolge einer Sitzung: alle fälligen Karten beider Typen zufällig gemischt
 nach Rang, dann neue Hörkarten nach Rang. Start und Statistik zeigen die Zahlen je Kartentyp; das
 Protokoll führt den Kartentyp mit.
 
+**Verbmodus (dritter Kartentyp):** Grundlage ist `data/verben.json`. Für jede Form gibt es eine Karte
+„Verbform“ mit eigenem Lernstand (Schlüssel `V:lemma:form:tempus`), frei sobald die Vokabelkarte des Verbs
+(Feld `kennung`) im Zustand „Wiederholen“ ist. Neue Formkarten kommen über alle Verben hinweg nach
+Häufigkeit absteigend (häufigste Form zuerst). Vorderseite: Beispielsatz der genannten Vokabelkarte als
+Lückentext „____ (infinitiv)“ mit Person und Tempus, sonst Infinitiv groß mit Person und Tempus. Die Form
+laut sprechen, dann „Antwort zeigen“: Form groß und vorgelesen, bei unregelmäßigen Formen der Hinweis
+„unregelmäßig“ mit den Mustern des Verbs, beim Lückentext der vollständige Satz mit hervorgehobener Form
+und Übersetzung. **Tipp-Modus** (Einstellung, Standard aus): Textfeld statt „Antwort zeigen“; die Eingabe
+wird mit der Form verglichen (Akzente zählen, Groß-/Kleinschreibung nicht). Richtig = „Gut“ vorbelegt,
+falsch = „Nochmal“ vorbelegt mit markierten Unterschieden; „Bestätigen“ übernimmt die Vorbelegung, ein
+anderer Knopf ändert die Bewertung. **Nachschlagen:** Tabelle aller Formen je Verb gruppiert nach Tempus
+(Präsens, Indefinido, Imperfekt, Futur, Konditional, Subjuntivo Präsens, Subjuntivo Imperfekt, Imperativ,
+Gerundium, Partizip, Infinitiv), unregelmäßige Formen farbig, Häufigkeit als Balken relativ zur häufigsten
+Form; erreichbar von der Rückseite jeder Verbformkarte, aus den Kartendetails der Vokabel und über die
+Übersicht „Muster“ (`#muster`), die Verben nach den Einträgen in `muster` gruppiert. Tageslimit „Neue
+Verbformen pro Tag“ (Standard 10); Verbmodus in den Einstellungen ein-/ausschaltbar. Reihenfolge einer
+Sitzung: fällige Karten aller aktiven Typen gemischt, dann neue Vokabeln, Hörkarten, Verbformen.
+
 **Schwierige Karten:** Ab 8× „Nochmal“ gilt eine Karte als „schwierig“ (Markierung auf der Karte,
 Filter in der Kartenliste). Aussetzen und Wieder aufnehmen sind auf der Karte und in der Liste möglich.
 
@@ -49,7 +67,8 @@ Karten je Zustand (neu / lernen / wiederholen / ausgesetzt / schwierig), fällig
 **Einstellungen:**
 - Neue Karten pro Tag (0–50, Standard 15), Zielretention 80–95 % (Standard 90 %; höher = kürzere
   Intervalle; gilt für künftige Planungen, bestehende Fälligkeiten bleiben), automatisches Vorlesen, Sprachtest.
-  Hörmodus mit „Neue Hörkarten pro Tag“ (0–50, Standard 10). Verbmodus (Stufe 3) ist vorbereitet und noch ausgegraut.
+  Hörmodus mit „Neue Hörkarten pro Tag“ (0–50, Standard 10). Verbmodus mit „Neue Verbformen pro Tag“ (0–50,
+  Standard 10) und Tipp-Modus; ohne `data/verben.json` bleibt der Verbmodus ausgegraut.
 - FSRS-Parameter: Textfeld für die vom [FSRS-Optimizer](https://github.com/open-spaced-repetition/fsrs-optimizer)
   berechneten Werte (17, 19 oder 21 Zahlen, kommagetrennt; leer = Standard). „Protokoll exportieren (CSV)“
   liefert dessen Eingabeformat mit den Spalten `card_id, review_time, review_rating, review_state, review_duration`
@@ -86,6 +105,38 @@ dauerhaft in IndexedDB gespeichert und beim nächsten Start automatisch wieder g
 
 Ein Beispielpaket mit 30 Einträgen liegt unter `tests/fixtures/beispiel-paket.txt`.
 
+### Verbdaten (`data/verben.json`)
+
+Die mitgelieferte Datei enthält nur drei Beispielverben (tener, hablar, ir) zum Bauen und Testen. Die
+vollständige Datei hat dasselbe Format und wird einfach an dieser Stelle ersetzt (keine Codeänderung;
+anschließend `CACHE_VERSION` in `sw.js` erhöhen):
+
+```json
+{
+  "version": 1,
+  "verben": [
+    {
+      "lemma": "tener",
+      "kennung": "ES-0011",
+      "label": "Verb, unregelmäßig",
+      "muster": ["e→ie", "Indefinido-Stamm tuv-", "Futur tendr-"],
+      "formen": [
+        {"form": "tengo", "tempus": "Präsens", "person": "ich", "haeufigkeit": 954371, "unregelmaessig": true}
+      ],
+      "saetze": [{"kennung": "ES-0011", "form": "tienes"}]
+    }
+  ]
+}
+```
+
+- `haeufigkeit`: Belegzahl aus dem Frequenzkorpus; bestimmt die Reihenfolge neuer Formkarten über alle Verben.
+- `tempus`: Infinitiv, Präsens, Indefinido, Imperfekt, Futur, Konditional, Subjuntivo Präsens,
+  Subjuntivo Imperfekt, Imperativ, Gerundium, Partizip.
+- `person`: ich, du, er/sie/usted, wir, ihr, sie/ustedes, leer, oder mehrere mit „ / “ getrennt.
+- `saetze`: Beispielsätze aus den Vokabelkarten (über die Kennung), in denen die genannte Form vorkommt;
+  nur dann zeigt die Karte den Lückentext.
+- `kennung`: Vokabelkarte des Verbs; ihr Zustand „Wiederholen“ schaltet die Formkarten frei.
+
 ## GitHub-Pages-Einstellung
 
 Unter **Settings → Pages** ist als Source **GitHub Actions** eingestellt. Der Workflow
@@ -106,15 +157,15 @@ neue Version beim nächsten Start mit Netz im Hintergrund und nutzen sie ab dem 
 | Fälligkeit | Wiederholungskarten tagesgenau (fällig, wenn das Datum heute oder früher ist); Lern-/Wiederlernkarten minutengenau mit 20 Minuten Vorlauf. „Fällig heute“ auf dem Start zählt beides. |
 | Speicherung | IndexedDB (`spanisch-trainer`, Schemaversion 2: `progress`, `packages`, `days`, `meta`, `reviews`, `cardmeta`), Fallback localStorage. Beim Start wird ein älteres Schema verlustfrei migriert (`js/migrate.js`). |
 | Protokoll | Jede Bewertung als Datensatz: Kartenschlüssel, Kartentyp, Zeitpunkt (ms), Bewertung 1–4, Zustand davor, Antwortdauer (ms), geplantes Intervall (Tage), FSRS-Log. |
-| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); Hörkarte `ES-0001:H`; vorgesehen: Verbform `V:lemma:form:tempus` (Stufe 3). Notizen und „schwierig“ gelten je Schlüssel; die Notiz der Hörkarte ist die der Vokabel. |
+| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); Hörkarte `ES-0001:H`; Verbform `V:lemma:form:tempus`. Notizen und „schwierig“ gelten je Schlüssel; die Notiz der Hör- und Verbformkarte ist die der Vokabel. |
 | Sprachausgabe | Web Speech API, `es-ES`; bevorzugt eine Stimme mit `lang` `es-ES` (iOS: Mónica/Jorge), sonst eine andere spanische. Stimmen werden über `voiceschanged` nachgeladen, die Wiedergabe wird bei der ersten Berührung freigeschaltet, vor jeder Ausgabe `speechSynthesis.cancel()`. |
 | Offline | `sw.js` cached App-Dateien, `data/index.json` und alle dort gelisteten Datendateien beim Installieren; danach Stale-while-revalidate. |
 | PWA | `manifest.webmanifest`, iOS-Meta-Tags, Icons 180/192/512 px (`tools/make-icons.py`). |
 
 Dateien: `index.html`, `css/app.css`, `js/app.js` (Status, Router), `js/parser.js` (Anki-Format),
 `js/scheduler.js` (FSRS, Warteschlange, Kennzahlen, Prognose), `js/storage.js`, `js/migrate.js`,
-`js/data.js` (Pakete laden), `js/speech.js`, `js/views/*.js` (Start, Lernen, Karten, Statistik,
-Einstellungen), `sw.js`, `data/`.
+`js/data.js` (Pakete laden), `js/verbs.js` (Verbdaten, Lückentext, Eingabevergleich), `js/speech.js`,
+`js/views/*.js` (Start, Lernen, Karten, Statistik, Einstellungen, Verbtabellen/Muster), `sw.js`, `data/`.
 
 Alle Pakete in `data/index.json` bilden einen einzigen Lernstrom nach Rang; Paketgrenzen spielen beim
 Lernen keine Rolle. Wird eine Datei geändert und neu geladen, werden die Felder (auch der Rang) anhand der
@@ -135,5 +186,6 @@ Der E2E-Test prüft: Laden der Karten und Startzahlen, Zielretention, Bewerten u
 nach Neuladen, Rückgängig, Protokoll-CSV, FSRS-Parameter, Notizen, Aussetzen, schwierige Karten, Statistik,
 Paket-Import, Sicherung (Export → Löschen → Import), Migration eines Lernstands aus Schemaversion 1,
 Hörmodus (Freischaltung, Vorderseite ohne Text, automatische Ansage und Tempo über einen Stub der
-Sprachausgabe, Modus aus, Export beider Typen), Offline-Betrieb über den Service Worker und eine
-fehlerfreie Browserkonsole.
+Sprachausgabe, Modus aus, Export beider Typen), Verbmodus (Freischaltung und Reihenfolge nach Häufigkeit,
+Lückentext, Tipp-Modus, Tabellen- und Muster-Ansicht, Modus aus, Austausch der Verbdatei), Offline-Betrieb
+über den Service Worker und eine fehlerfreie Browserkonsole.
