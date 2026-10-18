@@ -1,7 +1,7 @@
 // Karten durchsuchen: Liste mit Suche, Filter (alle / schwierig / ausgesetzt) und Detailansicht.
 import { state, getProgress, getCardMeta, setCardMeta, getVerbByKennung, toast } from '../app.js';
 import { compareByRank } from '../parser.js';
-import { isDifficult, hearKeyOf } from '../scheduler.js';
+import { isDifficult, hearKeyOf, backKeyOf } from '../scheduler.js';
 import { speak } from '../speech.js';
 import { el, formatDate, splitMeaning } from '../util.js';
 
@@ -19,8 +19,8 @@ function statusOf(id) {
   const S = state.sch.State;
   if (m.suspended) return { text: 'Ausgesetzt', cls: 'badge-off' };
   if (!p || state.sch.isNew(p)) {
-    // Hörkarte: gesperrt, bis die Vokabelkarte im Zustand Review ist
-    if (id.endsWith(':H')) {
+    // Hör-/Rückwärtskarte: gesperrt, bis die Vokabelkarte im Zustand Review ist
+    if (id.endsWith(':H') || id.endsWith(':R')) {
       const vp = state.progress.get(id.slice(0, -2));
       if (!vp || state.sch.isNew(vp) || vp.state !== S.Review) return { text: 'Gesperrt', cls: 'badge-off' };
     }
@@ -144,11 +144,17 @@ export function renderBrowse(main) {
       rows.push(['Stabilität', `${Math.round(p.stability * 10) / 10} Tage`]);
       if (r !== null) rows.push(['Abrufwahrscheinlichkeit', `${Math.round(r * 100)} %`]);
     }
+    {
+      const bk = backKeyOf(c.id);
+      const bs = statusOf(bk);
+      const bp = state.progress.get(bk);
+      rows.push(['Rückwärtskarte', `${bs.text}${bp && !state.sch.isNew(bp) ? `, fällig am ${formatDate(bp.due)}` : ''}`]);
+    }
     if (c.exEs) {
       const hk = hearKeyOf(c.id);
       const hs = statusOf(hk);
       const hp = state.progress.get(hk);
-      rows.push(['Hörkarte', `${hs.text}${hp && !state.sch.isNew(hp) ? `, fällig am ${formatDate(hp.due)}` : ''}${state.settings.hearingMode ? '' : ' (Hörmodus aus)'}`]);
+      rows.push(['Hörkarte', `${hs.text}${hp && !state.sch.isNew(hp) ? `, fällig am ${formatDate(hp.due)}` : ''}`]);
     }
     let noteTimer = null;
     const noteField = el('textarea', {

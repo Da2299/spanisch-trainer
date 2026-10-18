@@ -1,6 +1,6 @@
 // Statistik: Wiederholungen pro Tag (30 Tage), Trefferquote, Karten je Zustand, Prognose, Serie.
 import { state, plan } from '../app.js';
-import { forecastDue, cardTypeOf, hearKeyOf, CARD_TYPES } from '../scheduler.js';
+import { forecastDue, cardTypeOf, hearKeyOf, backKeyOf, CARD_TYPES } from '../scheduler.js';
 import { el, dateKey, addDays } from '../util.js';
 
 const DAYS = 30;
@@ -19,7 +19,7 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
   }
   let total = 0;
   let correct = 0;
-  const byType = { vocab: { total: 0, correct: 0 }, hear: { total: 0, correct: 0 }, verb: { total: 0, correct: 0 } };
+  const byType = { vocab: { total: 0, correct: 0 }, back: { total: 0, correct: 0 }, hear: { total: 0, correct: 0 }, verb: { total: 0, correct: 0 } };
   for (const r of reviews) {
     const key = dateKey(new Date(r.time));
     const i = index.get(key);
@@ -37,7 +37,7 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
   const S = sch.State;
   const emptyState = () => ({ new: 0, learning: 0, review: 0, suspended: 0, locked: 0 });
   const byState = emptyState(); // Vokabelkarten (abwärtskompatibel)
-  const byStateType = { vocab: byState, hear: emptyState(), verb: emptyState() };
+  const byStateType = { vocab: byState, back: emptyState(), hear: emptyState(), verb: emptyState() };
   for (const f of verbForms.values()) {
     const vp = progress.get(f.verb.kennung);
     const fp = progress.get(f.key);
@@ -56,6 +56,16 @@ export function computeStats(sch, cards, progress, cardmeta, reviews, days, now 
     else if (sch.isNew(p)) byState.new++;
     else if (p.state === S.Review) byState.review++;
     else byState.learning++;
+    const bk = backKeyOf(card.id);
+    const bp = progress.get(bk);
+    const bm = cardmeta.get(bk);
+    const b = byStateType.back;
+    if ((m && m.suspended) || (bm && bm.suspended)) b.suspended++;
+    else if (sch.isNew(bp)) {
+      if (p && !sch.isNew(p) && p.state === S.Review) b.new++;
+      else b.locked++;
+    } else if (bp.state === S.Review) b.review++;
+    else b.learning++;
     if (!card.exEs) continue;
     const hk = hearKeyOf(card.id);
     const hp = progress.get(hk);
@@ -108,7 +118,8 @@ export function renderStats(main) {
   );
 
   // Zahlen je Lernmodus
-  const modeKeys = ['vocab', ...(p.types.hear.learned || p.types.hear.unseen || p.types.hear.locked ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
+  const hasAny = (t) => p.types[t].learned || p.types[t].unseen || p.types[t].locked;
+  const modeKeys = ['vocab', ...(hasAny('back') ? ['back'] : []), ...(hasAny('hear') ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
   main.append(
     el('section', { class: 'card' }, [
       el('h2', { text: 'Je Lernmodus' }),

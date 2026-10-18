@@ -12,8 +12,8 @@ Online-Adresse (GitHub Pages): https://da2299.github.io/spanisch-trainer/
 Danach startet die App wie eine native App und funktioniert nach dem ersten Laden auch offline.
 
 **Start:** eine Zeile „Heute: N Karten · etwa M Min“ und der Knopf **Lernen**. Sobald es dort etwas
-gibt, erscheinen darunter die Einstiege **Hören** und **Verben** als eigene Lernmodi (ein Modus zur Zeit,
-keine gemischten Sitzungen). Die Serie („Tage in Folge“) führt zur Statistik.
+gibt, erscheinen darunter die Einstiege **Rückwärts**, **Hören** und **Verben** als eigene Lernmodi (ein
+Modus zur Zeit, keine gemischten Sitzungen). Die Serie („Tage in Folge“) führt zur Statistik.
 
 **Sitzung:** Lernen läuft in Einheiten von 15 Karten (einstellbar) mit Fortschrittsbalken. Fällige
 Karten kommen zufällig gemischt zuerst, danach neue Karten (Vokabeln nach Rang). Lernkarten mit kurzem
@@ -32,6 +32,12 @@ zurück (Lernstand, Protokoll, Tageszähler und Fortschritt wie davor). „Ausse
 Planung (in der Kartenliste wieder aufnehmbar).
 Tastatur (PC): Leertaste/Enter = Antwort zeigen, 1–4 = bewerten (zwei Knöpfe: 1 = Vergessen, 2/3 =
 Gewusst), Z = Rückgängig, S = vorlesen, M = Mehr.
+
+**Rückwärtskarten (Deutsch → Spanisch):** Zu jeder Vokabel gibt es eine Rückwärtskarte mit eigenem
+Lernstand (Schlüssel Kennung + „:R“), frei sobald die Vokabelkarte den Zustand „Wiederholen“ erreicht hat.
+Vorderseite: Hauptbedeutung und Wortart auf Deutsch; das spanische Wort laut sagen, dann „Antwort zeigen“:
+spanisches Wort groß und vorgelesen, Beispielsatz. Eigener Einstieg „Rückwärts“ auf dem Start, Tageslimit
+„Neue Rückwärtskarten pro Tag“ (Standard 10, Erweitert).
 
 **Hörmodus (zweiter Kartentyp):** Zu jeder Vokabel mit Beispielsatz gibt es eine Hörkarte mit eigenem
 Lernstand (Schlüssel Kennung + „:H“). Sie wird frei, sobald die Vokabelkarte den Zustand „Wiederholen“
@@ -78,7 +84,7 @@ Karten der nächsten 7 Tage.
   Liegt die letzte Sicherung länger als 7 Tage zurück, zeigt der Start „Lernstand sichern“.
 - Erweitert: Bewertung (zwei Knöpfe oder vier Stufen), Karten pro Sitzung (5–100, Standard 15),
   Zielretention 80–95 % (Standard 90 %; höher = kürzere Intervalle; gilt für künftige Planungen), neue
-  Hörkarten / Verbformen pro Tag, Tipp-Modus, FSRS-Parameter (17, 19 oder 21 Werte des
+  Rückwärtskarten / Hörkarten / Verbformen pro Tag, Tipp-Modus, FSRS-Parameter (17, 19 oder 21 Werte des
   [FSRS-Optimizers](https://github.com/open-spaced-repetition/fsrs-optimizer); leer = Standard),
   „Protokoll exportieren (CSV)“ mit den Spalten `card_id, review_time, review_rating, review_state,
   review_duration` (Zeit in Unix-Millisekunden, Zustand 0 neu / 1 lernen / 2 wiederholen / 3 neu lernen,
@@ -164,7 +170,7 @@ neue Version beim nächsten Start mit Netz im Hintergrund und nutzen sie ab dem 
 | Sitzung | Je Lernmodus eine eigene Warteschlange (fällig gemischt, dann neu); eine Sitzung nimmt die ersten N Einträge (Einstellung „Karten pro Sitzung“). Zeitschätzung: Median der letzten Antwortdauern plus 4 s, sonst 20 s je Karte. |
 | Speicherung | IndexedDB (`spanisch-trainer`, Schemaversion 2: `progress`, `packages`, `days`, `meta`, `reviews`, `cardmeta`), Fallback localStorage. Beim Start wird ein älteres Schema verlustfrei migriert (`js/migrate.js`). |
 | Protokoll | Jede Bewertung als Datensatz: Kartenschlüssel, Kartentyp, Zeitpunkt (ms), Bewertung 1–4, Zustand davor, Antwortdauer (ms), geplantes Intervall (Tage), FSRS-Log. |
-| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); Hörkarte `ES-0001:H`; Verbform `V:lemma:form:tempus`. Notizen und „schwierig“ gelten je Schlüssel; die Notiz der Hör- und Verbformkarte ist die der Vokabel. |
+| Kartenschlüssel | Vokabelkarte = Kennung (`ES-0001`); Rückwärtskarte `ES-0001:R`; Hörkarte `ES-0001:H`; Verbform `V:lemma:form:tempus`. Notizen und „schwierig“ gelten je Schlüssel; die Notiz der Rückwärts-, Hör- und Verbformkarte ist die der Vokabel. |
 | Sprachausgabe | Web Speech API, `es-ES`; bevorzugt eine Stimme mit `lang` `es-ES` (iOS: Mónica/Jorge), sonst eine andere spanische. Stimmen werden über `voiceschanged` nachgeladen, die Wiedergabe wird bei der ersten Berührung freigeschaltet, vor jeder Ausgabe `speechSynthesis.cancel()`. |
 | Offline | `sw.js` cached App-Dateien, `data/index.json` und alle dort gelisteten Datendateien beim Installieren; danach Stale-while-revalidate. |
 | PWA | `manifest.webmanifest`, iOS-Meta-Tags, Icons 180/192/512 px (`tools/make-icons.py`). |
@@ -193,7 +199,8 @@ Der E2E-Test prüft: Laden der Karten und Startzahlen, Zielretention, Bewerten u
 nach Neuladen, Rückgängig, Protokoll-CSV, FSRS-Parameter, Notizen, Aussetzen, schwierige Karten, Statistik,
 Paket-Import, Sicherung (Export → Löschen → Import), Migration eines Lernstands aus Schemaversion 1,
 Hören (Freischaltung, Vorderseite ohne Text, automatische Ansage und Tempo über einen Stub der
-Sprachausgabe, Export beider Typen), Verben (Freischaltung und Reihenfolge nach Häufigkeit, Lückentext,
+Sprachausgabe, Export beider Typen), Rückwärtskarten (Freischaltung, Vorderseite nur Deutsch, Rückseite
+mit vorgelesenem Wort, eigener Lernstand), Verben (Freischaltung und Reihenfolge nach Häufigkeit, Lückentext,
 Tipp-Modus, Tabellen- und Muster-Ansicht, Austausch der Verbdatei), Start mit Zusammenfassung und
 Modus-Einstiegen, Sitzung mit Fortschritt und Abschluss, zwei Bewertungsknöpfe, „Mehr“ auf der Rückseite,
 Einstellungen mit Bereich „Erweitert“, Offline-Betrieb über den Service Worker und eine fehlerfreie

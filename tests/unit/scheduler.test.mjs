@@ -152,7 +152,8 @@ test('Leech: ab 8× Nochmal gilt die Karte als schwierig; Aussetzen nimmt sie au
   const cardmeta = new Map([['ES-0002', { id: 'ES-0002', suspended: true }]]);
   const plan = buildPlan(sch, cards, progress, cardmeta, new Map(), { newPerDay: 20 }, new Date(t.getTime() + 60000));
   assert.equal(plan.difficultCount, 1);
-  assert.equal(plan.suspendedCount, 1);
+  assert.equal(plan.types.vocab.suspended, 1);
+  assert.equal(plan.types.back.suspended, 1, 'Rückwärtskarte der ausgesetzten Vokabel zählt ebenfalls als ausgesetzt');
   assert.deepEqual(plan.queue.map((e) => e.key), ['ES-0001', 'ES-0003']);
 });
 
@@ -246,4 +247,20 @@ test('shuffle: Permutation, deterministisch bei fester Zufallsquelle', () => {
   const a = shuffle([1, 2, 3, 4, 5], () => 0);
   assert.deepEqual([...a].sort(), [1, 2, 3, 4, 5]);
   assert.deepEqual(shuffle([1, 2, 3], () => 0), [2, 3, 1]);
+});
+
+test('Rückwärtskarten: frei ab Review, eigener Modus, Tageslimit, nach Rang', () => {
+  const cards = mkCards(4);
+  const progress = new Map();
+  for (const id of ['ES-0003', 'ES-0001']) progress.set(id, sch.rate(sch.emptyProgress(id, NOW), 4, NOW).progress); // Review
+  progress.set('ES-0002', sch.rate(sch.emptyProgress('ES-0002', NOW), 3, NOW).progress); // Learning
+  const later = new Date(NOW.getTime() + 60 * 60000);
+  const plan = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, newBackPerDay: 10, newHearPerDay: 10 }, later);
+  assert.deepEqual(plan.sessions.back.entries.map((e) => e.key), ['ES-0001:R', 'ES-0003:R']);
+  assert.equal(plan.types.back.locked, 2, 'ES-0002 (Lernen) und ES-0004 (neu) gesperrt');
+  assert.equal(plan.sessions.vocab.total, 1, 'nur die fällige Lernkarte in Vokabeln');
+  const limited = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, newBackPerDay: 1 }, later);
+  assert.equal(limited.sessions.back.total, 1);
+  assert.equal(cardTypeOf('ES-0001:R'), 'back');
+  assert.equal(baseIdOf('ES-0001:R'), 'ES-0001');
 });

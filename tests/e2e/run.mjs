@@ -102,7 +102,7 @@ async function home(page) {
   await page.locator('#today-summary').waitFor();
   const sum = page.locator('#today-summary');
   const out = { total: await sum.getAttribute('data-total'), due: await sum.getAttribute('data-due'), new: await sum.getAttribute('data-new'), minutes: await sum.getAttribute('data-minutes'), text: await sum.innerText(), modes: {} };
-  for (const t of ['vocab', 'hear', 'verb']) {
+  for (const t of ['vocab', 'back', 'hear', 'verb']) {
     const b = page.locator(`#start-${t}`);
     if (await b.count()) out.modes[t] = { count: await b.getAttribute('data-count'), disabled: await b.isDisabled() };
   }
@@ -168,7 +168,7 @@ async function main() {
     let h = await home(page);
     check('1a Start unter /spanisch-trainer/ erreichbar', page.url() === base + '#start' || page.url() === base, page.url());
     check('1b Start zeigt eine Zusammenfassung (15 Karten, etwa 5 Min) und den Knopf „Lernen (15)“', h.total === '15' && h.due === '0' && h.new === '15' && h.minutes === '5' && h.text.startsWith('Heute: 15 Karten') && h.modes.vocab.count === '15' && !h.modes.vocab.disabled, JSON.stringify(h));
-    check('1c Keine Kacheln/Typtabelle auf dem Start; Hören/Verben erst sichtbar, wenn dort etwas ist (Hinweis statt Knöpfe)', (await page.locator('[data-stat]').count()) === 0 && (await page.locator('#type-table').count()) === 0 && !h.modes.hear && !h.modes.verb && (await page.locator('#locked-hint').innerText()).startsWith('Hören und Verben werden frei'), JSON.stringify(h.modes));
+    check('1c Keine Kacheln/Typtabelle auf dem Start; Hören/Verben erst sichtbar, wenn dort etwas ist (Hinweis statt Knöpfe)', (await page.locator('[data-stat]').count()) === 0 && (await page.locator('#type-table').count()) === 0 && !h.modes.hear && !h.modes.verb && (await page.locator('#locked-hint').innerText()).startsWith('Rückwärts, Hören und Verben werden frei'), JSON.stringify(h.modes));
     check('1d 30 Karten geladen, kein Sicherungshinweis ohne Lernstand', h.meta.startsWith('30 Karten') && (await page.locator('#backup-hint').count()) === 0, h.meta);
     let s = await stats(page);
     check('1e Statistik: fällig 0, neu 15, gelernt 0, Serie 0; Typtabelle vorhanden', s.due === '0' && s.neu === '15' && s.learned === '0' && s.streak === '0' && (await page.locator('#type-table').count()) === 1, JSON.stringify(s));
@@ -411,6 +411,35 @@ async function main() {
     check('S2d Export enthält Lernstand beider Typen', exp2.progress.some((p) => p.id.endsWith(':H')) && exp2.progress.some((p) => !p.id.includes(':')) && exp2.settings.newHearPerDay === 10);
     await page.locator('#toast.show', { hasText: 'Sicherung als Datei' }).waitFor();
 
+    // ---- Stufe 5: Rückwärtskarten (Deutsch → Spanisch) ----
+    h = await home(page);
+    const backPlan = await dbg(page, () => window.__spanischTrainer.plan().types.back);
+    check('S5a Start: „Rückwärts“ als eigener Einstieg, so viele Karten wie Review-Vokabeln (unabhängig vom Beispielsatz)', h.modes.back && h.modes.back.count === String(backPlan.unseen) && Number(h.modes.back.count) >= 5 && !h.modes.back.disabled, JSON.stringify({ back: h.modes.back, backPlan }));
+    await page.click('#start-back');
+    await page.locator('#card-front[data-type="back"]').waitFor();
+    const backId = (await page.locator('#card-front').getAttribute('data-key')).replace(/:R$/, '');
+    const backCard = await dbg(page, (id) => window.__spanischTrainer.state.cards.get(id), backId);
+    const backFront = await page.locator('#card-front').innerText();
+    const spokenCountBefore = await dbg(page, () => window.__spoken.length);
+    check('S5b Vorderseite: nur Deutsch (Hauptbedeutung, Wortart), kein Spanisch, kein automatisches Vorlesen', (await page.locator('#back-meaning').innerText()) === backCard.de.split(';')[0].trim() && (await page.locator('#card-front .word').count()) === 0 && !backFront.includes(backCard.es), backFront.replace(/\n/g, ' | '));
+    await page.click('#show-answer');
+    const spokenBack = await dbg(page, () => window.__spoken.slice(-1)[0]);
+    const spokenCountAfter = await dbg(page, () => window.__spoken.length);
+    check('S5c Rückseite: spanisches Wort groß und vorgelesen, Beispielsatz', (await page.locator('#back-word').innerText()) === backCard.es && spokenBack.text === backCard.es && spokenCountAfter === spokenCountBefore + 1 && (await page.locator('#card-back .example').count()) === (backCard.exEs ? 1 : 0), JSON.stringify(spokenBack));
+    await page.click('[data-grade="3"]');
+    await page.locator('#card-front').waitFor();
+    const backReview = await dbg(page, () => window.__spanischTrainer.state.reviews.slice(-1)[0]);
+    check('S5d Eigener Lernstand (Kennung:R), Kartentyp „back“ im Protokoll, Vokabelsitzung ohne Rückwärtskarten', backReview.cardType === 'back' && backReview.cardId === backId + ':R' && (await dbg(page, () => window.__spanischTrainer.plan().sessions.vocab.entries.every((e) => e.type === 'vocab'))));
+    await page.goto(base + '#karten');
+    await page.fill('#search', backId);
+    await page.click('#card-list .list-item');
+    const detailRows = await page.locator('#card-detail .kv').innerText();
+    check('S5e Kartendetails zeigen Rückwärts- und Hörkarte', /Rückwärtskarte\s+(Lernen|Fällig)/.test(detailRows) && /Hörkarte/.test(detailRows), detailRows.replace(/\n/g, ' | ').slice(0, 200));
+    await page.goto(base + '#statistik');
+    await page.locator('#type-table tr[data-type="back"]').waitFor();
+    const backCol = await dbg(page, () => Object.fromEntries([...document.querySelectorAll('#by-state-table td[data-type="back"]')].map((td) => [td.dataset.state, Number(td.textContent)])));
+    check('S5f Statistik: Spalte Rückwärts (1 lernen, Rest neu/gesperrt)', backCol.learning === 1 && backCol.new >= 4 && backCol.locked > 0, JSON.stringify(backCol));
+
     // ---- Stufe 3: Verben als eigener Modus ----
     await page.reload();
     await page.goto(base + '#start');
@@ -554,7 +583,7 @@ async function main() {
       return { total: await p3.locator('#today-summary').getAttribute('data-total'), due: await p3.locator('#today-summary').getAttribute('data-due') };
     })();
     const mig = await dbg(p3, () => ({ schema: window.__spanischTrainer.state.schema, again: window.__spanischTrainer.state.progress.get('ES-0001').againCount, settings: window.__spanischTrainer.state.settings }));
-    check('S1e Alter Lernstand (Schema 1) übernommen: 1 fällig + 20 neu (alte Einstellung) + 2 Hörkarten, Schema 1→2, Vorlesen aus, neue Standardwerte ergänzt', hm.due === '1' && hm.total === '23' && mig.schema.from === 1 && mig.schema.to === 2 && mig.again === 0 && mig.settings.autoSpeak === false && mig.settings.ratingMode === 'simple' && mig.settings.sessionSize === 15, `${JSON.stringify(hm)} ${JSON.stringify(mig)}`);
+    check('S1e Alter Lernstand (Schema 1) übernommen: 1 fällig + 20 neu (alte Einstellung) + 2 Rückwärts + 2 Hörkarten, Schema 1→2, Vorlesen aus, neue Standardwerte ergänzt', hm.due === '1' && hm.total === '25' && mig.schema.from === 1 && mig.schema.to === 2 && mig.again === 0 && mig.settings.autoSpeak === false && mig.settings.ratingMode === 'simple' && mig.settings.sessionSize === 15, `${JSON.stringify(hm)} ${JSON.stringify(mig)}`);
     await ctx2.close();
 
     // ---- 5. Konsole ----
