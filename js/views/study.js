@@ -68,6 +68,7 @@ export function renderStudy(main, param = '') {
     const card = currentCard();
     if (!card) return;
     if (currentType() === 'hear') speak(card.exEs);
+    else if (currentType() === 'back') speak(showingBack ? card.es : '');
     else speak(showingBack && card.exEs ? card.exEs : card.es);
   }
 
@@ -188,7 +189,22 @@ export function renderStudy(main, param = '') {
             card.exDe ? el('div', { class: 'example-de muted', lang: 'de', text: card.exDe }) : null,
           ])
         : null;
-      if (type === 'hear') {
+      if (type === 'back') {
+        // Rückwärts: Deutsch vorn (Hauptbedeutung + Wortart), Spanisch hinten (vorgelesen)
+        front = el('div', { class: 'face front back-front', id: 'card-front', 'data-type': 'back', 'data-key': current }, [
+          el('div', { class: 'meaning-main big', id: 'back-meaning', lang: 'de', text: meaning.main }),
+          card.pos ? el('div', { class: 'pos', text: card.pos }) : null,
+          el('div', { class: 'muted small-text', text: 'Wie heißt das auf Spanisch? Laut sagen, dann Antwort zeigen' }),
+        ]);
+        back = el('div', { class: 'face back hidden', id: 'card-back', 'data-type': 'back' }, [
+          el('div', { class: 'verb-answer' }, [
+            el('div', { class: 'word', id: 'back-word', lang: 'es', text: card.es }),
+            el('button', { class: 'speaker', 'aria-label': 'Wort vorlesen', onclick: (e) => (e.stopPropagation(), speak(card.es)), text: '🔊' }),
+          ]),
+          el('div', { class: 'meaning-main small', lang: 'de', text: meaning.main }),
+          exampleBlock,
+        ]);
+      } else if (type === 'hear') {
         front = el('div', { class: 'face front hear-front', id: 'card-front', 'data-type': 'hear', 'data-key': current }, [
           el('button', { class: 'speaker huge', id: 'hear-play', 'aria-label': 'Satz vorlesen', onclick: (e) => (e.stopPropagation(), speak(card.exEs)), text: '🔊' }),
           el('div', { class: 'muted small-text', text: 'Nur hören – was wurde gesagt?' }),
@@ -285,6 +301,7 @@ export function renderStudy(main, param = '') {
       showBtn.classList.add('hidden');
       ratings.classList.remove('hidden');
       if (type === 'verb') speak(form.form);
+      else if (type === 'back') speak(card.es);
     }
     function flip() {
       if (!showingBack) reveal();
