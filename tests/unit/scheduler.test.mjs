@@ -199,17 +199,16 @@ test('Hörmodus: Hörkarte erst freigeschaltet, wenn die Vokabelkarte im Zustand
   progress.set(review.id, review);
   progress.set(learning.id, learning);
   const later = new Date(NOW.getTime() + 60 * 60000);
-  const off = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, hearingMode: false, newHearPerDay: 10 }, later);
-  assert.equal(off.types.hear.new, 0);
-  assert.equal(off.queue.length, 1, 'nur die fällige Lernkarte, keine Hörkarten');
-  const on = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, hearingMode: true, newHearPerDay: 10 }, later);
+  const on = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, newHearPerDay: 10 }, later);
+  assert.equal(on.sessions.vocab.total, 1, 'Vokabelsitzung: nur die fällige Lernkarte');
+  assert.equal(on.sessions.hear.total, 1, 'Hörsitzung: eine neue Hörkarte');
   assert.equal(on.types.hear.new, 1);
   assert.equal(on.types.hear.locked, 4, 'übrige Hörkarten gesperrt (Vokabel nicht in Review)');
   assert.deepEqual(on.queue.map((e) => [e.key, e.type]), [['ES-0002', 'vocab'], ['ES-0001:H', 'hear']]);
   assert.equal(on.queue[1].card.id, 'ES-0001');
 });
 
-test('Hörmodus: Reihenfolge fällig (gemischt, beide Typen) → neue Vokabeln → neue Hörkarten; Tageslimits getrennt', () => {
+test('Hörmodus: eigene Warteschlange je Modus (fällig gemischt, dann neu); Tageslimits getrennt', () => {
   const cards = mkCardsWithExamples(10);
   const progress = new Map();
   const t0 = new Date('2026-10-01T10:00:00');
@@ -220,14 +219,16 @@ test('Hörmodus: Reihenfolge fällig (gemischt, beide Typen) → neue Vokabeln �
   const hp = sch.rate(sch.emptyProgress(hearKeyOf('ES-0001'), t0), 4, t0).progress; // Hörkarte, fällig
   progress.set(hp.id, hp);
   const days = new Map([[dateKey(NOW), { id: dateKey(NOW), newCount: 0, reviewCount: 0, newHearCount: 9 }]]);
-  const plan = buildPlan(sch, cards, progress, new Map(), days, { newPerDay: 2, hearingMode: true, newHearPerDay: 10 }, NOW, { rand: () => 0 });
-  const keys = plan.queue.map((e) => e.key);
+  const plan = buildPlan(sch, cards, progress, new Map(), days, { newPerDay: 2, newHearPerDay: 10 }, NOW, { rand: () => 0 });
   assert.equal(plan.types.vocab.due, 3);
   assert.equal(plan.types.hear.due, 1);
-  assert.deepEqual(keys.slice(0, 4).sort(), ['ES-0001', 'ES-0001:H', 'ES-0002', 'ES-0003']);
-  assert.deepEqual(keys.slice(4), ['ES-0004', 'ES-0005', 'ES-0002:H'], 'neue Vokabeln (Limit 2), dann eine neue Hörkarte (Limit 10−9)');
+  const vocabKeys = plan.sessions.vocab.entries.map((e) => e.key);
+  assert.deepEqual(vocabKeys.slice(0, 3).sort(), ['ES-0001', 'ES-0002', 'ES-0003'], 'fällige Vokabeln (gemischt)');
+  assert.deepEqual(vocabKeys.slice(3), ['ES-0004', 'ES-0005'], 'neue Vokabeln nach Rang (Limit 2)');
+  assert.deepEqual(plan.sessions.hear.entries.map((e) => e.key), ['ES-0001:H', 'ES-0002:H'], 'fällige Hörkarte, dann eine neue (Limit 10−9)');
   assert.equal(plan.types.hear.new, 1);
   assert.equal(plan.newCount, 3);
+  assert.deepEqual(plan.queue.map((e) => e.key), [...vocabKeys, 'ES-0001:H', 'ES-0002:H'], 'Gesamtliste: Vokabeln, dann Hören');
 });
 
 test('Hörkarte ohne Beispielsatz und bei ausgesetzter Vokabel nicht eingeplant', () => {
@@ -236,7 +237,7 @@ test('Hörkarte ohne Beispielsatz und bei ausgesetzter Vokabel nicht eingeplant'
   const progress = new Map();
   for (const id of ['ES-0001', 'ES-0002', 'ES-0003']) progress.set(id, sch.rate(sch.emptyProgress(id, NOW), 4, NOW).progress);
   const cardmeta = new Map([['ES-0002', { id: 'ES-0002', suspended: true }]]);
-  const plan = buildPlan(sch, cards, progress, cardmeta, new Map(), { newPerDay: 0, hearingMode: true, newHearPerDay: 10 }, new Date(NOW.getTime() + 60000));
+  const plan = buildPlan(sch, cards, progress, cardmeta, new Map(), { newPerDay: 0, newHearPerDay: 10 }, new Date(NOW.getTime() + 60000));
   assert.deepEqual(plan.queue.map((e) => e.key), ['ES-0001:H']);
   assert.equal(plan.types.hear.suspended, 1);
 });

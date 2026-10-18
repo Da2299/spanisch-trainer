@@ -68,15 +68,17 @@ test('Planung: Formkarten erst frei, wenn die Vokabelkarte des Verbs in Review i
   const review = sch.rate(sch.emptyProgress('ES-0011', NOW), 4, NOW).progress; // tener → Review
   progress.set(review.id, review);
   const later = new Date(NOW.getTime() + 60000);
-  const off = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, verbMode: false, newVerbPerDay: 10 }, later, { verbForms: forms });
-  assert.equal(off.queue.length, 0);
-  assert.equal(off.verbOn, false);
-  const on = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, verbMode: true, newVerbPerDay: 10 }, later, { verbForms: forms });
+  const off = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, newVerbPerDay: 10 }, later, {});
+  assert.equal(off.verbOn, false, 'ohne verben.json kein Verbmodus');
+  assert.equal(off.sessions.verb.total, 0);
+  const on = buildPlan(sch, cards, progress, new Map(), new Map(), { newPerDay: 0, newVerbPerDay: 10 }, later, { verbForms: forms });
+  assert.equal(on.verbOn, true);
   assert.equal(on.types.verb.new, 9, 'alle 9 Formen von tener (Limit 10)');
   assert.equal(on.types.verb.locked, 8, 'hablar und ir gesperrt');
-  assert.deepEqual(on.queue.slice(0, 3).map((e) => e.form.form), ['tengo', 'tiene', 'tienes']);
-  assert.ok(on.queue.every((e) => e.type === 'verb' && e.key.startsWith('V:tener:')));
-  const limited = buildPlan(sch, cards, progress, new Map(), new Map([[dateKey(later), { id: dateKey(later), newCount: 0, reviewCount: 0, newVerbCount: 7 }]]), { newPerDay: 0, verbMode: true, newVerbPerDay: 10 }, later, { verbForms: forms });
+  assert.deepEqual(on.sessions.verb.entries.slice(0, 3).map((e) => e.form.form), ['tengo', 'tiene', 'tienes']);
+  assert.ok(on.sessions.verb.entries.every((e) => e.type === 'verb' && e.key.startsWith('V:tener:')));
+  assert.equal(on.types.hear.unseen, 1, 'Hörkarte von tener gehört zur Hörsitzung, nicht zur Verbsitzung');
+  const limited = buildPlan(sch, cards, progress, new Map(), new Map([[dateKey(later), { id: dateKey(later), newCount: 0, reviewCount: 0, newVerbCount: 7 }]]), { newPerDay: 0, newVerbPerDay: 10 }, later, { verbForms: forms });
   assert.equal(limited.types.verb.new, 3, 'Tageslimit 10 − 7');
 });
 
@@ -86,7 +88,7 @@ test('Planung: Reihenfolge neue Vokabel → Hören → Verbform; Verbformen von 
   const allCards = new Map(cards);
   allCards.set('ES-0001', { id: 'ES-0001', rank: 1, es: 'de', de: 'von', exEs: 'Soy de Madrid.', exDe: '', position: 2 });
   const later = new Date(NOW.getTime() + 60000);
-  const plan = buildPlan(sch, allCards, progress, new Map([['ES-0016', { id: 'ES-0016', suspended: true }]]), new Map(), { newPerDay: 5, hearingMode: true, newHearPerDay: 5, verbMode: true, newVerbPerDay: 2 }, later, { verbForms: forms });
+  const plan = buildPlan(sch, allCards, progress, new Map([['ES-0016', { id: 'ES-0016', suspended: true }]]), new Map(), { newPerDay: 5, newHearPerDay: 5, newVerbPerDay: 2 }, later, { verbForms: forms });
   assert.deepEqual(plan.queue.map((e) => e.type), ['vocab', 'hear', 'verb', 'verb'], 'Hörkarte von ir entfällt (ausgesetzt)');
   assert.deepEqual(plan.queue.filter((e) => e.type === 'verb').map((e) => e.form.form), ['tengo', 'tiene'], 'ir ist ausgesetzt → vamos/voy fehlen');
   assert.equal(plan.types.verb.suspended, 4);

@@ -85,13 +85,47 @@ export function renderStats(main) {
   const s = computeStats(state.sch, state.cards, state.progress, state.cardmeta, state.reviews, state.days, new Date(), p.verbOn ? state.verbForms : new Map());
   main.append(el('h1', { class: 'title', text: 'Statistik' }));
 
-  // Kennzahlen
+  // Kennzahlen heute
+  const tiles = [
+    ['Fällig heute', p.dueCount, 'due'],
+    ['Neu heute', p.newCount, 'new'],
+    ['Gelernt gesamt', p.learnedTotal, 'learned'],
+    ['Tage in Folge', p.streak, 'streak'],
+  ];
   main.append(
+    el(
+      'section',
+      { class: 'stats', 'aria-label': 'Heute' },
+      tiles.map(([label, value, key]) => el('div', { class: 'stat', 'data-stat': key }, [el('div', { class: 'stat-value', text: String(value) }), el('div', { class: 'stat-label', text: label })])),
+    ),
     el('section', { class: 'stats' }, [
-      el('div', { class: 'stat', 'data-stat': 'streak' }, [el('div', { class: 'stat-value', text: String(p.streak) }), el('div', { class: 'stat-label', text: 'Tage in Folge' })]),
       el('div', { class: 'stat', 'data-stat': 'accuracy' }, [
         el('div', { class: 'stat-value', text: s.accuracy === null ? '–' : `${Math.round(s.accuracy * 100)} %` }),
-        el('div', { class: 'stat-label', text: `richtig (${s.correct} von ${s.total}, 30 Tage)` }),
+        el('div', { class: 'stat-label', text: `gewusst (${s.correct} von ${s.total}, 30 Tage)` }),
+      ]),
+      el('div', { class: 'stat', 'data-stat': 'today' }, [el('div', { class: 'stat-value', text: String(p.reviewsToday) }), el('div', { class: 'stat-label', text: 'Bewertungen heute' })]),
+    ]),
+  );
+
+  // Zahlen je Lernmodus
+  const modeKeys = ['vocab', ...(p.types.hear.learned || p.types.hear.unseen || p.types.hear.locked ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
+  main.append(
+    el('section', { class: 'card' }, [
+      el('h2', { text: 'Je Lernmodus' }),
+      el('table', { class: 'type-table', id: 'type-table' }, [
+        el('thead', {}, [el('tr', {}, [el('th', { text: '' }), el('th', { text: 'Fällig' }), el('th', { text: 'Neu' }), el('th', { text: 'Gelernt' })])]),
+        el(
+          'tbody',
+          {},
+          modeKeys.map((t) =>
+            el('tr', { 'data-type': t }, [
+              el('th', { text: CARD_TYPES[t].session }),
+              el('td', { 'data-col': 'due', text: String(p.types[t].due) }),
+              el('td', { 'data-col': 'new', text: String(p.types[t].new) }),
+              el('td', { 'data-col': 'learned', text: String(p.types[t].learned) }),
+            ]),
+          ),
+        ),
       ]),
     ]),
   );
@@ -118,7 +152,7 @@ export function renderStats(main) {
 
   // Karten je Zustand (je Kartentyp)
   const st = s.byState;
-  const typeKeys = ['vocab', ...(p.hearingOn ? ['hear'] : []), ...(p.verbOn ? ['verb'] : [])];
+  const typeKeys = modeKeys;
   const rowsDef = [
     ['Neu', 'new'],
     ['Lernen', 'learning'],

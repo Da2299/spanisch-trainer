@@ -14,10 +14,15 @@ export const RATINGS = [
 
 /** Kartentypen. Der Typ ergibt sich aus dem Kartenschlüssel. */
 export const CARD_TYPES = {
-  vocab: { key: 'vocab', label: 'Vokabel', labelPlural: 'Vokabeln' },
-  hear: { key: 'hear', label: 'Hören', labelPlural: 'Hörkarten' },
-  verb: { key: 'verb', label: 'Verbform', labelPlural: 'Verbformen' },
+  vocab: { key: 'vocab', label: 'Vokabel', labelPlural: 'Vokabeln', session: 'Vokabeln' },
+  hear: { key: 'hear', label: 'Hören', labelPlural: 'Hörkarten', session: 'Hören' },
+  verb: { key: 'verb', label: 'Verbform', labelPlural: 'Verbformen', session: 'Verben' },
 };
+/** Bewertungen im einfachen Modus (zwei Knöpfe): Vergessen = Nochmal, Gewusst = Gut. */
+export const SIMPLE_RATINGS = [
+  { grade: 1, key: 'again', label: 'Vergessen' },
+  { grade: 3, key: 'good', label: 'Gewusst' },
+];
 export const TYPE_ORDER = ['vocab', 'hear', 'verb'];
 
 export function cardTypeOf(key) {
@@ -224,10 +229,10 @@ function typeSummary() {
 }
 
 /**
- * Kennzahlen und Warteschlange berechnen.
- * Reihenfolge der Sitzung: fällige Karten aller aktiven Typen zufällig gemischt, danach neue
- * Vokabelkarten nach Rang, danach neue Hörkarten nach Rang (Stufe 2), danach neue Verbformen
- * nach Häufigkeit (Stufe 3).
+ * Kennzahlen und Warteschlangen berechnen.
+ * Jeder Lernmodus (Vokabeln, Hören, Verben) hat eine eigene Warteschlange: fällige Karten des Typs
+ * zufällig gemischt, danach neue Karten (Vokabeln nach Rang, Hörkarten nach Rang, Verbformen nach
+ * Häufigkeit). „queue“ enthält zusätzlich alle Typen hintereinander (Vokabeln, Hören, Verben).
  * @param {Scheduler} sch
  * @param {Map<string, Card>} cards  alle Vokabelkarten nach Kennung
  * @param {Map<string, object>} progress Lernstand nach Kartenschlüssel
@@ -241,9 +246,10 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   const today = dateKey(now);
   const todayStats = days.get(today) || emptyDay(today);
   const S = sch.State;
-  const hearingOn = !!settings.hearingMode;
+  // Hörkarten gibt es immer (sofern Beispielsätze vorhanden), Verbformen sobald verben.json geladen ist.
+  const hearingOn = true;
   const verbForms = opts.verbForms instanceof Map ? opts.verbForms : new Map();
-  const verbOn = !!settings.verbMode && verbForms.size > 0;
+  const verbOn = verbForms.size > 0;
   const due = [];
   const unseenVocab = [];
   const unseenHear = [];
@@ -322,6 +328,8 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   }
 
   shuffle(due, opts.rand || Math.random);
+  const dueByType = { vocab: [], hear: [], verb: [] };
+  for (const d of due) dueByType[d.type].push({ key: d.key, type: d.type, card: d.card, form: d.form });
   unseenVocab.sort(compareByRank);
   unseenHear.sort(compareByRank);
   unseenVerb.sort(compareByFrequency);
@@ -336,7 +344,13 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
   types.hear.new = newHear.length;
   types.verb.new = newVerb.length;
 
-  const queue = [...due.map(({ key, type, card, form }) => ({ key, type, card, form })), ...newVocab, ...newHear, ...newVerb];
+  const sessions = {
+    vocab: { due: dueByType.vocab.length, new: newVocab.length, entries: [...dueByType.vocab, ...newVocab] },
+    hear: { due: dueByType.hear.length, new: newHear.length, entries: [...dueByType.hear, ...newHear] },
+    verb: { due: dueByType.verb.length, new: newVerb.length, entries: [...dueByType.verb, ...newVerb] },
+  };
+  for (const t of TYPE_ORDER) sessions[t].total = sessions[t].entries.length;
+  const queue = [...sessions.vocab.entries, ...sessions.hear.entries, ...sessions.verb.entries];
   return {
     today,
     dueCount: due.length,
@@ -354,6 +368,7 @@ export function buildPlan(sch, cards, progress, cardmeta, days, settings, now = 
     verbOn,
     streak: computeStreak(days, now),
     queue,
+    sessions,
     types,
   };
 }

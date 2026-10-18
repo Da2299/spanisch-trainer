@@ -444,3 +444,28 @@ mark { background: rgba(241, 183, 0, 0.45); color: inherit; padding: 0 2px; bord
 .freq-bar { height: 8px; border-radius: 4px; background: var(--primary); opacity: 0.8; }
 .verb-group h2 { margin-bottom: 6px; }
 a.chip { text-decoration: none; }
+
+/* --- Stufe 4: Lernen vereinfachen --- */
+.tabs a { font-size: 0.72rem; }
+.today { text-align: center; padding: 20px 16px; }
+.today-main { font-size: 1.6rem; font-weight: 700; }
+.modes { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 14px; }
+.btn.mode { display: flex; justify-content: space-between; align-items: center; }
+.btn.mode:not(.primary) { min-height: 52px; }
+.mode-count { font-weight: 700; opacity: 0.9; }
+.streak-line { margin: 6px 0 10px; }
+.streak-line a { color: var(--text); text-decoration: none; font-weight: 600; }
+.progress { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; }
+.progress-text { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+.progress-bar { width: 90px; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.progress-fill { display: block; height: 100%; background: var(--primary); }
+.study-badges { display: flex; gap: 0; align-items: center; min-width: 60px; }
+.ratings-simple { grid-template-columns: 1fr 1fr; }
+.ratings-simple .rate { min-height: 68px; }
+.ratings-simple .rate-label { font-size: 1.15rem; }
+.more-toggle { font-size: 0.95rem; }
+.more { width: 100%; margin-top: 4px; }
+.advanced summary { cursor: pointer; font-weight: 700; font-size: 1.1rem; }
+.advanced h3 { font-size: 1rem; margin: 18px 0 6px; }
+.advanced select { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); max-width: 60%; }
+.done .stats { margin-top: 16px; }
